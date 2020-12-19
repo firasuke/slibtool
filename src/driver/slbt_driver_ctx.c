@@ -553,6 +553,9 @@ static int slbt_split_argv(
 			*targv++ = argv[i++];
 			*targv++ = argv[i];
 
+		} else if (!(strcmp("static-libtool-libs",&argv[i][1]))) {
+			*targv++ = argv[i];
+
 		} else if (!(strcmp("export-dynamic",&argv[i][1]))) {
 			*targv++ = argv[i];
 
@@ -1526,6 +1529,10 @@ int slbt_get_driver_ctx(
 					break;
 
 				case TAG_DLOPEN:
+					break;
+
+				case TAG_STATIC_LIBTOOL_LIBS:
+					cctx.drvflags |= SLBT_DRIVER_STATIC_LIBTOOL_LIBS;
 					break;
 
 				case TAG_EXPORT_DYNAMIC:

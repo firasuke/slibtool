@@ -265,6 +265,11 @@ const struct argv_option slbt_default_options[] = {
 				ARGV_OPTION_HYBRID_ONLY,0,0,
 				"only build ./srcfile.o"},
 
+	{"static-libtool-libs",	0,TAG_STATIC_LIBTOOL_LIBS,ARGV_OPTARG_NONE,
+				ARGV_OPTION_HYBRID_ONLY,0,0,
+				"statically link libtool libraries "
+				"[currently a no-op]"},
+
 	{"Wc",			0,TAG_COMPILER_FLAG,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_COMMA,
 				0,"<flag>[,<flag]...",
