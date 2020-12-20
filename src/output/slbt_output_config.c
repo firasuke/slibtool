@@ -78,37 +78,37 @@ int slbt_output_config(const struct slbt_driver_ctx * dctx)
 	midwidth &= (~(SLBT_TAB_WIDTH-1));
 
 	if (slbt_output_config_line(fdout,"key","value","annotation",midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"---","-----","----------",midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"compiler",cctx->cargv[0],"",midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"target",cctx->target,"",midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"host",cctx->host.host,cctx->cfgmeta.host,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"flavor",cctx->host.flavor,cctx->cfgmeta.flavor,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"ar",cctx->host.ar,cctx->cfgmeta.ar,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"ranlib",cctx->host.ranlib,cctx->cfgmeta.ranlib,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"windres",cctx->host.windres,cctx->cfgmeta.windres,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"dlltool",cctx->host.dlltool,cctx->cfgmeta.dlltool,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_config_line(fdout,"mdso",cctx->host.mdso,cctx->cfgmeta.mdso,midwidth))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }

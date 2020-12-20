@@ -41,7 +41,7 @@ static int  slbt_create_default_library_wrapper(
 			dctx->cctx->output,
 			O_RDWR|O_CREAT|O_TRUNC,
 			0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output);
 
 	/* version info */
 	current  = 0;
@@ -124,7 +124,7 @@ static int  slbt_create_default_library_wrapper(
 
 	close(fdout);
 
-	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx) : 0;
+	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 }
 
 static int  slbt_create_compatible_library_wrapper(
@@ -153,7 +153,7 @@ static int  slbt_create_compatible_library_wrapper(
 			dctx->cctx->output,
 			O_RDWR|O_CREAT|O_TRUNC,
 			0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output);
 
 	/* version info */
 	current  = 0;
@@ -263,7 +263,7 @@ static int  slbt_create_compatible_library_wrapper(
 
 	close(fdout);
 
-	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx) : 0;
+	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 }
 
 int  slbt_create_library_wrapper(

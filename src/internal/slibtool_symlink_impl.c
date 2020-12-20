@@ -101,10 +101,10 @@ int slbt_create_symlink(
 
 	/* create symlink */
 	if (symlink(atarget,tmplnk))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,tmplnk);
 
 	return rename(tmplnk,lnkname)
-		? SLBT_SYSTEM_ERROR(dctx)
+		? SLBT_SYSTEM_ERROR(dctx,lnkname)
 		: 0;
 }
 

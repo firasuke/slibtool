@@ -31,13 +31,13 @@ int slbt_output_features(const struct slbt_driver_ctx * dctx)
 		? disable : enable;
 
 	if (slbt_dprintf(fdout,"host: %s\n",dctx->cctx->host.host) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_dprintf(fdout,"%s shared libraries\n",shared_option) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_dprintf(fdout,"%s static libraries\n",static_option) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }

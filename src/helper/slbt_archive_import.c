@@ -103,12 +103,12 @@ int slbt_archive_import(
 
 	/* fork */
 	if (pipe(fd))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if ((pid = fork()) < 0) {
 		close(fd[0]);
 		close(fd[1]);
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 	}
 
 	/* child */
@@ -131,7 +131,7 @@ int slbt_archive_import(
 
 	if (slbt_dprintf(fd[1],fmt,dst,src) < 0) {
 		close(fd[1]);
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 	}
 
 	close(fd[1]);

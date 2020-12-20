@@ -88,5 +88,5 @@ int  slbt_exec_execute(
 	execvp(ectx->cargv[0],ectx->argv);
 
 	slbt_free_exec_ctx(actx);
-	return SLBT_SYSTEM_ERROR(dctx);
+	return SLBT_SYSTEM_ERROR(dctx,0);
 }

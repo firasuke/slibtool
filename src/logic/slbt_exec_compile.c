@@ -27,7 +27,7 @@ static int slbt_exec_compile_remove_file(
 	if (!(unlink(target)) || (errno == ENOENT))
 		return 0;
 
-	return SLBT_SYSTEM_ERROR(dctx);
+	return SLBT_SYSTEM_ERROR(dctx,0);
 }
 
 static int slbt_exec_compile_finalize_argument_vector(
@@ -59,7 +59,7 @@ static int slbt_exec_compile_finalize_argument_vector(
 		sargvbuf = 0;
 
 	} else if (!(sargvbuf = calloc(parg-base+1,sizeof(char *)))) {
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	} else {
 		aargv = sargvbuf;
@@ -156,7 +156,7 @@ int  slbt_exec_compile(
 	if (cctx->drvflags & SLBT_DRIVER_SHARED)
 		if (slbt_mkdir(dctx,ectx->ldirname)) {
 			slbt_free_exec_ctx(actx);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
 		}
 
 	/* compile mode */
@@ -200,7 +200,7 @@ int  slbt_exec_compile(
 
 		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode) {
 			slbt_free_exec_ctx(actx);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 
 		if (cctx->drvflags & SLBT_DRIVER_STATIC)
@@ -231,7 +231,7 @@ int  slbt_exec_compile(
 
 		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode) {
 			slbt_free_exec_ctx(actx);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
 

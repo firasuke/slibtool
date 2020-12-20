@@ -122,7 +122,7 @@ static int slbt_get_deps_meta(
 	/* mapinfo */
 	if (!(mapinfo = slbt_map_file(fdcwd,depfile,SLBT_MAP_INPUT)))
 		return (fexternal && (errno == ENOENT))
-			? 0 : SLBT_SYSTEM_ERROR(dctx);
+			? 0 : SLBT_SYSTEM_ERROR(dctx,depfile);
 
 	/* copied length */
 	depsmeta->infolen += mapinfo->size;
@@ -353,7 +353,7 @@ static int slbt_exec_link_adjust_argument_vector(
 		argc++;
 
 	if (!(depsmeta->args = calloc(1,depsmeta->infolen)))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	argc *= 3;
 	argc += depsmeta->depscnt;
@@ -361,7 +361,7 @@ static int slbt_exec_link_adjust_argument_vector(
 	if (!(depsmeta->altv = calloc(argc,sizeof(char *))))
 		return slbt_exec_link_exit(
 			depsmeta,
-			SLBT_SYSTEM_ERROR(dctx));
+			SLBT_SYSTEM_ERROR(dctx,0));
 
 	fdcwd = slbt_driver_fdcwd(dctx);
 
@@ -448,7 +448,7 @@ static int slbt_exec_link_adjust_argument_vector(
 						sizeof(rpathdir)))
 					return slbt_exec_link_exit(
 						depsmeta,
-						SLBT_SYSTEM_ERROR(dctx));
+						SLBT_SYSTEM_ERROR(dctx,rpathlnk));
 
 				sprintf(darg,"-Wl,%s",rpathdir);
 				*aarg++ = "-Wl,-rpath";
@@ -483,7 +483,7 @@ static int slbt_exec_link_adjust_argument_vector(
 							cwd,arg) < 0)
 						return slbt_exec_link_exit(
 							depsmeta,
-							SLBT_SYSTEM_ERROR(dctx));
+							SLBT_SYSTEM_ERROR(dctx,0));
 				}
 
 				*aarg++ = *carg++;
@@ -506,7 +506,7 @@ static int slbt_exec_link_adjust_argument_vector(
 					SLBT_MAP_INPUT)))
 				return slbt_exec_link_exit(
 					depsmeta,
-					SLBT_SYSTEM_ERROR(dctx));
+					SLBT_SYSTEM_ERROR(dctx,dpath));
 
 			if (!(strncmp(lib,".libs/",6))) {
 				*aarg++ = "-L.libs";
@@ -607,7 +607,7 @@ static int slbt_exec_link_finalize_argument_vector(
 		sargvbuf = 0;
 
 	} else if (!(sargvbuf = calloc(2*(parg-base+1),sizeof(char *)))) {
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	} else {
 		aargv = &sargvbuf[0];
@@ -772,7 +772,7 @@ static int slbt_exec_link_remove_file(
 	if (!(unlink(target)) || (errno == ENOENT))
 		return 0;
 
-	return SLBT_SYSTEM_ERROR(dctx);
+	return SLBT_SYSTEM_ERROR(dctx,0);
 }
 
 static int slbt_exec_link_create_dep_file(
@@ -815,7 +815,7 @@ static int slbt_exec_link_create_dep_file(
 
 	/* deps */
 	if ((deps = openat(fdcwd,depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,depfile);
 
 	/* iterate */
 	for (parg=altv; *parg; parg++) {
@@ -880,19 +880,19 @@ static int slbt_exec_link_create_dep_file(
 			if (fdyndep && (base > *parg) && (ectx->ldirdepth >= 0)) {
 				if (slbt_dprintf(deps,"-L") < 0) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 
 				for (ldepth=ectx->ldirdepth; ldepth; ldepth--) {
 					if (slbt_dprintf(deps,"../") < 0) {
 						close(deps);
-						return SLBT_SYSTEM_ERROR(dctx);
+						return SLBT_SYSTEM_ERROR(dctx,0);
 					}
 				}
 
 				if (slbt_dprintf(deps,"%s/.libs\n",reladir) < 0) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 			}
 
@@ -904,7 +904,7 @@ static int slbt_exec_link_create_dep_file(
 
 				if (slbt_dprintf(deps,"-l%s\n",mark) < 0) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 
 				*popt = '.';
@@ -940,7 +940,7 @@ static int slbt_exec_link_create_dep_file(
 
 				if (!mapinfo && (errno != ENOENT)) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 			}
 
@@ -959,7 +959,7 @@ static int slbt_exec_link_create_dep_file(
 
 				if (!mapinfo) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,depfile);
 				}
 			}
 
@@ -986,7 +986,7 @@ static int slbt_exec_link_create_dep_file(
 
 				if (ret < 0) {
 					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx);
+					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 			}
 
@@ -996,12 +996,12 @@ static int slbt_exec_link_create_dep_file(
 
 		if (plib && (slbt_dprintf(deps,"-l%s\n",plib) < 0)) {
 			close(deps);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 
 		if (path && (slbt_dprintf(deps,"-L%s\n",path) < 0)) {
 			close(deps);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
 
@@ -1136,7 +1136,7 @@ static int slbt_exec_link_create_noop_symlink(
 		return 0;
 	}
 
-	return SLBT_SYSTEM_ERROR(dctx);
+	return SLBT_SYSTEM_ERROR(dctx,arfilename);
 }
 
 static int slbt_exec_link_create_archive(
@@ -1244,7 +1244,7 @@ static int slbt_exec_link_create_archive(
 			return SLBT_NESTED_ERROR(dctx);
 
 		if (symlink(arfile,arlink))
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,arlink);
 	}
 
 	return 0;
@@ -1411,12 +1411,12 @@ static int slbt_exec_link_create_library(
 			return SLBT_NESTED_ERROR(dctx);
 
 		if (symlink(dctx->cctx->host.ldrpath,ectx->rpathfilename))
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,ectx->rpathfilename);
 	}
 
 	/* cwd */
 	if (!getcwd(cwd,sizeof(cwd)))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */
 	if (slbt_exec_link_adjust_argument_vector(
@@ -1467,6 +1467,7 @@ static int slbt_exec_link_create_executable(
 	bool	fpic;
 	const struct slbt_source_version * verinfo;
 	struct slbt_deps_meta depsmeta = {0,0,0,0};
+	struct stat st;
 
 	/* initial state */
 	slbt_reset_arguments(ectx);
@@ -1506,7 +1507,7 @@ static int slbt_exec_link_create_executable(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if ((fdwrap = openat(fdcwd,wrapper,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,wrapper);
 
 	slbt_exec_set_fdwrapper(ectx,fdwrap);
 
@@ -1533,7 +1534,7 @@ static int slbt_exec_link_create_executable(
 			verinfo->major,verinfo->minor,verinfo->revision,
 			verinfo->commit,
 			dctx->cctx->settings.ldpathenv) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* output */
 	if ((size_t)snprintf(output,sizeof(output),"%s",
@@ -1550,7 +1551,7 @@ static int slbt_exec_link_create_executable(
 
 	/* cwd */
 	if (!getcwd(cwd,sizeof(cwd)))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */
 	if (slbt_exec_link_adjust_argument_vector(
@@ -1593,7 +1594,7 @@ static int slbt_exec_link_create_executable(
 			fabspath ? &exefilename[1] : exefilename) < 0)
 		return slbt_exec_link_exit(
 			&depsmeta,
-			SLBT_SYSTEM_ERROR(dctx));
+			SLBT_SYSTEM_ERROR(dctx,0));
 
 	/* sigh */
 	if (slbt_exec_link_finalize_argument_vector(dctx,ectx))
@@ -1623,15 +1624,20 @@ static int slbt_exec_link_create_executable(
 			&depsmeta,
 			SLBT_NESTED_ERROR(dctx));
 
+	if (stat(wrapper,&st))
+		return slbt_exec_link_exit(
+			&depsmeta,
+			SLBT_SYSTEM_ERROR(dctx,wrapper));
+
 	if (rename(wrapper,dctx->cctx->output))
 		return slbt_exec_link_exit(
 			&depsmeta,
-			SLBT_SYSTEM_ERROR(dctx));
+			SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output));
 
 	if (chmod(dctx->cctx->output,0755))
 		return slbt_exec_link_exit(
 			&depsmeta,
-			SLBT_SYSTEM_ERROR(dctx));
+			SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output));
 
 	return slbt_exec_link_exit(&depsmeta,0);
 }
@@ -1760,7 +1766,7 @@ int slbt_exec_link(
 	/* .libs directory */
 	if (slbt_mkdir(dctx,ectx->ldirname)) {
 		slbt_free_exec_ctx(actx);
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
 	}
 
 	/* non-pic libfoo.a */

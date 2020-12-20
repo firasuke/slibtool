@@ -34,7 +34,7 @@ int slbt_record_error(
 	erri->efunction = efunction;
 	erri->eline     = eline;
 	erri->eflags    = eflags;
-	erri->eany      = eany;
+	erri->eany      = (eany && (esyscode == ENOENT)) ? strdup(eany) : eany;
 
 	ictx->errinfp++;
 

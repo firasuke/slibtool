@@ -172,7 +172,7 @@ static int slbt_exec_install_import_libraries(
 
 	/* libfoo.so.def.{flavor} */
 	if (slbt_readlink(hostlnk,hosttag,sizeof(hosttag)))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,hostlnk);
 
 	/* host/flabor */
 	if (!(host = strrchr(hosttag,'.')))
@@ -258,12 +258,12 @@ static int slbt_exec_install_library_wrapper(
 
 	/* fddst (libfoo.la.slibtool.install, build directory) */
 	if ((fddst = openat(fdcwd,clainame,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,clainame);
 
 	/* mapinfo (libfoo.la, build directory) */
 	if (!(mapinfo = slbt_map_file(fdcwd,entry->arg,SLBT_MAP_INPUT))) {
 		close(fddst);
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,entry->arg);
 	}
 
 	/* srcline */
@@ -278,7 +278,7 @@ static int slbt_exec_install_library_wrapper(
 	if (!srcline) {
 		close(fddst);
 		slbt_unmap_file(mapinfo);
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 	}
 
 	/* copy config, installed=no --> installed=yes */
@@ -296,7 +296,7 @@ static int slbt_exec_install_library_wrapper(
 		if (slbt_dprintf(fddst,"%s",dstline) < 0) {
 			close(fddst);
 			slbt_unmap_file(mapinfo);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
 
@@ -433,7 +433,7 @@ static int slbt_exec_install_entry(
 
 		/* -avoid-version? */
 		if (stat(slnkname,&st))
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
 		/* dstfile */
 		if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s/%s",

@@ -51,7 +51,7 @@ static int slbt_lconf_open(
 			: fdlconf;
 
 	if (fstatat(fdlconfdir,".",&stcwd,0) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	lconf   = lconf ? lconf : "libtool";
 	fdlconf = openat(fdlconfdir,lconf,O_RDONLY,0);
@@ -62,11 +62,11 @@ static int slbt_lconf_open(
 		slbt_lconf_close(fdcwd,fdlconfdir);
 
 		if (fdparent < 0)
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 
 		if (fstat(fdparent,&stparent) < 0) {
 			close(fdparent);
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 
 		if (stparent.st_dev != stcwd.st_dev) {
@@ -115,7 +115,7 @@ int slbt_get_lconf_flags(
 
 	/* map relative libtool script */
 	if (fstat(fdlconf,&st) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	addr = mmap(
 		0,st.st_size,

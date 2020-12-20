@@ -1,3 +1,4 @@
+
 /*******************************************************************/
 /*  slibtool: a skinny libtool implementation, written in C        */
 /*  Copyright (C) 2016--2018  Z. Gilboa                            */
@@ -55,7 +56,7 @@ int slbt_copy_file(
 
 	/* dlltool spawn */
 	ret = ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
-		? SLBT_SYSTEM_ERROR(dctx) : 0;
+		? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 
 	ectx->argv = oargv;
 	ectx->program = oprogram;

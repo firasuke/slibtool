@@ -19,7 +19,7 @@ int slbt_record_error(
 	unsigned	eflags,
 	void *		eany);
 
-#define SLBT_SYSTEM_ERROR(dctx)           \
+#define SLBT_SYSTEM_ERROR(dctx,eany)      \
 	slbt_record_error(                \
 		dctx,                     \
 		errno,                    \
@@ -27,7 +27,7 @@ int slbt_record_error(
 		__func__,                 \
 		__LINE__,                 \
 		SLBT_ERROR_TOP_LEVEL,     \
-		0)
+		(void *)eany)
 
 #define SLBT_BUFFER_ERROR(dctx)           \
 	slbt_record_error(                \

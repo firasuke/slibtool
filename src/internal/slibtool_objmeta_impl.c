@@ -25,7 +25,7 @@ static int  slbt_create_default_object_wrapper(
 			ectx->ltobjname,
 			O_RDWR|O_CREAT|O_TRUNC,
 			0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,ectx->ltobjname);
 
 	verinfo = slbt_source_version();
 
@@ -50,7 +50,7 @@ static int  slbt_create_default_object_wrapper(
 
 	close(fdout);
 
-	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx) : 0;
+	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 }
 
 static int  slbt_create_compatible_object_wrapper(
@@ -66,7 +66,7 @@ static int  slbt_create_compatible_object_wrapper(
 			ectx->ltobjname,
 			O_RDWR|O_CREAT|O_TRUNC,
 			0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx, ectx->ltobjname);
 
 	verinfo = slbt_source_version();
 
@@ -98,7 +98,7 @@ static int  slbt_create_compatible_object_wrapper(
 
 	close(fdout);
 
-	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx) : 0;
+	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 }
 
 int  slbt_create_object_wrapper(

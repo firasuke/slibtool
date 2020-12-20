@@ -1755,6 +1755,17 @@ int slbt_get_driver_ctx(
 
 static void slbt_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 {
+	struct slbt_error_info ** perr;
+	struct slbt_error_info *  erri;
+
+	for (perr=ictx->ctx.errinfp; *perr; perr++) {
+		erri = *perr;
+
+		if (erri->eany && (erri->esyscode == ENOENT))
+			free(erri->eany);
+	}
+
+
 	if (ictx->ctx.libname)
 		free(ictx->ctx.libname);
 
@@ -1807,11 +1818,11 @@ int  slbt_set_alternate_host(
 	slbt_free_host_params(&ictx->ctx.ahost);
 
 	if (!(ictx->ctx.ahost.host = strdup(host)))
-		return SLBT_SYSTEM_ERROR(ctx);
+		return SLBT_SYSTEM_ERROR(ctx,0);
 
 	if (!(ictx->ctx.ahost.flavor = strdup(flavor))) {
 		slbt_free_host_params(&ictx->ctx.ahost);
-		return SLBT_SYSTEM_ERROR(ctx);
+		return SLBT_SYSTEM_ERROR(ctx,0);
 	}
 
 	ictx->ctx.cctx.ahost.host   = ictx->ctx.ahost.host;

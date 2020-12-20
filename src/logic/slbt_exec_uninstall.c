@@ -82,12 +82,12 @@ static int slbt_exec_uninstall_fs_entry(
 			return 0;
 
 		else
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,path);
 	}
 
 	/* remove file or symlink entry */
 	if (unlink(path))
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,path);
 
 	/* remove empty containing directory? */
 	if (flags & SLBT_UNINSTALL_RMDIR) {
@@ -100,7 +100,7 @@ static int slbt_exec_uninstall_fs_entry(
 		*slash = 0;
 
 		if (rmdir(dpath))
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,dpath);
 	}
 
 	return 0;

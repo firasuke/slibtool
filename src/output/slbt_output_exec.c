@@ -38,7 +38,7 @@ static int slbt_output_exec_annotated(
 			aclr_bold,aclr_magenta,
 			dctx->program,aclr_reset,
 			aclr_bold,aclr_green,step,aclr_reset) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	for (parg=ectx->argv; *parg; parg++) {
 		if ((parg == ectx->lout[0]) || (parg == ectx->mout[0])) {
@@ -56,12 +56,12 @@ static int slbt_output_exec_annotated(
 				aclr_set,aclr_color,
 				*parg,
 				aclr_unset) < 0)
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 
 	}
 
 	if (slbt_dprintf(fdout,"\n") < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }
@@ -77,14 +77,14 @@ static int slbt_output_exec_plain(
 	fdout = slbt_driver_fdout(dctx);
 
 	if (slbt_dprintf(fdout,"%s: %s:",dctx->program,step) < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	for (parg=ectx->argv; *parg; parg++)
 		if (slbt_dprintf(fdout," %s",*parg) < 0)
-			return SLBT_SYSTEM_ERROR(dctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_dprintf(fdout,"\n") < 0)
-		return SLBT_SYSTEM_ERROR(dctx);
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }
