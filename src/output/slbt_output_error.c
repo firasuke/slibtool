@@ -51,6 +51,9 @@ static const char * slbt_output_strerror(
 	else if (erri->esyscode == ENOBUFS)
 		return "input error: string length exceeds buffer size";
 
+	else if ((erri->esyscode == ENOENT) && erri->eany)
+		return "path not found: ";
+
 	else
 		return strerror_r(erri->esyscode,*errbuf,sizeof(*errbuf))
 			? "internal error: strerror_r(3) call failed"
@@ -65,16 +68,20 @@ static int slbt_output_error_record_plain(
 
 	int          fderr   = slbt_driver_fderr(dctx);
 	const char * errdesc = slbt_output_strerror(erri,&errbuf);
+	const char * path;
+
+	path = ((erri->esyscode == ENOENT) && erri->eany)
+		? erri->eany : "";
 
 	if (slbt_dprintf(
 			fderr,
-			"%s: %s %s(), line %d%s%s.\n",
+			"%s: %s %s(), line %d%s%s%s.\n",
 			dctx->program,
 			slbt_output_error_header(erri),
 			erri->efunction,
 			erri->eline,
 			strlen(errdesc) ? ": " : "",
-			errdesc) < 0)
+			errdesc,path) < 0)
 		return -1;
 
 	return 0;
@@ -88,10 +95,14 @@ static int slbt_output_error_record_annotated(
 
 	int          fderr   = slbt_driver_fderr(dctx);
 	const char * errdesc = slbt_output_strerror(erri,&errbuf);
+	const char * path;
+
+	path = ((erri->esyscode == ENOENT) && erri->eany)
+		? erri->eany : "";
 
 	if (slbt_dprintf(
 			fderr,
-			"%s%s%s:%s %s%s%s %s%s%s()%s, %s%sline %d%s%s%s%s%s.\n",
+			"%s%s%s:%s %s%s%s %s%s%s()%s, %s%sline %d%s%s%s%s%s%s%s%s%s.\n",
 
 			aclr_bold,aclr_magenta,
 			dctx->program,
@@ -112,6 +123,10 @@ static int slbt_output_error_record_annotated(
 
 			aclr_bold,
 			errdesc,
+			aclr_reset,
+
+			aclr_bold,aclr_blue,
+			path,
 			aclr_reset) < 0)
 		return -1;
 
