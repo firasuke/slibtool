@@ -155,8 +155,9 @@ int  slbt_exec_compile(
 	/* .libs directory */
 	if (cctx->drvflags & SLBT_DRIVER_SHARED)
 		if (slbt_mkdir(dctx,ectx->ldirname)) {
+			ret = SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
 			slbt_free_exec_ctx(actx);
-			return SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
+			return ret;
 		}
 
 	/* compile mode */
