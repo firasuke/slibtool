@@ -300,6 +300,7 @@ slbt_api int  slbt_archive_import       (const struct slbt_driver_ctx *, struct 
 slbt_api int  slbt_copy_file            (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
                                          char * src, char * dst);
 slbt_api int  slbt_dump_machine         (const char * compiler, char * machine, size_t bufsize);
+slbt_api int  slbt_realpath             (int, const char *, int, char *, size_t);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
