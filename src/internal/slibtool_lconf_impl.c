@@ -24,16 +24,345 @@ enum slbt_lconf_opt {
 	SLBT_LCONF_OPT_YES,
 };
 
+static const char aclr_reset[]   = "\x1b[0m";
+static const char aclr_bold[]    = "\x1b[1m";
+
+static const char aclr_red[]     = "\x1b[31m";
+static const char aclr_green[]   = "\x1b[32m";
+static const char aclr_yellow[]  = "\x1b[33m";
+static const char aclr_blue[]    = "\x1b[34m";
+static const char aclr_magenta[] = "\x1b[35m";
+
 static void slbt_lconf_close(int fdcwd, int fdlconfdir)
 {
 	if (fdlconfdir != fdcwd)
 		close(fdlconfdir);
 }
 
+static int slbt_lconf_trace_lconf_plain(
+	struct slbt_driver_ctx *	dctx,
+	const char *			lconf)
+{
+	int fderr = slbt_driver_fderr(dctx);
+
+	if (slbt_dprintf(
+			fderr,
+			"%s: %s: {.name=%c%s%c}.\n",
+			dctx->program,
+			"lconf",
+			'"',lconf,'"') < 0)
+		return -1;
+
+	return 0;
+}
+
+static int slbt_lconf_trace_lconf_annotated(
+	struct slbt_driver_ctx *	dctx,
+	const char *			lconf)
+{
+	int fderr = slbt_driver_fderr(dctx);
+
+	if (slbt_dprintf(
+			fderr,
+			"%s%s%s%s: %s%s%s: {.name=%s%s%c%s%c%s}.\n",
+
+			aclr_bold,aclr_magenta,
+			dctx->program,
+			aclr_reset,
+
+			aclr_bold,
+			"lconf",
+			aclr_reset,
+
+			aclr_bold,aclr_green,
+			'"',lconf,'"',
+			aclr_reset) < 0)
+		return -1;
+
+	return 0;
+}
+
+static int slbt_lconf_trace_openat_silent(
+	struct slbt_driver_ctx *	dctx,
+	int				fdat,
+	const char *			path,
+	int				oflag,
+	int				mode)
+{
+	(void)dctx;
+	return openat(fdat,path,oflag,mode);
+}
+
+static int slbt_lconf_trace_openat_plain(
+	struct slbt_driver_ctx *	dctx,
+	int				fdat,
+	const char *			path,
+	int				oflag,
+	int				mode)
+{
+	char scwd[20];
+	char serr[512];
+
+	int  ret   = openat(fdat,path,oflag,mode);
+	int  fderr = slbt_driver_fderr(dctx);
+
+	if (fdat == AT_FDCWD) {
+		strcpy(scwd,"AT_FDCWD");
+	} else {
+		sprintf(scwd,"%d",fdat);
+	}
+
+	if ((ret < 0) && (errno == ENOENT)) {
+		strcpy(serr," [ENOENT]");
+	} else if (ret < 0) {
+		memset(serr,0,sizeof(serr));
+		strerror_r(errno,&serr[2],sizeof(serr)-4);
+		serr[0] = ' ';
+		serr[1] = '(';
+		serr[strlen(serr)] = ')';
+	} else {
+		serr[0] = 0;
+	}
+
+	slbt_dprintf(
+		fderr,
+		"%s: %s: openat(%s,%c%s%c,%s,%d) = %d%s.\n",
+		dctx->program,
+		"lconf",
+		scwd,
+		'"',path,'"',
+		(oflag == O_DIRECTORY) ? "O_DIRECTORY" : "O_RDONLY",
+		mode,ret,serr);
+
+	return ret;
+}
+
+static int slbt_lconf_trace_openat_annotated(
+	struct slbt_driver_ctx *	dctx,
+	int				fdat,
+	const char *			path,
+	int				oflag,
+	int				mode)
+{
+	char scwd[20];
+	char serr[512];
+
+	int  ret   = openat(fdat,path,oflag,mode);
+	int  fderr = slbt_driver_fderr(dctx);
+
+	if (fdat == AT_FDCWD) {
+		strcpy(scwd,"AT_FDCWD");
+	} else {
+		sprintf(scwd,"%d",fdat);
+	}
+
+	if ((ret < 0) && (errno == ENOENT)) {
+		strcpy(serr," [ENOENT]");
+	} else if (ret < 0) {
+		memset(serr,0,sizeof(serr));
+		strerror_r(errno,&serr[2],sizeof(serr)-4);
+		serr[0] = ' ';
+		serr[1] = '(';
+		serr[strlen(serr)] = ')';
+	} else {
+		serr[0] = 0;
+	}
+
+	slbt_dprintf(
+		fderr,
+		"%s%s%s%s: %s%s%s: openat(%s%s%s%s,%s%s%c%s%c%s,%s%s%s%s,%d) = %s%d%s%s%s%s%s.\n",
+
+		aclr_bold,aclr_magenta,
+		dctx->program,
+		aclr_reset,
+
+		aclr_bold,
+		"lconf",
+		aclr_reset,
+
+		aclr_bold,aclr_blue,
+		scwd,
+		aclr_reset,
+
+		aclr_bold,aclr_green,
+		'"',path,'"',
+		aclr_reset,
+
+		aclr_bold,aclr_blue,
+		(oflag == O_DIRECTORY) ? "O_DIRECTORY" : "O_RDONLY",
+		aclr_reset,
+
+		mode,
+
+		aclr_bold,
+		ret,
+		aclr_reset,
+
+		aclr_bold,aclr_red,
+		serr,
+		aclr_reset);
+
+	return ret;
+}
+
+static int slbt_lconf_trace_fstat_silent(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	const char *			path,
+	struct stat *			st)
+{
+	(void)dctx;
+
+	return path ? fstatat(fd,path,st,0) : fstat(fd,st);
+}
+
+static int slbt_lconf_trace_fstat_plain(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	const char *			path,
+	struct stat *			st)
+{
+	char scwd[20];
+	char serr[512];
+	char quot[2] = {'"',0};
+
+	int  ret   = path ? fstatat(fd,path,st,0) : fstat(fd,st);
+	int  fderr = slbt_driver_fderr(dctx);
+
+	if (fd == AT_FDCWD) {
+		strcpy(scwd,"AT_FDCWD");
+	} else {
+		sprintf(scwd,"%d",fd);
+	}
+
+	if ((ret < 0) && (errno == ENOENT)) {
+		strcpy(serr," [ENOENT]");
+	} else if (ret < 0) {
+		memset(serr,0,sizeof(serr));
+		strerror_r(errno,&serr[2],sizeof(serr)-4);
+		serr[0] = ' ';
+		serr[1] = '(';
+		serr[strlen(serr)] = ')';
+	} else {
+		serr[0] = 0;
+	}
+
+	slbt_dprintf(
+		fderr,
+		"%s: %s: %s(%s%s%s%s%s,...) = %d%s%s",
+		dctx->program,
+		"lconf",
+		path ? "fstatat" : "fstat",
+		scwd,
+		path ? "," : "",
+		path ? quot : "",
+		path ? path : "",
+		path ? quot : "",
+		ret,
+		serr,
+		ret ? ".\n" : "");
+
+	if (ret == 0)
+		slbt_dprintf(
+			fderr,
+			" {.st_dev = %ld, .st_ino = %ld}.\n",
+			st->st_dev,
+			st->st_ino);
+
+	return ret;
+}
+
+static int slbt_lconf_trace_fstat_annotated(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	const char *			path,
+	struct stat *			st)
+{
+	char scwd[20];
+	char serr[512];
+	char quot[2] = {'"',0};
+
+	int  ret   = path ? fstatat(fd,path,st,0) : fstat(fd,st);
+	int  fderr = slbt_driver_fderr(dctx);
+
+	if (fd == AT_FDCWD) {
+		strcpy(scwd,"AT_FDCWD");
+	} else {
+		sprintf(scwd,"%d",fd);
+	}
+
+	if ((ret < 0) && (errno == ENOENT)) {
+		strcpy(serr," [ENOENT]");
+	} else if (ret < 0) {
+		memset(serr,0,sizeof(serr));
+		strerror_r(errno,&serr[2],sizeof(serr)-4);
+		serr[0] = ' ';
+		serr[1] = '(';
+		serr[strlen(serr)] = ')';
+	} else {
+		serr[0] = 0;
+	}
+
+	slbt_dprintf(
+		fderr,
+		"%s%s%s%s: %s%s%s: %s(%s%s%s%s%s%s%s%s%s%s%s,...) = %s%d%s%s%s%s%s%s",
+
+		aclr_bold,aclr_magenta,
+		dctx->program,
+		aclr_reset,
+
+		aclr_bold,
+		"lconf",
+		aclr_reset,
+
+		path ? "fstatat" : "fstat",
+
+		aclr_bold,aclr_blue,
+		scwd,
+		aclr_reset,
+
+		aclr_bold,aclr_green,
+		path ? "," : "",
+		path ? quot : "",
+		path ? path : "",
+		path ? quot : "",
+		aclr_reset,
+
+		aclr_bold,
+		ret,
+		aclr_reset,
+
+		aclr_bold,aclr_red,
+		serr,
+		aclr_reset,
+
+		ret ? ".\n" : "");
+
+	if (ret == 0)
+		slbt_dprintf(
+			fderr,
+			" {%s%s.st_dev%s = %s%ld%s, %s%s.st_ino%s = %s%ld%s}.\n",
+
+			aclr_bold,aclr_yellow,aclr_reset,
+
+			aclr_bold,
+			st->st_dev,
+			aclr_reset,
+
+			aclr_bold,aclr_yellow,aclr_reset,
+
+			aclr_bold,
+			st->st_ino,
+			aclr_reset);
+
+	return ret;
+}
+
 static int slbt_lconf_open(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf)
 {
+	int		fderr;
 	int		fdcwd;
 	int		fdlconf;
 	int		fdlconfdir;
@@ -42,29 +371,70 @@ static int slbt_lconf_open(
 	struct stat	stparent;
 	ino_t		stinode;
 
+	int             (*trace_lconf)(struct slbt_driver_ctx *,
+	                                const char *);
+
+	int             (*trace_fstat)(struct slbt_driver_ctx *,
+	                                int,const char *, struct stat *);
+
+	int             (*trace_openat)(struct slbt_driver_ctx *,
+	                                int,const char *,int,int);
+
+	lconf      = lconf ? lconf : "libtool";
+	fderr      = slbt_driver_fderr(dctx);
 	fdcwd      = slbt_driver_fdcwd(dctx);
 	fdlconfdir = fdcwd;
 
+	if (dctx->cctx->drvflags & SLBT_DRIVER_SILENT) {
+		trace_lconf  = 0;
+		trace_fstat  = slbt_lconf_trace_fstat_silent;
+		trace_openat = slbt_lconf_trace_openat_silent;
+
+	} else if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER) {
+		trace_lconf  = slbt_lconf_trace_lconf_plain;
+		trace_fstat  = slbt_lconf_trace_fstat_plain;
+		trace_openat = slbt_lconf_trace_openat_plain;
+
+	} else if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_ALWAYS) {
+		trace_lconf  = slbt_lconf_trace_lconf_annotated;
+		trace_fstat  = slbt_lconf_trace_fstat_annotated;
+		trace_openat = slbt_lconf_trace_openat_annotated;
+
+	} else if (isatty(fderr)) {
+		trace_lconf  = slbt_lconf_trace_lconf_annotated;
+		trace_fstat  = slbt_lconf_trace_fstat_annotated;
+		trace_openat = slbt_lconf_trace_openat_annotated;
+
+	} else {
+		trace_lconf  = slbt_lconf_trace_lconf_plain;
+		trace_fstat  = slbt_lconf_trace_fstat_plain;
+		trace_openat = slbt_lconf_trace_openat_plain;
+	}
+
+	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
+		trace_lconf(dctx,lconf);
+		slbt_output_fdcwd(dctx);
+	}
+
 	if (lconf && strchr(lconf,'/'))
-		return ((fdlconf = openat(fdcwd,lconf,O_RDONLY,0)) < 0)
+		return ((fdlconf = trace_openat(dctx,fdcwd,lconf,O_RDONLY,0)) < 0)
 			? SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LCONF_OPEN)
 			: fdlconf;
 
-	if (fstatat(fdlconfdir,".",&stcwd,0) < 0)
+	if (trace_fstat(dctx,fdlconfdir,".",&stcwd) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
-	lconf   = lconf ? lconf : "libtool";
-	fdlconf = openat(fdlconfdir,lconf,O_RDONLY,0);
 	stinode = stcwd.st_ino;
+	fdlconf = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 
 	while (fdlconf < 0) {
-		fdparent = openat(fdlconfdir,"../",O_DIRECTORY,0);
+		fdparent = trace_openat(dctx,fdlconfdir,"../",O_DIRECTORY,0);
 		slbt_lconf_close(fdcwd,fdlconfdir);
 
 		if (fdparent < 0)
 			return SLBT_SYSTEM_ERROR(dctx,0);
 
-		if (fstat(fdparent,&stparent) < 0) {
+		if (trace_fstat(dctx,fdparent,0,&stparent) < 0) {
 			close(fdparent);
 			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
@@ -82,7 +452,7 @@ static int slbt_lconf_open(
 		}
 
 		fdlconfdir = fdparent;
-		fdlconf    = openat(fdlconfdir,lconf,O_RDONLY,0);
+		fdlconf    = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 		stinode    = stparent.st_ino;
 	}
 
