@@ -1,3 +1,4 @@
+
 /*******************************************************************/
 /*  slibtool: a skinny libtool implementation, written in C        */
 /*  Copyright (C) 2016--2018  Z. Gilboa                            */
@@ -358,6 +359,149 @@ static int slbt_lconf_trace_fstat_annotated(
 	return ret;
 }
 
+static int slbt_lconf_trace_result_silent(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	int				fdat,
+	const char *			lconf,
+	int				err)
+{
+	(void)dctx;
+	(void)fd;
+	(void)fdat;
+	(void)lconf;
+	return err ? (-1) : fd;
+}
+
+static int slbt_lconf_trace_result_plain(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	int				fdat,
+	const char *			lconf,
+	int				err)
+{
+	int             fderr;
+	const char *    cpath;
+	char            path[PATH_MAX];
+
+	fderr = slbt_driver_fderr(dctx);
+
+	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
+		? path : lconf;
+
+	switch (err) {
+		case 0:
+			slbt_dprintf(
+				fderr,
+				"%s: %s: found %c%s%c.\n",
+				dctx->program,
+				"lconf",
+				'"',cpath,'"');
+			return fd;
+
+		case EXDEV:
+			slbt_dprintf(
+				fderr,
+				"%s: %s: stopped in %c%s%c "
+				"(config file not found on current device).\n",
+				dctx->program,
+				"lconf",
+				'"',cpath,'"');
+			return -1;
+
+		default:
+			slbt_dprintf(
+				fderr,
+				"%s: %s: stopped in %c%s%c "
+				"(top-level directory reached).\n",
+				dctx->program,
+				"lconf",
+				'"',cpath,'"');
+			return -1;
+	}
+}
+
+static int slbt_lconf_trace_result_annotated(
+	struct slbt_driver_ctx *	dctx,
+	int				fd,
+	int				fdat,
+	const char *			lconf,
+	int				err)
+{
+	int             fderr;
+	const char *    cpath;
+	char            path[PATH_MAX];
+
+	fderr = slbt_driver_fderr(dctx);
+
+	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
+		? path : lconf;
+
+	switch (err) {
+		case 0:
+			slbt_dprintf(
+				fderr,
+				"%s%s%s%s: %s%s%s: found %s%s%c%s%c%s.\n",
+
+				aclr_bold,aclr_magenta,
+				dctx->program,
+				aclr_reset,
+
+				aclr_bold,
+				"lconf",
+				aclr_reset,
+
+				aclr_bold,aclr_green,
+				'"',cpath,'"',
+				aclr_reset);
+			return fd;
+
+		case EXDEV:
+			slbt_dprintf(
+				fderr,
+				"%s%s%s%s: %s%s%s: stopped in %s%s%c%s%c%s "
+				"%s%s(config file not found on current device)%s.\n",
+
+				aclr_bold,aclr_magenta,
+				dctx->program,
+				aclr_reset,
+
+				aclr_bold,
+				"lconf",
+				aclr_reset,
+
+				aclr_bold,aclr_green,
+				'"',cpath,'"',
+				aclr_reset,
+
+				aclr_bold,aclr_red,
+				aclr_reset);
+			return -1;
+
+		default:
+			slbt_dprintf(
+				fderr,
+				"%s%s%s%s: %s%s%s: stopped in %s%s%c%s%c%s "
+				"%s%s(top-level directory reached)%s.\n",
+
+				aclr_bold,aclr_magenta,
+				dctx->program,
+				aclr_reset,
+
+				aclr_bold,
+				"lconf",
+				aclr_reset,
+
+				aclr_bold,aclr_green,
+				'"',cpath,'"',
+				aclr_reset,
+
+				aclr_bold,aclr_red,
+				aclr_reset);
+			return -1;
+	}
+}
+
 static int slbt_lconf_open(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf)
@@ -380,6 +524,9 @@ static int slbt_lconf_open(
 	int             (*trace_openat)(struct slbt_driver_ctx *,
 	                                int,const char *,int,int);
 
+	int             (*trace_result)(struct slbt_driver_ctx *,
+	                                int,int,const char *,int);
+
 	lconf      = lconf ? lconf : "libtool";
 	fderr      = slbt_driver_fderr(dctx);
 	fdcwd      = slbt_driver_fdcwd(dctx);
@@ -389,26 +536,31 @@ static int slbt_lconf_open(
 		trace_lconf  = 0;
 		trace_fstat  = slbt_lconf_trace_fstat_silent;
 		trace_openat = slbt_lconf_trace_openat_silent;
+		trace_result = slbt_lconf_trace_result_silent;
 
 	} else if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER) {
 		trace_lconf  = slbt_lconf_trace_lconf_plain;
 		trace_fstat  = slbt_lconf_trace_fstat_plain;
 		trace_openat = slbt_lconf_trace_openat_plain;
+		trace_result = slbt_lconf_trace_result_plain;
 
 	} else if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_ALWAYS) {
 		trace_lconf  = slbt_lconf_trace_lconf_annotated;
 		trace_fstat  = slbt_lconf_trace_fstat_annotated;
 		trace_openat = slbt_lconf_trace_openat_annotated;
+		trace_result = slbt_lconf_trace_result_annotated;
 
 	} else if (isatty(fderr)) {
 		trace_lconf  = slbt_lconf_trace_lconf_annotated;
 		trace_fstat  = slbt_lconf_trace_fstat_annotated;
 		trace_openat = slbt_lconf_trace_openat_annotated;
+		trace_result = slbt_lconf_trace_result_annotated;
 
 	} else {
 		trace_lconf  = slbt_lconf_trace_lconf_plain;
 		trace_fstat  = slbt_lconf_trace_fstat_plain;
 		trace_openat = slbt_lconf_trace_openat_plain;
+		trace_result = slbt_lconf_trace_result_plain;
 	}
 
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
@@ -419,7 +571,7 @@ static int slbt_lconf_open(
 	if (lconf && strchr(lconf,'/'))
 		return ((fdlconf = trace_openat(dctx,fdcwd,lconf,O_RDONLY,0)) < 0)
 			? SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LCONF_OPEN)
-			: fdlconf;
+			: trace_result(dctx,fdlconf,fdcwd,lconf,0);
 
 	if (trace_fstat(dctx,fdlconfdir,".",&stcwd) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -440,12 +592,14 @@ static int slbt_lconf_open(
 		}
 
 		if (stparent.st_dev != stcwd.st_dev) {
+			trace_result(dctx,fdparent,fdparent,".",EXDEV);
 			close(fdparent);
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_OPEN);
 		}
 
 		if (stparent.st_ino == stinode) {
+			trace_result(dctx,fdparent,fdparent,".",ELOOP);
 			close(fdparent);
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_OPEN);
@@ -455,6 +609,8 @@ static int slbt_lconf_open(
 		fdlconf    = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 		stinode    = stparent.st_ino;
 	}
+
+	trace_result(dctx,fdlconf,fdlconfdir,lconf,0);
 
 	slbt_lconf_close(fdcwd,fdlconfdir);
 
