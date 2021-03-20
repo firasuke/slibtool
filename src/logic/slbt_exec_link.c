@@ -1654,11 +1654,12 @@ static int slbt_exec_link_create_library_symlink(
 		strcpy(target,ectx->relfilename);
 		sprintf(lnkname,"%s.release",ectx->dsofilename);
 
-		if (slbt_create_symlink(
-				dctx,ectx,
-				target,lnkname,
-				false))
-			return SLBT_NESTED_ERROR(dctx);
+		if (!dctx->cctx->verinfo.verinfo)
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					false))
+				return SLBT_NESTED_ERROR(dctx);
 	} else {
 		sprintf(target,"%s%s.%d.%d.%d%s",
 			ectx->dsobasename,
