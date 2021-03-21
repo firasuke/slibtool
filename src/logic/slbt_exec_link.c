@@ -1713,6 +1713,8 @@ int slbt_exec_link(
 	char			soxyz [PATH_MAX];
 	char			solnk [PATH_MAX];
 	char			arname[PATH_MAX];
+	char			target[PATH_MAX];
+	char			lnkname[PATH_MAX];
 
 	/* dry run */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_DRY_RUN)
@@ -1834,6 +1836,28 @@ int slbt_exec_link(
 
 	/* dynamic library */
 	if (dot && !strcmp(dot,".la") && dctx->cctx->rpath && !fstaticonly) {
+		/* -shrext support */
+		if (dctx->cctx->shrext) {
+			strcpy(target,ectx->lafilename);
+			sprintf(lnkname,"%s.shrext%s",ectx->lafilename,dctx->cctx->shrext);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					false))
+				return SLBT_NESTED_ERROR(dctx);
+
+			strcpy(target,lnkname);
+			sprintf(lnkname,"%s.shrext",ectx->lafilename);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					false))
+				return SLBT_NESTED_ERROR(dctx);
+		}
+
+
 		/* linking: libfoo.so.x.y.z */
 		if (slbt_exec_link_create_library(
 				dctx,ectx,
