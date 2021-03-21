@@ -372,10 +372,12 @@ int  slbt_get_exec_ctx(
 
 		/* deffilename */
 		ictx->ctx.deffilename = ch;
-		ch += sprintf(ch,"%s%s%s%s.def",
+		ch += sprintf(ch,"%s%s%s%s%s%s.def",
 				ictx->ctx.ldirname,
 				dsoprefix,
 				dctx->cctx->libname,
+				dctx->cctx->release ? "-" : "",
+				dctx->cctx->release ? dctx->cctx->release : "",
 				dctx->cctx->settings.dsosuffix);
 		ch++;
 
