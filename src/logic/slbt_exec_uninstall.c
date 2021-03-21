@@ -277,10 +277,6 @@ int slbt_exec_uninstall(
 	iargv = ectx->cargv;
 	fdout = slbt_driver_fdout(dctx);
 
-	/* work around non-conforming uses of --mode=uninstall */
-	if (!(strcmp(iargv[0],"/bin/sh")) || !strcmp(iargv[0],"/bin/bash"))
-		iargv++;
-
 	/* missing arguments? */
 	argv_optv_init(slbt_uninstall_options,optv);
 
