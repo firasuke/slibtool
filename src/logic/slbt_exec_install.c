@@ -563,6 +563,9 @@ int slbt_exec_install(
 	char **				iargv;
 	char **				src;
 	char **				dst;
+	char *				slash;
+	char *				optsh;
+	char *				script;
 	struct slbt_exec_ctx *		actx;
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
@@ -589,10 +592,16 @@ int slbt_exec_install(
 	slbt_disable_placeholders(ectx);
 	iargv = ectx->cargv;
 	fdout = slbt_driver_fdout(dctx);
+	optsh = 0;
+	script = 0;
 
 	/* work around non-conforming uses of --mode=install */
-	if (!(strcmp(iargv[0],"/bin/sh")) || !strcmp(iargv[0],"/bin/bash"))
-		iargv++;
+	if (iargv[1] && (slash = strrchr(iargv[1],'/'))) {
+		if (!strcmp(++slash,"install-sh")) {
+			optsh  = *iargv++;
+			script = *iargv;
+		}
+	}
 
 	/* missing arguments? */
 	argv_optv_init(slbt_install_options,optv);
@@ -619,6 +628,9 @@ int slbt_exec_install(
 	copy = meta->entries;
 	dest = 0;
 	last = 0;
+
+	if (optsh)
+		*argv++ = script;
 
 	*argv++ = iargv[0];
 
@@ -679,6 +691,9 @@ int slbt_exec_install(
 	/* install */
 	if (copy) {
 		/* using alternate argument vector */
+		if (optsh)
+			ectx->altv[0] = optsh;
+
 		ectx->argv    = ectx->altv;
 		ectx->program = ectx->altv[0];
 
