@@ -329,6 +329,8 @@ static int slbt_exec_install_entry(
 	char *		base;
 	char *		slash;
 	char *		suffix;
+	char *		dsosuffix;
+	char		sobuf   [64];
 	char		target  [PATH_MAX];
 	char		srcfile [PATH_MAX];
 	char		dstfile [PATH_MAX];
@@ -338,6 +340,7 @@ static int slbt_exec_install_entry(
 	bool		fexe = false;
 	bool		fpe;
 	bool		frelease;
+	size_t		slen;
 	struct stat	st;
 
 	/* executable wrapper? */
@@ -366,6 +369,27 @@ static int slbt_exec_install_entry(
 		sprintf(srcfile,"%s/.libs/%s",lasource,slash);
 	} else
 		sprintf(srcfile,".libs/%s",lasource);
+
+	/* -shrext, dsosuffix */
+	strcpy(sobuf,dctx->cctx->settings.dsosuffix);
+	dsosuffix = sobuf;
+
+	if ((size_t)snprintf(slnkname,sizeof(slnkname),"%s.shrext",
+			srcfile) >= sizeof(slnkname))
+		return SLBT_BUFFER_ERROR(dctx);
+
+	if (!stat(slnkname,&st)) {
+		if (slbt_readlink(slnkname,target,sizeof(target)) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,slnkname);
+
+		if (strncmp(lasource,target,(slen = strlen(lasource))))
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+
+		if (strncmp(&target[slen],".shrext",7))
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+
+		strcpy(sobuf,&target[slen+7]);
+	}
 
 	/* executable? ordinary file? */
 	if (fexe || !dot || strcmp(dot,".la")) {
@@ -406,11 +430,11 @@ static int slbt_exec_install_entry(
 	dot = strrchr(slnkname,'.');
 
 	/* libfoo.a --> libfoo.so.release */
-	sprintf(dot,"%s.release",dctx->cctx->settings.dsosuffix);
+	sprintf(dot,"%s.release",dsosuffix);
 	frelease = stat(slnkname,&st) ? false : true;
 
 	/* libfoo.a --> libfoo.so */
-	strcpy(dot,dctx->cctx->settings.dsosuffix);
+	strcpy(dot,dsosuffix);
 
 	/* PE support: does .libs/libfoo.so.def exist? */
 	if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s.def",
