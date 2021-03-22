@@ -1,3 +1,30 @@
+0.5.32:
+
+This patch release provides several bug fixes as well as the new (or proper)
+implementation of previously missing features.
+
+- driver: added -Xlinker support.
+- driver: support -static-libtool-libs (currently as a no-op).
+- driver: slbt_init_flavor_settings(): properly handle the -shrext argument.
+- driver: --version: update the git repository reference to the https variant.
+- link mode: check for and properly support -version-info with -release.
+- link mode: .def file name: added proper -release support.
+- link mode: slbt_exec_link(): record the -shrext argument for the install step.
+- install mode: support wrapping of /path/to/sh /path/to/install-sh.
+- install mode: slbt_exec_install_entry(): added -shrext support.
+- uninstall mode: remove hard-coded shell logic, revisit later as needed.
+- heuristics: support finding arbitrarily named scripts up the build tree.
+- heuristics: added (annotated) trace output.
+- heuristics: slbt_lconf_open(): added (annotated) trace_result().
+- output: print out the recorded not-found path.
+- output: added slbt_output_fdcwd().
+- internals: error tracing: record the not-found path upon ENOENT as needed.
+- library: compile & link modes: properly record the not-found path upon error.
+- helper api: added slbt_realpath().
+- build system: ccenv_{tool|attr}_epilog(): properly handle long output strings.
+- project: added BUGS and a note on where to report bugs and issues.
+- project: config.project: update $mb_pkgrep to the https variant.
+
 0.5.31:
 
 This patch release fixes a regression in the 0.5.29 release,
