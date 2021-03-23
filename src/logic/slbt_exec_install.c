@@ -340,6 +340,7 @@ static int slbt_exec_install_entry(
 	bool		fexe = false;
 	bool		fpe;
 	bool		frelease;
+	bool		farchive;
 	size_t		slen;
 	struct stat	st;
 
@@ -419,12 +420,6 @@ static int slbt_exec_install_entry(
 	dot = strrchr(srcfile,'.');
 	strcpy(dot,dctx->cctx->settings.arsuffix);
 
-	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC))
-		if (slbt_copy_file(dctx,ectx,
-				srcfile,
-				dest ? (char *)dest->arg : *dst))
-			return SLBT_NESTED_ERROR(dctx);
-
 	/* dot/suffix */
 	strcpy(slnkname,srcfile);
 	dot = strrchr(slnkname,'.');
@@ -435,6 +430,20 @@ static int slbt_exec_install_entry(
 
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
+
+	/* libfoo.a installation */
+	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC))
+		farchive = true;
+	else if (slbt_symlink_is_a_placeholder(slnkname))
+		farchive = true;
+	else
+		farchive = false;
+
+	if (farchive)
+		if (slbt_copy_file(dctx,ectx,
+				srcfile,
+				dest ? (char *)dest->arg : *dst))
+			return SLBT_NESTED_ERROR(dctx);
 
 	/* PE support: does .libs/libfoo.so.def exist? */
 	if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s.def",
