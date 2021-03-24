@@ -599,6 +599,7 @@ int slbt_exec_install(
 	char *				slash;
 	char *				optsh;
 	char *				script;
+	char *				shtool;
 	struct slbt_exec_ctx *		actx;
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
@@ -633,6 +634,19 @@ int slbt_exec_install(
 		if (!strcmp(++slash,"install-sh")) {
 			optsh  = *iargv++;
 			script = *iargv;
+		}
+	} else {
+		slash  = strrchr(iargv[0],'/');
+		shtool = slash ? ++slash : iargv[0];
+		shtool = strcmp(shtool,"shtool") ? 0 : shtool;
+
+		if (shtool && iargv[1] && !strcmp(iargv[1],"install")) {
+			iargv++;
+		} else if (shtool) {
+			return slbt_install_usage(
+				fdout,
+				dctx->program,
+				0,optv,0);
 		}
 	}
 
