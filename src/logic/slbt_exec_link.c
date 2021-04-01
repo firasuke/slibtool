@@ -478,9 +478,9 @@ static int slbt_exec_link_adjust_argument_vector(
 					*slash = 0;
 
 					if (slbt_dprintf(fdwrap,
-							"DL_PATH=\"$DL_PATH$COLON%s/%s\"\n"
+							"DL_PATH=\"$DL_PATH$COLON%s%s%s\"\n"
 							"COLON=':'\n\n",
-							cwd,arg) < 0)
+							((arg[0] == '/') ? "" : cwd),((arg[0] == '/') ? "" : "/"),arg) < 0)
 						return slbt_exec_link_exit(
 							depsmeta,
 							SLBT_SYSTEM_ERROR(dctx,0));
@@ -556,6 +556,26 @@ static int slbt_exec_link_adjust_argument_vector(
 
 					darg += strlen(darg);
 					darg++;
+
+					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
+						if (slbt_dprintf(fdwrap,
+								"DL_PATH=\"$DL_PATH$COLON%s/%s\"\n"
+								"COLON=':'\n\n",
+								lib,depdir) < 0)
+							return slbt_exec_link_exit(
+								depsmeta,
+								SLBT_SYSTEM_ERROR(dctx,0));
+					}
+				} else if ((mark[0] == '-') && (mark[1] == 'L')) {
+					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
+						if (slbt_dprintf(fdwrap,
+								"DL_PATH=\"$DL_PATH$COLON%s\"\n"
+								"COLON=':'\n\n",
+								&mark[2]) < 0)
+							return slbt_exec_link_exit(
+								depsmeta,
+								SLBT_SYSTEM_ERROR(dctx,0));
+					}
 				}
 			}
 		}
