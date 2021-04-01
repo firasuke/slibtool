@@ -46,37 +46,42 @@ int  slbt_exec_execute(
 	program = ectx->cargv[0];
 	script  = ectx->cargv[1];
 
-	/* wrapper */
-	if ((size_t)snprintf(wrapper,sizeof(wrapper),"%s%s.exe.wrapper",
-				(script[0] == '/') ? "" : "./",
-				script)
-			>= sizeof(wrapper)) {
-		slbt_free_exec_ctx(actx);
-		return SLBT_BUFFER_ERROR(dctx);
-	}
+	if (script) {
+		/* wrapper */
+		if ((size_t)snprintf(wrapper,sizeof(wrapper),"%s%s.exe.wrapper",
+					(script[0] == '/') ? "" : "./",
+					script)
+				>= sizeof(wrapper)) {
+			slbt_free_exec_ctx(actx);
+			return SLBT_BUFFER_ERROR(dctx);
+		}
 
-	/* exeref */
-	if ((base = strrchr(script,'/')))
-		base++;
-	else
-		base = script;
+		/* exeref */
+		if ((base = strrchr(script,'/')))
+			base++;
+		else
+			base = script;
 
-	strcpy(exeref,script);
-	mark = exeref + (base - script);
-	sprintf(mark,".libs/%s",base);
+		strcpy(exeref,script);
+		mark = exeref + (base - script);
+		sprintf(mark,".libs/%s",base);
 
-	/* swap vector */
-	if (!(stat(script,&st)) && !(stat(wrapper,&st))) {
-		ectx->cargv[0] = wrapper;
-		ectx->cargv[1] = program;
-		ectx->cargv[2] = exeref;
+		/* swap vector */
+		if (!(stat(script,&st)) && !(stat(wrapper,&st))) {
+			ectx->cargv[0] = wrapper;
+			ectx->cargv[1] = program;
+			ectx->cargv[2] = exeref;
+		} else {
+			script = program;
+		}
+
+		/* execute mode */
+		ectx->program = script;
+		ectx->argv    = ectx->cargv;
 	} else {
-		script = program;
+		ectx->program = program;
+		ectx->argv    = ectx->cargv;
 	}
-
-	/* execute mode */
-	ectx->program = script;
-	ectx->argv    = ectx->cargv;
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
