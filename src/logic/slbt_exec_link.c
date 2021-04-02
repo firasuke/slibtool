@@ -478,7 +478,7 @@ static int slbt_exec_link_adjust_argument_vector(
 					*slash = 0;
 
 					if (slbt_dprintf(fdwrap,
-							"DL_PATH=\"$DL_PATH$COLON%s%s%s\"\n"
+							"DL_PATH=\"${DL_PATH}${COLON}%s%s%s\"\n"
 							"COLON=':'\n\n",
 							((arg[0] == '/') ? "" : cwd),((arg[0] == '/') ? "" : "/"),arg) < 0)
 						return slbt_exec_link_exit(
@@ -559,7 +559,7 @@ static int slbt_exec_link_adjust_argument_vector(
 
 					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
 						if (slbt_dprintf(fdwrap,
-								"DL_PATH=\"$DL_PATH$COLON%s/%s\"\n"
+								"DL_PATH=\"${DL_PATH}${COLON}%s/%s\"\n"
 								"COLON=':'\n\n",
 								lib,depdir) < 0)
 							return slbt_exec_link_exit(
@@ -569,7 +569,7 @@ static int slbt_exec_link_adjust_argument_vector(
 				} else if ((mark[0] == '-') && (mark[1] == 'L')) {
 					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
 						if (slbt_dprintf(fdwrap,
-								"DL_PATH=\"$DL_PATH$COLON%s\"\n"
+								"DL_PATH=\"${DL_PATH}${COLON}%s\"\n"
 								"COLON=':'\n\n",
 								&mark[2]) < 0)
 							return slbt_exec_link_exit(
@@ -1600,7 +1600,7 @@ static int slbt_exec_link_create_executable(
 	fabspath = (exefilename[0] == '/');
 
 	if (slbt_dprintf(fdwrap,
-			"DL_PATH=\"$DL_PATH$LCOLON$%s\"\n\n"
+			"DL_PATH=\"${DL_PATH}${LCOLON}${%s}\"\n\n"
 			"export %s=$DL_PATH\n\n"
 			"if [ `basename \"$0\"` = \"%s\" ]; then\n"
 			"\tprogram=\"$1\"; shift\n"
