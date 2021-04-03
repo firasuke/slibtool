@@ -25,7 +25,8 @@ static int slbt_uninstall_usage(
 	const char *			program,
 	const char *			arg,
 	const struct argv_option **	optv,
-	struct argv_meta *		meta)
+	struct argv_meta *		meta,
+	int				noclr)
 {
 	char header[512];
 
@@ -34,7 +35,16 @@ static int slbt_uninstall_usage(
 		"Options:\n",
 		program);
 
-	argv_usage(fdout,header,optv,arg);
+	switch (noclr) {
+		case 0:
+			argv_usage(fdout,header,optv,arg);
+			break;
+
+		default:
+			argv_usage_plain(fdout,header,optv,arg);
+			break;
+	}
+
 	argv_free(meta);
 
 	return SLBT_USAGE;
@@ -284,7 +294,8 @@ int slbt_exec_uninstall(
 		return slbt_uninstall_usage(
 			fdout,
 			dctx->program,
-			0,optv,0);
+			0,optv,0,
+			dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER);
 
 	/* <uninstall> argv meta */
 	if (!(meta = argv_get(
@@ -337,7 +348,8 @@ int slbt_exec_uninstall(
 		slbt_uninstall_usage(
 			fdout,
 			dctx->program,
-			0,optv,meta);
+			0,optv,meta,
+			dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER);
 		return 0;
 	}
 
