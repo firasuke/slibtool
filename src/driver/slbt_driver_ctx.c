@@ -1715,6 +1715,10 @@ int slbt_get_driver_ctx(
 		if (cmdnoshared)
 			lflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
 
+		if (cmdnostatic)
+			if (lflags & SLBT_DRIVER_DISABLE_SHARED)
+				cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
+
 		cctx.drvflags |= lflags;
 		cctx.drvflags |= SLBT_DRIVER_SHARED;
 		cctx.drvflags |= SLBT_DRIVER_STATIC;
