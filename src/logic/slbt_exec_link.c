@@ -4,6 +4,7 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -318,6 +319,93 @@ static int slbt_adjust_linker_argument(
 	return slbt_get_deps_meta(dctx,arg,0,depsmeta);
 }
 
+static int slbt_emit_fdwrap_amend_dl_path(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	struct slbt_deps_meta * 	depsmeta,
+	const char *			fmt,
+					...)
+{
+	va_list		ap;
+	char *		buf;
+	int		cnt;
+	char		dlpathbuf[2048];
+	int		fdwrap;
+	const char *	fdwrap_fmt;
+	int		size;
+
+	va_start(ap,fmt);
+
+	size = sizeof(dlpathbuf);
+
+	buf  = ((cnt = vsnprintf(dlpathbuf,size,fmt,ap)) < size)
+		? dlpathbuf : malloc((size = cnt + 1));
+
+	va_end(ap);
+
+	if (buf == dlpathbuf) {
+		(void)0;
+
+	} else if (buf) {
+		va_start(ap,fmt);
+		vsprintf(buf,fmt,ap);
+		va_end(ap);
+
+	} else {
+		return slbt_exec_link_exit(
+			depsmeta,
+			SLBT_SYSTEM_ERROR(dctx,0));
+	}
+
+	if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
+		if (buf[0] == '/') {
+			fdwrap_fmt = "DL_PATH=\"${DL_PATH}${COLON}%s\"\nCOLON=':'\n\n";
+		} else {
+			fdwrap_fmt = "DL_PATH=\"${DL_PATH}${COLON}${DL_PATH_FIXUP}%s\"\nCOLON=':'\n\n";
+		}
+
+		if (slbt_dprintf(fdwrap,fdwrap_fmt,buf) < 0) {
+			return slbt_exec_link_exit(
+				depsmeta,
+				SLBT_SYSTEM_ERROR(dctx,0));
+		}
+	}
+
+	return 0;
+}
+
+static void slbt_emit_fdwrap_dl_path_fixup(
+	char *	cwd,
+	char *	dpfixup,
+	size_t	dpfixup_size,
+	char *	wrapper)
+{
+	char *	p;
+	char *	q;
+	char *	wrapper_dname;
+
+	/* obtain cwd-relative directory name of wrapper */
+	for (p=cwd,q=wrapper; *p && *q && (*p==*q); p++,q++)
+		(void)0;
+
+	wrapper_dname = (*q == '/') ? (q + 1) : q;
+
+	dpfixup[0] = 0; strncat(dpfixup,"${0%/*}",dpfixup_size - 1);
+
+	/* append parent directory fixup for each level of depth in wrapper_dname */
+	for (p=wrapper_dname,q=NULL; *p; ) {
+		if ((p[0] == '.') && (p[1] == '/')) {
+			p++; p++;
+		} else if ((q = strchr(p, '/'))) {
+			strncat(dpfixup,"/..",dpfixup_size-1); p = (q + 1);
+		} else {
+			break;
+		}
+	}
+
+	strncat(dpfixup,"/",dpfixup_size-1);
+}
+
 static int slbt_exec_link_adjust_argument_vector(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -326,7 +414,6 @@ static int slbt_exec_link_adjust_argument_vector(
 	bool				flibrary)
 {
 	int			fd;
-	int			fdwrap;
 	int			fdcwd;
 	char ** 		carg;
 	char ** 		aarg;
@@ -348,6 +435,7 @@ static int slbt_exec_link_adjust_argument_vector(
 	size_t			dlen;
 	struct slbt_map_info *	mapinfo;
 	bool			fwholearchive = false;
+	int			ret;
 
 	for (argc=0,carg=ectx->cargv; *carg; carg++)
 		argc++;
@@ -474,16 +562,12 @@ static int slbt_exec_link_adjust_argument_vector(
 				mark   = strrchr(*carg,'/');
 				*mark  = 0;
 
-				if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
-					*slash = 0;
-
-					if (slbt_dprintf(fdwrap,
-							"DL_PATH=\"${DL_PATH}${COLON}%s%s%s\"\n"
-							"COLON=':'\n\n",
-							((arg[0] == '/') ? "" : cwd),((arg[0] == '/') ? "" : "/"),arg) < 0)
-						return slbt_exec_link_exit(
-							depsmeta,
-							SLBT_SYSTEM_ERROR(dctx,0));
+				*slash = 0;
+				if ((ret = slbt_emit_fdwrap_amend_dl_path(dctx,ectx,depsmeta,
+								   "%s%s%s",
+								   ((arg[0] == '/') ? "" : cwd),
+								   ((arg[0] == '/') ? "" : "/"),arg)) < 0) {
+					return ret;
 				}
 
 				*aarg++ = *carg++;
@@ -557,24 +641,14 @@ static int slbt_exec_link_adjust_argument_vector(
 					darg += strlen(darg);
 					darg++;
 
-					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
-						if (slbt_dprintf(fdwrap,
-								"DL_PATH=\"${DL_PATH}${COLON}%s/%s\"\n"
-								"COLON=':'\n\n",
-								lib,depdir) < 0)
-							return slbt_exec_link_exit(
-								depsmeta,
-								SLBT_SYSTEM_ERROR(dctx,0));
+					if ((ret = slbt_emit_fdwrap_amend_dl_path(
+							dctx,ectx,depsmeta,"%s/%s",lib,depdir)) < 0) {
+						return ret;
 					}
 				} else if ((mark[0] == '-') && (mark[1] == 'L')) {
-					if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
-						if (slbt_dprintf(fdwrap,
-								"DL_PATH=\"${DL_PATH}${COLON}%s\"\n"
-								"COLON=':'\n\n",
-								&mark[2]) < 0)
-							return slbt_exec_link_exit(
-								depsmeta,
-								SLBT_SYSTEM_ERROR(dctx,0));
+					if ((ret = slbt_emit_fdwrap_amend_dl_path(
+							dctx,ectx,depsmeta,"%s",&mark[2])) < 0) {
+						return ret;
 					}
 				}
 			}
@@ -814,6 +888,7 @@ static int slbt_exec_link_create_dep_file(
 	size_t			size;
 	size_t			slen;
 	char			deplib [PATH_MAX];
+	bool			is_reladir;
 	char			reladir[PATH_MAX];
 	char			depfile[PATH_MAX];
 	struct stat		st;
@@ -872,8 +947,10 @@ static int slbt_exec_link_create_dep_file(
 					return SLBT_BUFFER_ERROR(dctx);
 				}
 
+				is_reladir = true;
 				reladir[base - *parg - 1] = 0;
 			} else {
+				is_reladir = false;
 				reladir[0] = '.';
 				reladir[1] = 0;
 			}
@@ -897,7 +974,7 @@ static int slbt_exec_link_create_dep_file(
 			fnodeps = farchive && fdyndep;
 
 			/* [-L... as needed] */
-			if (fdyndep && (base > *parg) && (ectx->ldirdepth >= 0)) {
+			if (fdyndep && (ectx->ldirdepth >= 0)) {
 				if (slbt_dprintf(deps,"-L") < 0) {
 					close(deps);
 					return SLBT_SYSTEM_ERROR(dctx,0);
@@ -910,7 +987,9 @@ static int slbt_exec_link_create_dep_file(
 					}
 				}
 
-				if (slbt_dprintf(deps,"%s/.libs\n",reladir) < 0) {
+				if (slbt_dprintf(deps,"%s%s.libs\n",
+						 (is_reladir ? reladir : ""),
+						 (is_reladir ? "/" : "")) < 0) {
 					close(deps);
 					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
@@ -1480,6 +1559,7 @@ static int slbt_exec_link_create_executable(
 	char *	base;
 	char *	ccwrap;
 	char	cwd    [PATH_MAX];
+	char	dpfixup[PATH_MAX];
 	char	output [PATH_MAX];
 	char	wrapper[PATH_MAX];
 	char	wraplnk[PATH_MAX];
@@ -1534,6 +1614,15 @@ static int slbt_exec_link_create_executable(
 	/* executable wrapper: header */
 	verinfo = slbt_source_version();
 
+	/* cwd, DL_PATH fixup */
+	if (!getcwd(cwd,sizeof(cwd))) {
+		return SLBT_SYSTEM_ERROR(dctx,0);
+	} else {
+		slbt_emit_fdwrap_dl_path_fixup(
+			cwd,dpfixup,sizeof(dpfixup),
+			wrapper);
+	}
+
 	if (slbt_dprintf(fdwrap,
 			"#!/bin/sh\n"
 			"# libtool compatible executable wrapper\n"
@@ -1548,12 +1637,14 @@ static int slbt_exec_link_create_executable(
 			"\tDL_PATH=\n"
 			"\tCOLON=\n"
 			"\tLCOLON=':'\n"
-			"fi\n\n",
+			"fi\n\n"
+			"DL_PATH_FIXUP=\"%s\";\n\n",
 
 			dctx->program,
 			verinfo->major,verinfo->minor,verinfo->revision,
 			verinfo->commit,
-			dctx->cctx->settings.ldpathenv) < 0)
+			dctx->cctx->settings.ldpathenv,
+			dpfixup) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* output */
@@ -1568,10 +1659,6 @@ static int slbt_exec_link_create_executable(
 	/* static? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ALL_STATIC)
 		*ectx->dpic = "-static";
-
-	/* cwd */
-	if (!getcwd(cwd,sizeof(cwd)))
-		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */
 	if (slbt_exec_link_adjust_argument_vector(
