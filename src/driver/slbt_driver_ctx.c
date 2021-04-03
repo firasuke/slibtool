@@ -122,16 +122,15 @@ struct slbt_driver_ctx_alloc {
 	uint64_t			guard;
 };
 
-static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp)
+static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool fcolor)
 {
 	char **		parg;
 	char *		dot;
 	const char *	color;
-	bool		fcolor;
 
 	(void)envp;
 
-	if ((fcolor = isatty(fderr)))
+	if (fcolor)
 		slbt_dprintf(fderr,"%s%s",aclr_bold,aclr_red);
 
 	slbt_dprintf(fderr,"\n\n\n%s",argv[0]);
@@ -192,7 +191,8 @@ static int slbt_driver_usage(
 	const char *			arg,
 	const struct argv_option **	optv,
 	struct argv_meta *		meta,
-	struct slbt_split_vector *	sargv)
+	struct slbt_split_vector *	sargv,
+	int				noclr)
 {
 	char header[512];
 
@@ -200,7 +200,16 @@ static int slbt_driver_usage(
 		"Usage: %s [options] <file>...\n" "Options:\n",
 		program);
 
-	argv_usage(fdout,header,optv,arg);
+	switch (noclr) {
+		case 0:
+			argv_usage(fdout,header,optv,arg);
+			break;
+
+		default:
+			argv_usage_plain(fdout,header,optv,arg);
+			break;
+	}
+
 	argv_free(meta);
 	slbt_free_argv_buffer(sargv);
 
@@ -296,7 +305,8 @@ static int slbt_split_argv(
 	if (!argv[1] && (flags & SLBT_DRIVER_VERBOSITY_USAGE))
 		return slbt_driver_usage(
 			fderr,program,
-			0,optv,0,sargv);
+			0,optv,0,sargv,
+			!!getenv("NO_COLOR"));
 
 	/* initial argv scan: ... --mode=xxx ... <compiler> ... */
 	argv_scan(argv,optv,&ctx,0);
@@ -1244,8 +1254,11 @@ static int slbt_driver_fail_incompatible_args(
 {
 	int fcolor;
 
+	fcolor = (drvflags & SLBT_DRIVER_ANNOTATE_NEVER)
+		? 0 : isatty(fderr);
+
 	if (drvflags & SLBT_DRIVER_VERBOSITY_ERRORS){
-		if ((fcolor = isatty(fderr)))
+		if (fcolor)
 			slbt_dprintf(
 				fderr,"%s%s",
 				aclr_bold,aclr_red);
@@ -1314,7 +1327,8 @@ int slbt_get_driver_ctx(
 	cctx.drvflags = flags | SLBT_DRIVER_SHARED | SLBT_DRIVER_STATIC;
 
 	/* full annotation when annotation is on; */
-	cctx.drvflags |= SLBT_DRIVER_ANNOTATE_FULL;
+	if (!(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
+		cctx.drvflags |= SLBT_DRIVER_ANNOTATE_FULL;
 
 	/* track incompatible command-line arguments */
 	cmdstatic   = 0;
@@ -1332,7 +1346,8 @@ int slbt_get_driver_ctx(
 						? slbt_driver_usage(
 							fdctx->fdout,program,
 							entry->arg,optv,
-							meta,&sargv)
+							meta,&sargv,
+							(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
 						: SLBT_USAGE;
 
 				case TAG_VERSION:
@@ -1661,7 +1676,10 @@ int slbt_get_driver_ctx(
 
 	/* debug: raw argument vector */
 	if (cctx.drvflags & SLBT_DRIVER_DEBUG)
-		slbt_output_raw_vector(fdctx->fderr,argv,envp);
+		slbt_output_raw_vector(
+			fdctx->fderr,argv,envp,
+			(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER)
+				? 0 : isatty(fdctx->fderr));
 
 	/* -o in install mode means USER */
 	if ((cctx.mode == SLBT_MODE_INSTALL) && cctx.output) {

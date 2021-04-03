@@ -5,9 +5,11 @@
 /*******************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_dprintf_impl.h"
@@ -42,6 +44,9 @@ static ssize_t slbt_version(struct slbt_driver_ctx * dctx, int fdout)
 	verinfo = slbt_source_version();
 	verclr  = isatty(fdout) ? slbt_ver_color : slbt_ver_plain;
 	gitver  = strcmp(verinfo->commit,"unknown");
+
+	if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER)
+		verclr = slbt_ver_plain;
 
 	return slbt_dprintf(fdout,vermsg,
 			verclr[0],dctx->program,verclr[1],
@@ -89,6 +94,7 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 	const char *			harg;
 	int				fdout;
 	uint64_t			flags;
+	uint64_t			noclr;
 	struct slbt_driver_ctx *	dctx;
 	char *				program;
 	char *				dash;
@@ -96,6 +102,7 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 
 	flags = SLBT_DRIVER_FLAGS;
 	fdout = fdctx ? fdctx->fdout : STDOUT_FILENO;
+	noclr = getenv("NO_COLOR") ? SLBT_DRIVER_ANNOTATE_NEVER : 0;
 
 	/* harg */
 	harg = (!argv || !argv[0] || !argv[1] || argv[2])
@@ -112,7 +119,7 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 		sargv[3] = "<compiler>";
 		sargv[4] = 0;
 
-		return (slbt_get_driver_ctx(sargv,envp,flags,fdctx,&dctx))
+		return (slbt_get_driver_ctx(sargv,envp,flags|noclr,fdctx,&dctx))
 			? SLBT_ERROR : (slbt_version(dctx,fdout) < 0)
 				? slbt_exit(dctx,SLBT_ERROR)
 				: slbt_exit(dctx,SLBT_OK);
@@ -175,7 +182,7 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
                           | SLBT_DRIVER_LEGABITS);
 
 	/* driver context */
-	if ((ret = slbt_get_driver_ctx(argv,envp,flags,fdctx,&dctx)))
+	if ((ret = slbt_get_driver_ctx(argv,envp,flags|noclr,fdctx,&dctx)))
 		return (ret == SLBT_USAGE)
 			? !argv || !argv[0] || !argv[1] || !argv[2]
 			: SLBT_ERROR;
