@@ -894,7 +894,6 @@ static int slbt_exec_link_create_dep_file(
 	struct stat		st;
 	int			ldepth;
 	int			fdyndep;
-	int			fnodeps;
 	struct slbt_map_info *  mapinfo;
 
 	/* fdcwd */
@@ -971,7 +970,6 @@ static int slbt_exec_link_create_dep_file(
 			strcpy(mark,dctx->cctx->settings.dsosuffix);
 
 			fdyndep = !stat(depfile,&st);
-			fnodeps = farchive && fdyndep;
 
 			/* [-L... as needed] */
 			if (fdyndep && (ectx->ldirdepth >= 0)) {
@@ -1041,9 +1039,7 @@ static int slbt_exec_link_create_dep_file(
 					close(deps);
 					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
-			}
-
-			if (!mapinfo && !fnodeps) {
+			} else {
 				slen = snprintf(mark,size,
 					".a.slibtool.deps");
 
@@ -1057,8 +1053,12 @@ static int slbt_exec_link_create_dep_file(
 					SLBT_MAP_INPUT);
 
 				if (!mapinfo) {
-					close(deps);
-					return SLBT_SYSTEM_ERROR(dctx,depfile);
+					strcpy(mark,".a.disabled");
+
+					if (fstatat(fdcwd,depfile,&st,AT_SYMLINK_NOFOLLOW)) {
+						close(deps);
+						return SLBT_SYSTEM_ERROR(dctx,depfile);
+					}
 				}
 			}
 
