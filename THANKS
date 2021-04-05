@@ -1,3 +1,11 @@
+0.5.33:
+
+This release (as well as the previous one) follows extensive testing
+against all of Gentoo's packages. A huge thank you to @orbea for
+being the engine behind this process, and special kudos to the
+one and only Lucio Andrés Illanes Albornoz for the excellent
+contributed patches.
+
 0.5.12:
 
 Thanks to everyone who has been using and testing slibtool since

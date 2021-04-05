@@ -1,3 +1,24 @@
+0.5.33:
+
+This patch release provides several bug fixes and improvements, as well as
+added support for the NO_COLOR environment variable.
+
+- driver: always respect the NO_COLOR envvar & SLBT_DRIVER_ANNOTATE_NEVER flag.
+- driver: a heuristics-based -disable-shared now overrides --tag=disable-static.
+- driver: --tag=disable-shared now overrides a heuristics-based -disable-static.
+- link mode: always include deplib dirs in ldpathenv.
+- link mode: enclose vnames in wrapper script in braces.
+- link mode: always include explicit -L dirs in ldpathenv.
+- link mode: shared: use .deps of a static-only .la input argument as needed.
+- link mode: require dependency list to be present for all .la input arguments.
+- execute mode: fix NULL ptr deref with only one argument.
+- execute mode: handle relative -L pathnames & cwd-relative wrapper scripts.
+- install mode: slbt_exec_install(): added legacy shtool support.
+- install mode: account for a libfoo.a that was created with -disable-static.
+- install mode: always respect the SLBT_DRIVER_ANNOTATE_NEVER flag.
+- uninstall mode: always respect the SLBT_DRIVER_ANNOTATE_NEVER flag.
+- argv.h: tty colors: added argv_usage_plain().
+
 0.5.32:
 
 This patch release provides several bug fixes as well as the new (or proper)
