@@ -494,8 +494,14 @@ static int slbt_exec_link_adjust_argument_vector(
 
 			if ((fd = openat(fdcwd,ldir,O_DIRECTORY,0)) < 0)
 				*mark = 0;
-			else
+			else {
 				close(fd);
+
+				if ((ret = slbt_emit_fdwrap_amend_dl_path(
+						dctx,ectx,depsmeta,"%s",ldir)) < 0) {
+					return ret;
+				}
+			}
 
 			*aarg++ = *carg++;
 
