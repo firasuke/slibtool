@@ -1024,6 +1024,8 @@ static int slbt_exec_link_create_dep_file(
 				return SLBT_BUFFER_ERROR(dctx);
 			}
 
+			mapinfo = 0;
+
 			mark = strrchr(mark,'.');
 			size = sizeof(depfile) - (mark - depfile);
 
@@ -1045,7 +1047,9 @@ static int slbt_exec_link_create_dep_file(
 					close(deps);
 					return SLBT_SYSTEM_ERROR(dctx,0);
 				}
-			} else {
+			}
+
+			if (!mapinfo) {
 				slen = snprintf(mark,size,
 					".a.slibtool.deps");
 
