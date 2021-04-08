@@ -1457,7 +1457,18 @@ static int slbt_exec_link_create_library(
 		*ectx->soname  = "-Wl,-soname";
 		*ectx->lsoname = soname;
 
-	} else if (!(dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION)) {
+	} else if (dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION) {
+		if ((size_t)snprintf(soname,sizeof(soname),"-Wl,%s%s%s",
+					ectx->sonameprefix,
+					dctx->cctx->libname,
+					dctx->cctx->settings.dsosuffix)
+				>= sizeof(soname))
+			return SLBT_BUFFER_ERROR(dctx);
+
+		*ectx->soname  = "-Wl,-soname";
+		*ectx->lsoname = soname;
+
+	} else {
 		if ((size_t)snprintf(soname,sizeof(soname),"-Wl,%s%s%s.%d%s",
 					ectx->sonameprefix,
 					dctx->cctx->libname,
