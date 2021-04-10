@@ -6,7 +6,10 @@
 
 #include <slibtool/slibtool.h>
 
+#define SLBT_UNUSED_PARAMETER(p) (void)p
+
 int main(int argc, char ** argv, char ** envp)
 {
+	SLBT_UNUSED_PARAMETER(argc);
 	return slbt_main(argv,envp,0);
 }
