@@ -3,7 +3,7 @@ CFLAGS_STATIC_ATTR	+= -DSLBT_PRE_ALPHA -DSLBT_STATIC
 CFLAGS_APP_ATTR		+= -DSLBT_APP
 
 CFLAGS_MACHINE		:= -DSLBT_MACHINE=\"$(CC_HOST)\"
-CFLAGS_ONCE		+= $(CFLAGS_MACHINE)
+CFLAGS_CONFIG		+= $(CFLAGS_MACHINE)
 
 src/driver/slbt_driver_ctx.o:	version.tag
 src/driver/slbt_driver_ctx.lo:	version.tag
