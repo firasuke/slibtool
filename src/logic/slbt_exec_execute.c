@@ -12,6 +12,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_spawn_impl.h"
+#include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
 
 int  slbt_exec_execute(
@@ -19,6 +20,7 @@ int  slbt_exec_execute(
 	struct slbt_exec_ctx *		ectx)
 {
 	int			ret;
+	int			fdcwd;
 	char *			program;
 	char *			script;
 	char *			base;
@@ -66,8 +68,11 @@ int  slbt_exec_execute(
 		mark = exeref + (base - script);
 		sprintf(mark,".libs/%s",base);
 
+		/* fdcwd */
+		fdcwd = slbt_driver_fdcwd(dctx);
+
 		/* swap vector */
-		if (!(stat(script,&st)) && !(stat(wrapper,&st))) {
+		if (!fstatat(fdcwd,script,&st,0) && !fstatat(fdcwd,wrapper,&st,0)) {
 			ectx->cargv[0] = wrapper;
 			ectx->cargv[1] = program;
 			ectx->cargv[2] = exeref;

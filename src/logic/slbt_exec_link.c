@@ -97,6 +97,9 @@ static int slbt_get_deps_meta(
 	struct slbt_map_info *	mapinfo;
 	char			depfile[PATH_MAX];
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* -rpath */
 	if ((size_t)snprintf(depfile,sizeof(depfile),
 				"%s.slibtool.rpath",
@@ -105,7 +108,7 @@ static int slbt_get_deps_meta(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* -Wl,%s */
-	if (!(lstat(depfile,&st))) {
+	if (!fstatat(fdcwd,depfile,&st,AT_SYMLINK_NOFOLLOW)) {
 		depsmeta->infolen += st.st_size + 4;
 		depsmeta->infolen++;
 	}
@@ -116,9 +119,6 @@ static int slbt_get_deps_meta(
 				libfilename)
 			>= sizeof(depfile))
 		return SLBT_BUFFER_ERROR(dctx);
-
-	/* fdcwd */
-	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* mapinfo */
 	if (!(mapinfo = slbt_map_file(fdcwd,depfile,SLBT_MAP_INPUT)))
@@ -535,7 +535,7 @@ static int slbt_exec_link_adjust_argument_vector(
 			/* -rpath */
 			sprintf(rpathlnk,"%s.slibtool.rpath",*carg);
 
-			if (!(lstat(rpathlnk,&st))) {
+			if (!fstatat(fdcwd,rpathlnk,&st,AT_SYMLINK_NOFOLLOW)) {
 				if (slbt_readlink(
 						rpathlnk,\
 						rpathdir,
@@ -590,7 +590,7 @@ static int slbt_exec_link_adjust_argument_vector(
 			}
 		}
 
-		if (dpath && !stat(dpath,&st)) {
+		if (dpath && !fstatat(fdcwd,dpath,&st,0)) {
 			if (!(mapinfo = slbt_map_file(
 					fdcwd,dpath,
 					SLBT_MAP_INPUT)))
@@ -975,7 +975,7 @@ static int slbt_exec_link_create_dep_file(
 			mark = strrchr(mark,'.');
 			strcpy(mark,dctx->cctx->settings.dsosuffix);
 
-			fdyndep = !stat(depfile,&st);
+			fdyndep = !fstatat(fdcwd,depfile,&st,0);
 
 			/* [-L... as needed] */
 			if (fdyndep && (ectx->ldirdepth >= 0)) {
@@ -1229,9 +1229,13 @@ static int slbt_exec_link_create_noop_symlink(
 	const char *			arfilename)
 {
 	struct stat st;
+	int         fdcwd;
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* file exists? */
-	if (!(lstat(arfilename,&st)))
+	if (!fstatat(fdcwd,arfilename,&st,AT_SYMLINK_NOFOLLOW))
 		return 0;
 
 	/* needed? */
@@ -1752,7 +1756,7 @@ static int slbt_exec_link_create_executable(
 			&depsmeta,
 			SLBT_NESTED_ERROR(dctx));
 
-	if (stat(wrapper,&st))
+	if (fstatat(fdcwd,wrapper,&st,0))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_SYSTEM_ERROR(dctx,wrapper));

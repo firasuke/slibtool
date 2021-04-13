@@ -70,12 +70,15 @@ static int slbt_exec_install_init_dstdir(
 	struct argv_entry *	last,
 	char *			dstdir)
 {
+	int		fdcwd;
 	struct stat	st;
 	char *		slash;
 	size_t		len;
 
-	(void)dctx;
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
 
+	/* last */
 	if (dest)
 		last = dest;
 
@@ -95,7 +98,7 @@ static int slbt_exec_install_init_dstdir(
 		return 0;
 
 	/* is DEST a directory? */
-	if (!(stat(dstdir,&st)))
+	if (!fstatat(fdcwd,dstdir,&st,0))
 		if (S_ISDIR(st.st_mode))
 			return 0;
 
@@ -335,6 +338,7 @@ static int slbt_exec_install_entry(
 	char **				dst)
 {
 	int		ret;
+	int		fdcwd;
 	char *		dot;
 	char *		base;
 	char *		slash;
@@ -359,10 +363,15 @@ static int slbt_exec_install_entry(
 			entry->arg) >= sizeof(slnkname))
 		return SLBT_BUFFER_ERROR(dctx);
 
-	fexe = stat(slnkname,&st)
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* fexe */
+	fexe = fstatat(fdcwd,slnkname,&st,0)
 		? false
 		: true;
 
+	/* argument suffix */
 	dot  = strrchr(entry->arg,'.');
 
 	/* .lai --> .la */
@@ -389,7 +398,7 @@ static int slbt_exec_install_entry(
 			srcfile) >= sizeof(slnkname))
 		return SLBT_BUFFER_ERROR(dctx);
 
-	if (!stat(slnkname,&st)) {
+	if (!fstatat(fdcwd,slnkname,&st,0)) {
 		if (slbt_readlink(slnkname,target,sizeof(target)) < 0)
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
@@ -436,7 +445,7 @@ static int slbt_exec_install_entry(
 
 	/* libfoo.a --> libfoo.so.release */
 	sprintf(dot,"%s.release",dsosuffix);
-	frelease = stat(slnkname,&st) ? false : true;
+	frelease = fstatat(fdcwd,slnkname,&st,0) ? false : true;
 
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
@@ -460,7 +469,7 @@ static int slbt_exec_install_entry(
 			slnkname) >= sizeof(dstfile))
 		return SLBT_BUFFER_ERROR(dctx);
 
-	fpe = stat(dstfile,&st) ? false : true;
+	fpe = fstatat(fdcwd,dstfile,&st,0) ? false : true;
 
 	/* basename */
 	if ((base = strrchr(slnkname,'/')))
@@ -475,7 +484,7 @@ static int slbt_exec_install_entry(
 			return 0;
 
 		/* -avoid-version? */
-		if (stat(slnkname,&st))
+		if (fstatat(fdcwd,slnkname,&st,0))
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
 		/* dstfile */

@@ -68,13 +68,18 @@ static int slbt_exec_uninstall_fs_entry(
 	uint32_t			flags)
 {
 	struct stat	st;
+	int		fdcwd;
 	char *		slash;
 	char		dpath[PATH_MAX];
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* needed? */
-	if (stat(path,&st) && (errno == ENOENT))
-		if (lstat(path,&st) && (errno == ENOENT))
-			return 0;
+	if (fstatat(fdcwd,path,&st,0) && (errno == ENOENT))
+		if (fstatat(fdcwd,path,&st,AT_SYMLINK_NOFOLLOW))
+			if (errno == ENOENT)
+				return 0;
 
 	/* output */
 	*parg = path;
