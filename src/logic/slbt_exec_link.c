@@ -304,7 +304,7 @@ static int slbt_adjust_linker_argument(
 	if (fpic) {
 		sprintf(dot,"%s",dsosuffix);
 
-		if (slbt_symlink_is_a_placeholder(arg))
+		if (slbt_symlink_is_a_placeholder(fdcwd,arg))
 			sprintf(dot,"%s",arsuffix);
 		else if ((fdlib = openat(fdcwd,arg,O_RDONLY)) >= 0)
 			close(fdlib);
@@ -536,8 +536,9 @@ static int slbt_exec_link_adjust_argument_vector(
 			sprintf(rpathlnk,"%s.slibtool.rpath",*carg);
 
 			if (!fstatat(fdcwd,rpathlnk,&st,AT_SYMLINK_NOFOLLOW)) {
-				if (slbt_readlink(
-						rpathlnk,\
+				if (slbt_readlinkat(
+						fdcwd,
+						rpathlnk,
 						rpathdir,
 						sizeof(rpathdir)))
 					return slbt_exec_link_exit(

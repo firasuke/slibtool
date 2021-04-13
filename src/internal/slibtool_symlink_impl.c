@@ -108,7 +108,7 @@ int slbt_create_symlink(
 		: 0;
 }
 
-int slbt_symlink_is_a_placeholder(char * lnkpath)
+int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath)
 {
 	size_t		len;
 	char		slink [PATH_MAX];
@@ -121,6 +121,6 @@ int slbt_symlink_is_a_placeholder(char * lnkpath)
 	memcpy(slink,lnkpath,len);
 	memcpy(&slink[len],suffix,sizeof(suffix));
 
-	return (!slbt_readlink(slink,target,sizeof(target)))
+	return (!slbt_readlinkat(fdcwd,slink,target,sizeof(target)))
 		&& (!strcmp(target,"/dev/null"));
 }

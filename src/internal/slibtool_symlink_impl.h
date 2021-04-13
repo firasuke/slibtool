@@ -11,6 +11,6 @@ int slbt_create_symlink(
 	const char *			lnkname,
 	bool				flawrapper);
 
-int slbt_symlink_is_a_placeholder(char * lnkpath);
+int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath);
 
 #endif

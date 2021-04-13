@@ -115,6 +115,7 @@ static int slbt_exec_install_import_libraries(
 	char *				srcdso,
 	char *				dstdir)
 {
+	int	fdcwd;
 	char *	host;
 	char *	slash;
 	char *	dot;
@@ -126,6 +127,9 @@ static int slbt_exec_install_import_libraries(
 	char	major  [128];
 	char	minor  [128];
 	char	rev    [128];
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* .libs/libfoo.so.x.y.z */
 	if ((size_t)snprintf(srcbuf,sizeof(srcbuf),"%s",
@@ -184,7 +188,7 @@ static int slbt_exec_install_import_libraries(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* libfoo.so.def.{flavor} */
-	if (slbt_readlink(hostlnk,hosttag,sizeof(hosttag)))
+	if (slbt_readlinkat(fdcwd,hostlnk,hosttag,sizeof(hosttag)))
 		return SLBT_SYSTEM_ERROR(dctx,hostlnk);
 
 	/* host/flabor */
@@ -399,7 +403,7 @@ static int slbt_exec_install_entry(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if (!fstatat(fdcwd,slnkname,&st,0)) {
-		if (slbt_readlink(slnkname,target,sizeof(target)) < 0)
+		if (slbt_readlinkat(fdcwd,slnkname,target,sizeof(target)) < 0)
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
 		if (strncmp(lasource,target,(slen = strlen(lasource))))
@@ -453,7 +457,7 @@ static int slbt_exec_install_entry(
 	/* libfoo.a installation */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC))
 		farchive = true;
-	else if (slbt_symlink_is_a_placeholder(slnkname))
+	else if (slbt_symlink_is_a_placeholder(fdcwd,slnkname))
 		farchive = true;
 	else
 		farchive = false;
@@ -478,9 +482,9 @@ static int slbt_exec_install_entry(
 		base = slnkname;
 
 	/* source (build) symlink target */
-	if (slbt_readlink(slnkname,target,sizeof(target)) < 0) {
+	if (slbt_readlinkat(fdcwd,slnkname,target,sizeof(target)) < 0) {
 		/* -all-static? */
-		if (slbt_symlink_is_a_placeholder(slnkname))
+		if (slbt_symlink_is_a_placeholder(fdcwd,slnkname))
 			return 0;
 
 		/* -avoid-version? */

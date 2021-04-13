@@ -166,6 +166,7 @@ static int slbt_exec_uninstall_entry(
 	char **				parg,
 	uint32_t			flags)
 {
+	int		fdcwd;
 	const char *	dsosuffix;
 	char *		dot;
 	char		path [PATH_MAX];
@@ -176,6 +177,9 @@ static int slbt_exec_uninstall_entry(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	*parg = (char *)entry->arg;
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* remove explicit argument */
 	if (slbt_exec_uninstall_fs_entry(dctx,ectx,parg,path,flags))
@@ -200,7 +204,7 @@ static int slbt_exec_uninstall_entry(
 	/* .so symlink? */
 	strcpy(dot,dsosuffix);
 
-	if (!(slbt_readlink(path,lpath,sizeof(lpath))))
+	if (!(slbt_readlinkat(fdcwd,path,lpath,sizeof(lpath))))
 		if (slbt_exec_uninstall_versioned_library(
 				dctx,ectx,parg,
 				path,lpath,
@@ -210,7 +214,7 @@ static int slbt_exec_uninstall_entry(
 	/* .lib.a symlink? */
 	strcpy(dot,".lib.a");
 
-	if (!(slbt_readlink(path,lpath,sizeof(lpath))))
+	if (!(slbt_readlinkat(fdcwd,path,lpath,sizeof(lpath))))
 		if (slbt_exec_uninstall_versioned_library(
 				dctx,ectx,parg,
 				path,lpath,
@@ -220,7 +224,7 @@ static int slbt_exec_uninstall_entry(
 	/* .dll symlink? */
 	strcpy(dot,".dll");
 
-	if (!(slbt_readlink(path,lpath,sizeof(lpath))))
+	if (!(slbt_readlinkat(fdcwd,path,lpath,sizeof(lpath))))
 		if (slbt_exec_uninstall_versioned_library(
 				dctx,ectx,parg,
 				path,lpath,

@@ -6,6 +6,7 @@
 /*******************************************************************/
 
 #include <slibtool/slibtool.h>
+#include "slibtool_driver_impl.h"
 #include "slibtool_spawn_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_errinfo_impl.h"
@@ -16,13 +17,17 @@ int slbt_copy_file(
 	char *				src,
 	char *				dst)
 {
+	int	fdcwd;
 	char **	oargv;
 	char *	oprogram;
 	char *	cp[4];
 	int	ret;
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* placeholder? */
-	if (slbt_symlink_is_a_placeholder(src))
+	if (slbt_symlink_is_a_placeholder(fdcwd,src))
 		return 0;
 
 	/* cp argv */

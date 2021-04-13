@@ -10,14 +10,15 @@
 #include <unistd.h>
 #include <errno.h>
 
-static inline int slbt_readlink(
+static inline int slbt_readlinkat(
+	int		fdcwd,
 	const char *	restrict path,
 	char *		restrict buf,
 	ssize_t		bufsize)
 {
 	ssize_t ret;
 
-	if ((ret = readlink(path,buf,bufsize)) <= 0) {
+	if ((ret = readlinkat(fdcwd,path,buf,bufsize)) <= 0) {
 		return -1;
 	} else if (ret == bufsize) {
 		errno = ENOBUFS;

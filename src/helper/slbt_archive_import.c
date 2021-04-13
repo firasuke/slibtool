@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 
 #include <slibtool/slibtool.h>
+#include "slibtool_driver_impl.h"
 #include "slibtool_spawn_impl.h"
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_symlink_impl.h"
@@ -80,6 +81,7 @@ int slbt_archive_import(
 	char *				dstarchive,
 	char *				srcarchive)
 {
+	int	fdcwd;
 	pid_t	pid;
 	pid_t	rpid;
 	int	fd[2];
@@ -90,8 +92,11 @@ int slbt_archive_import(
 	char	mrisrc [L_tmpnam];
 	char	program[PATH_MAX];
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* not needed? */
-	if (slbt_symlink_is_a_placeholder(srcarchive))
+	if (slbt_symlink_is_a_placeholder(fdcwd,srcarchive))
 		return 0;
 
 	/* program */

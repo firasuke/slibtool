@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <slibtool/slibtool.h>
 
+#include "slibtool_driver_impl.h"
 #include "slibtool_readlink_impl.h"
 
 #ifdef _MIDIPIX_ABI
@@ -64,7 +65,7 @@ int slbt_realpath(
 
 	sprintf(procfspath,"/proc/self/fd/%d",fd);
 
-	if (slbt_readlink(procfspath,buf,buflen)) {
+	if (slbt_readlinkat(fdat,procfspath,buf,buflen)) {
 		close(fd);
 		return -1;
 	}
