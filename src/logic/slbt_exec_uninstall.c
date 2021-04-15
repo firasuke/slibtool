@@ -90,7 +90,7 @@ static int slbt_exec_uninstall_fs_entry(
 
 	/* directory? */
 	if (S_ISDIR(st.st_mode)) {
-		if (!(rmdir(path)))
+		if (!unlinkat(fdcwd,path,AT_REMOVEDIR))
 			return 0;
 
 		else if ((errno == EEXIST) || (errno == ENOTEMPTY))
@@ -114,7 +114,7 @@ static int slbt_exec_uninstall_fs_entry(
 
 		*slash = 0;
 
-		if (rmdir(dpath))
+		if (unlinkat(fdcwd,dpath,AT_REMOVEDIR))
 			return SLBT_SYSTEM_ERROR(dctx,dpath);
 	}
 
