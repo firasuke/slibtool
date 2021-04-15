@@ -1157,7 +1157,7 @@ static int slbt_exec_link_create_import_library(
 				dctx,ectx,
 				deffilename,
 				hosttag,
-				false))
+				SLBT_SYMLINK_DEFAULT))
 			return SLBT_NESTED_ERROR(dctx);
 
 		/* libfoo.so.def.{flavor} is under .libs/ */
@@ -1168,7 +1168,7 @@ static int slbt_exec_link_create_import_library(
 				dctx,ectx,
 				++slash,
 				hostlnk,
-				false))
+				SLBT_SYMLINK_DEFAULT))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
@@ -1250,7 +1250,7 @@ static int slbt_exec_link_create_noop_symlink(
 				dctx,ectx,
 				"/dev/null",
 				arfilename,
-                                false))
+				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 		return 0;
 	}
@@ -1362,7 +1362,10 @@ static int slbt_exec_link_create_archive(
 		if (slbt_exec_link_remove_file(dctx,ectx,arlink))
 			return SLBT_NESTED_ERROR(dctx);
 
-		if (slbt_create_symlink(dctx,ectx,arfile,arlink,0))
+		if (slbt_create_symlink(
+				dctx,ectx,
+				arfile,arlink,
+				SLBT_SYMLINK_DEFAULT))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
@@ -1544,7 +1547,7 @@ static int slbt_exec_link_create_library(
 				dctx,ectx,
 				dctx->cctx->host.ldrpath,
 				ectx->rpathfilename,
-				0))
+				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
@@ -1761,7 +1764,7 @@ static int slbt_exec_link_create_executable(
 	if (slbt_create_symlink(
 			dctx,ectx,
 			dctx->cctx->output,wraplnk,
-			false))
+			SLBT_SYMLINK_DEFAULT))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_NESTED_ERROR(dctx));
@@ -1800,7 +1803,7 @@ static int slbt_exec_link_create_library_symlink(
 			if (slbt_create_symlink(
 					dctx,ectx,
 					target,lnkname,
-					false))
+					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
 	} else {
 		sprintf(target,"%s%s.%d.%d.%d%s",
@@ -1838,7 +1841,7 @@ static int slbt_exec_link_create_library_symlink(
 		return slbt_create_symlink(
 			dctx,ectx,
 			target,lnkname,
-			false);
+			SLBT_SYMLINK_DEFAULT);
 }
 
 int slbt_exec_link(
@@ -1956,7 +1959,7 @@ int slbt_exec_link(
 				dctx,ectx,
 				"/dev/null",
 				ectx->dsofilename,
-				false))
+				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 
 	/* dynaic library via -module */
@@ -1986,7 +1989,7 @@ int slbt_exec_link(
 			if (slbt_create_symlink(
 					dctx,ectx,
 					target,lnkname,
-					false))
+					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
 
 			strcpy(target,lnkname);
@@ -1995,7 +1998,7 @@ int slbt_exec_link(
 			if (slbt_create_symlink(
 					dctx,ectx,
 					target,lnkname,
-					false))
+					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
 		}
 
@@ -2052,7 +2055,7 @@ int slbt_exec_link(
 					dctx,ectx,
 					ectx->pimpfilename,
 					ectx->dimpfilename,
-					false))
+					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
 
 			/* libfoo.x.y.z.lib.a */
@@ -2096,7 +2099,7 @@ int slbt_exec_link(
 			dctx,ectx,
 			output,
 			ectx->lafilename,
-			true)))
+			SLBT_SYMLINK_WRAPPER)))
 		SLBT_NESTED_ERROR(dctx);
 
 	/* .lai wrapper symlink */
@@ -2105,7 +2108,7 @@ int slbt_exec_link(
 				dctx,ectx,
 				output,
 				ectx->laifilename,
-				true)))
+				SLBT_SYMLINK_WRAPPER)))
 			SLBT_NESTED_ERROR(dctx);
 
 	/* all done */

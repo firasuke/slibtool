@@ -231,7 +231,7 @@ static int slbt_exec_install_import_libraries(
 			dctx,ectx,
 			implib,
 			hostlnk,
-			false))
+			SLBT_SYMLINK_DEFAULT))
 		return SLBT_NESTED_ERROR(dctx);
 
 	return 0;
@@ -540,7 +540,7 @@ static int slbt_exec_install_entry(
 	if (slbt_create_symlink(
 			dctx,ectx,
 			target,dlnkname,
-			false))
+			SLBT_SYMLINK_DEFAULT))
 		return SLBT_NESTED_ERROR(dctx);
 
 	if (frelease)
@@ -602,7 +602,7 @@ static int slbt_exec_install_entry(
 		if (slbt_create_symlink(
 				dctx,ectx,
 				target,dlnkname,
-				false))
+				SLBT_SYMLINK_DEFAULT))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 

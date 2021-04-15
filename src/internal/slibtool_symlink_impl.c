@@ -23,9 +23,11 @@ int slbt_create_symlink(
 	struct slbt_exec_ctx *		ectx,
 	const char *			target,
 	const char *			lnkname,
-	bool				flawrapper)
+	uint32_t			options)
 {
 	int		fdcwd;
+	int		fliteral;
+	int		fwrapper;
 	char **		oargv;
 	const char *	slash;
 	char *		ln[5];
@@ -36,11 +38,19 @@ int slbt_create_symlink(
 	char		atarget[PATH_MAX];
 	char *		suffix = 0;
 
+	/* options */
+	fliteral = (options & SLBT_SYMLINK_LITERAL);
+	fwrapper = (options & SLBT_SYMLINK_WRAPPER);
+
 	/* symlink is a placeholder? */
 	if ((dctx->cctx->drvflags & SLBT_DEV_NULL_FLAGS)
 			&& !strcmp(target,"/dev/null")) {
 		slash  = target;
 		suffix = ".disabled";
+
+	/* target is an absolute path? */
+	} else if (fliteral) {
+		slash = target;
 
 	/* symlink target contains a dirname? */
 	} else if ((slash = strrchr(target,'/'))) {
@@ -52,7 +62,7 @@ int slbt_create_symlink(
 	}
 
 	/* .la wrapper? */
-	dotdot = flawrapper ? "../" : "";
+	dotdot = fwrapper ? "../" : "";
 
 	/* atarget */
 	if ((size_t)snprintf(atarget,sizeof(atarget),"%s%s",
