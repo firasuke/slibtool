@@ -1963,19 +1963,21 @@ int slbt_exec_link(
 			return SLBT_NESTED_ERROR(dctx);
 
 	/* dynamic library via -module */
-	if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
-		if (!dot || strcmp(dot,".la")) {
-			if (slbt_exec_link_create_library(
-					dctx,ectx,
-					ectx->dsobasename,
-					ectx->dsofilename,
-					ectx->relfilename)) {
-				slbt_free_exec_ctx(actx);
-				return SLBT_NESTED_ERROR(dctx);
-			}
+	if (dctx->cctx->rpath && !fstaticonly) {
+		if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
+			if (!dot || strcmp(dot,".la")) {
+				if (slbt_exec_link_create_library(
+						dctx,ectx,
+						ectx->dsobasename,
+						ectx->dsofilename,
+						ectx->relfilename)) {
+					slbt_free_exec_ctx(actx);
+					return SLBT_NESTED_ERROR(dctx);
+				}
 
-			slbt_free_exec_ctx(actx);
-			return 0;
+				slbt_free_exec_ctx(actx);
+				return 0;
+			}
 		}
 	}
 
