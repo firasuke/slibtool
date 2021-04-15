@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
@@ -24,6 +25,7 @@ int slbt_create_symlink(
 	const char *			lnkname,
 	bool				flawrapper)
 {
+	int		fdcwd;
 	char **		oargv;
 	const char *	slash;
 	char *		ln[5];
@@ -99,8 +101,11 @@ int slbt_create_symlink(
 	/* restore execution context */
 	ectx->argv = oargv;
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* create symlink */
-	if (symlink(atarget,tmplnk))
+	if (symlinkat(atarget,fdcwd,tmplnk))
 		return SLBT_SYSTEM_ERROR(dctx,tmplnk);
 
 	return rename(tmplnk,lnkname)

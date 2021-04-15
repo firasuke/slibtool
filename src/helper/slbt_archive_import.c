@@ -4,6 +4,7 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <limits.h>
 #include <unistd.h>
@@ -21,6 +22,7 @@
 #include "slibtool_errinfo_impl.h"
 
 static char * slbt_mri_argument(
+	int	fdat,
 	char *	arg,
 	char *	buf)
 {
@@ -50,7 +52,7 @@ static char * slbt_mri_argument(
 		if (!(tmpnam(buf)))
 			return 0;
 
-		if (!(symlink(target,buf)))
+		if (!(symlinkat(target,fdat,buf)))
 			lnk = buf;
 	}
 
@@ -127,8 +129,8 @@ int slbt_archive_import(
 
 	ectx->pid = pid;
 
-	dst = slbt_mri_argument(dstarchive,mridst);
-	src = slbt_mri_argument(srcarchive,mrisrc);
+	dst = slbt_mri_argument(fdcwd,dstarchive,mridst);
+	src = slbt_mri_argument(fdcwd,srcarchive,mrisrc);
 	fmt = "OPEN %s\n"
 	      "ADDLIB %s\n"
 	      "SAVE\n"

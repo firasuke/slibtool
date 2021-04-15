@@ -1357,8 +1357,8 @@ static int slbt_exec_link_create_archive(
 		if (slbt_exec_link_remove_file(dctx,ectx,arlink))
 			return SLBT_NESTED_ERROR(dctx);
 
-		if (symlink(arfile,arlink))
-			return SLBT_SYSTEM_ERROR(dctx,arlink);
+		if (slbt_create_symlink(dctx,ectx,arfile,arlink,0))
+			return SLBT_NESTED_ERROR(dctx);
 	}
 
 	return 0;
@@ -1535,8 +1535,12 @@ static int slbt_exec_link_create_library(
 		if (slbt_exec_link_remove_file(dctx,ectx,ectx->rpathfilename))
 			return SLBT_NESTED_ERROR(dctx);
 
-		if (symlink(dctx->cctx->host.ldrpath,ectx->rpathfilename))
-			return SLBT_SYSTEM_ERROR(dctx,ectx->rpathfilename);
+		if (slbt_create_symlink(
+				dctx,ectx,
+				dctx->cctx->host.ldrpath,
+				ectx->rpathfilename,
+				0))
+			return SLBT_NESTED_ERROR(dctx);
 	}
 
 	/* cwd */
