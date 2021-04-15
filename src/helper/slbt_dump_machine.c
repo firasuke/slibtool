@@ -34,7 +34,7 @@ static void slbt_dump_machine_child(
 	argv[1] = "-dumpmachine";
 	argv[2] = 0;
 
-	if ((fd[0] = open("/dev/null",O_RDONLY)) >= 0)
+	if ((fd[0] = openat(AT_FDCWD,"/dev/null",O_RDONLY,0)) >= 0)
 		if (dup2(fd[0],0) == 0)
 			if (dup2(fd[1],1) == 1)
 				execvp(program,argv);
