@@ -1724,7 +1724,7 @@ static int slbt_exec_link_create_executable(
 	if (slbt_dprintf(fdwrap,
 			"DL_PATH=\"${DL_PATH}${LCOLON}${%s}\"\n\n"
 			"export %s=\"$DL_PATH\"\n\n"
-			"if [ `basename \"$0\"` = \"%s\" ]; then\n"
+			"if [ $(basename \"$0\") = \"%s\" ]; then\n"
 			"\tprogram=\"$1\"; shift\n"
 			"\texec \"$program\" \"$@\"\n"
 			"fi\n\n"
