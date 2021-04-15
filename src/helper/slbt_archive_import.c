@@ -38,7 +38,7 @@ static char * slbt_mri_argument(
 	if (arg[0] == '/')
 		target = arg;
 	else {
-		if (!(getcwd(mricwd,sizeof(mricwd))))
+		if (slbt_realpath(fdat,".",O_DIRECTORY,mricwd,sizeof(mricwd)))
 			return 0;
 
 		if ((size_t)snprintf(dstbuf,sizeof(dstbuf),"%s/%s",
@@ -131,6 +131,10 @@ int slbt_archive_import(
 
 	dst = slbt_mri_argument(fdcwd,dstarchive,mridst);
 	src = slbt_mri_argument(fdcwd,srcarchive,mrisrc);
+
+	if (!dst || !src)
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
 	fmt = "OPEN %s\n"
 	      "ADDLIB %s\n"
 	      "SAVE\n"

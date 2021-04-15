@@ -1549,7 +1549,7 @@ static int slbt_exec_link_create_library(
 	}
 
 	/* cwd */
-	if (!getcwd(cwd,sizeof(cwd)))
+	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */
@@ -1650,7 +1650,7 @@ static int slbt_exec_link_create_executable(
 	verinfo = slbt_source_version();
 
 	/* cwd, DL_PATH fixup */
-	if (!getcwd(cwd,sizeof(cwd))) {
+	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd))) {
 		return SLBT_SYSTEM_ERROR(dctx,0);
 	} else {
 		slbt_emit_fdwrap_dl_path_fixup(
