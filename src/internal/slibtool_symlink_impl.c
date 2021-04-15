@@ -108,7 +108,7 @@ int slbt_create_symlink(
 	if (symlinkat(atarget,fdcwd,tmplnk))
 		return SLBT_SYSTEM_ERROR(dctx,tmplnk);
 
-	return rename(tmplnk,lnkname)
+	return renameat(fdcwd,tmplnk,fdcwd,lnkname)
 		? SLBT_SYSTEM_ERROR(dctx,lnkname)
 		: 0;
 }

@@ -1766,7 +1766,7 @@ static int slbt_exec_link_create_executable(
 			&depsmeta,
 			SLBT_SYSTEM_ERROR(dctx,wrapper));
 
-	if (rename(wrapper,dctx->cctx->output))
+	if (renameat(fdcwd,wrapper,fdcwd,dctx->cctx->output))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output));
