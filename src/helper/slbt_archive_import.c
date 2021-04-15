@@ -149,10 +149,10 @@ int slbt_archive_import(
 		0);
 
 	if (dst == mridst)
-		unlink(dst);
+		unlinkat(fdcwd,dst,0);
 
 	if (src == mrisrc)
-		unlink(src);
+		unlinkat(fdcwd,src,0);
 
 	return (rpid == pid) && (ectx->exitcode == 0)
 		? 0 : SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_ARCHIVE_IMPORT);

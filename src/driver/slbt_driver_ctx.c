@@ -658,6 +658,7 @@ static int slbt_init_host_params(
 	struct slbt_host_params *	host,
 	struct slbt_host_params *	cfgmeta)
 {
+	int		fdcwd;
 	int		arprobe;
 	int		arfd;
 	int		ecode;
@@ -873,9 +874,12 @@ static int slbt_init_host_params(
 				cfgmeta->ar = cfgnative;
 			}
 
+			/* fdcwd */
+			fdcwd = slbt_driver_fdcwd(dctx);
+
 			/* clean up */
 			if (arfd >= 0) {
-				unlink(archivename);
+				unlinkat(fdcwd,archivename,0);
 				close(arfd);
 			}
 		}

@@ -21,10 +21,15 @@ static int slbt_exec_compile_remove_file(
 	struct slbt_exec_ctx *		ectx,
 	const char *			target)
 {
+	int fdcwd;
+
 	(void)ectx;
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* remove target (if any) */
-	if (!(unlink(target)) || (errno == ENOENT))
+	if (!unlinkat(fdcwd,target,0) || (errno == ENOENT))
 		return 0;
 
 	return SLBT_SYSTEM_ERROR(dctx,0);

@@ -101,7 +101,7 @@ static int slbt_exec_uninstall_fs_entry(
 	}
 
 	/* remove file or symlink entry */
-	if (unlink(path))
+	if (unlinkat(fdcwd,path,0))
 		return SLBT_SYSTEM_ERROR(dctx,path);
 
 	/* remove empty containing directory? */
