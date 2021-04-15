@@ -1776,7 +1776,7 @@ static int slbt_exec_link_create_executable(
 			&depsmeta,
 			SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output));
 
-	if (chmod(dctx->cctx->output,0755))
+	if (fchmodat(fdcwd,dctx->cctx->output,0755,0))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_SYSTEM_ERROR(dctx,dctx->cctx->output));
