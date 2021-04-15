@@ -1962,7 +1962,7 @@ int slbt_exec_link(
 				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 
-	/* dynaic library via -module */
+	/* dynamic library via -module */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
 		if (!dot || strcmp(dot,".la")) {
 			if (slbt_exec_link_create_library(
