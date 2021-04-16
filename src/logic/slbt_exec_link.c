@@ -397,7 +397,7 @@ static void slbt_emit_fdwrap_dl_path_fixup(
 	dpfixup[0] = 0; strncat(dpfixup,"${0%/*}",dpfixup_size - 1);
 
 	/* append parent directory fixup for each level of depth in wrapper_dname */
-	for (p=wrapper_dname,q=NULL; *p; ) {
+	for (p=wrapper_dname,q=0; *p; ) {
 		if ((p[0] == '.') && (p[1] == '/')) {
 			p++; p++;
 		} else if ((q = strchr(p, '/'))) {
@@ -1660,13 +1660,12 @@ static int slbt_exec_link_create_executable(
 	verinfo = slbt_source_version();
 
 	/* cwd, DL_PATH fixup */
-	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd))) {
+	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
 		return SLBT_SYSTEM_ERROR(dctx,0);
-	} else {
-		slbt_emit_fdwrap_dl_path_fixup(
-			cwd,dpfixup,sizeof(dpfixup),
-			wrapper);
-	}
+
+	slbt_emit_fdwrap_dl_path_fixup(
+		cwd,dpfixup,sizeof(dpfixup),
+		wrapper);
 
 	if (slbt_dprintf(fdwrap,
 			"#!/bin/sh\n"
