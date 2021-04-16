@@ -359,9 +359,13 @@ static int slbt_emit_fdwrap_amend_dl_path(
 
 	if ((fdwrap = slbt_exec_get_fdwrapper(ectx)) >= 0) {
 		if (buf[0] == '/') {
-			fdwrap_fmt = "DL_PATH=\"${DL_PATH}${COLON}%s\"\nCOLON=':'\n\n";
+			fdwrap_fmt =
+				"DL_PATH=\"${DL_PATH}${COLON}%s\"\n"
+				"COLON=':'\n\n";
 		} else {
-			fdwrap_fmt = "DL_PATH=\"${DL_PATH}${COLON}${DL_PATH_FIXUP}%s\"\nCOLON=':'\n\n";
+			fdwrap_fmt =
+				"DL_PATH=\"${DL_PATH}${COLON}${DL_PATH_FIXUP}%s\"\n"
+				"COLON=':'\n\n";
 		}
 
 		if (slbt_dprintf(fdwrap,fdwrap_fmt,buf) < 0) {
@@ -498,9 +502,9 @@ static int slbt_exec_link_adjust_argument_vector(
 				close(fd);
 
 				if ((ret = slbt_emit_fdwrap_amend_dl_path(
-						dctx,ectx,depsmeta,"%s",ldir)) < 0) {
+						dctx,ectx,depsmeta,
+						"%s",ldir)) < 0)
 					return ret;
-				}
 			}
 
 			*aarg++ = *carg++;
@@ -568,12 +572,14 @@ static int slbt_exec_link_adjust_argument_vector(
 
 				mark   = strrchr(*carg,'/');
 				*mark  = 0;
-
 				*slash = 0;
-				if ((ret = slbt_emit_fdwrap_amend_dl_path(dctx,ectx,depsmeta,
-								   "%s%s%s",
-								   ((arg[0] == '/') ? "" : cwd),
-								   ((arg[0] == '/') ? "" : "/"),arg)) < 0) {
+
+				if ((ret = slbt_emit_fdwrap_amend_dl_path(
+						dctx,ectx,depsmeta,
+						"%s%s%s",
+						((arg[0] == '/') ? "" : cwd),
+						((arg[0] == '/') ? "" : "/"),
+						arg)) < 0) {
 					return ret;
 				}
 
@@ -649,14 +655,15 @@ static int slbt_exec_link_adjust_argument_vector(
 					darg++;
 
 					if ((ret = slbt_emit_fdwrap_amend_dl_path(
-							dctx,ectx,depsmeta,"%s/%s",lib,depdir)) < 0) {
+							dctx,ectx,depsmeta,
+							"%s/%s",lib,depdir)) < 0)
 						return ret;
-					}
+
 				} else if ((mark[0] == '-') && (mark[1] == 'L')) {
 					if ((ret = slbt_emit_fdwrap_amend_dl_path(
-							dctx,ectx,depsmeta,"%s",&mark[2])) < 0) {
+							dctx,ectx,depsmeta,
+							"%s",&mark[2])) < 0)
 						return ret;
-					}
 				}
 			}
 		}

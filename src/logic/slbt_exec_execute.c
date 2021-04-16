@@ -50,7 +50,8 @@ int  slbt_exec_execute(
 
 	if (script) {
 		/* wrapper */
-		if ((size_t)snprintf(wrapper,sizeof(wrapper),"%s%s.exe.wrapper",
+		if ((size_t)snprintf(wrapper,sizeof(wrapper),
+					"%s%s.exe.wrapper",
 					(script[0] == '/') ? "" : "./",
 					script)
 				>= sizeof(wrapper)) {
