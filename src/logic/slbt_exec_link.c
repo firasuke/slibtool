@@ -583,15 +583,23 @@ static int slbt_exec_link_adjust_argument_vector(
 					return ret;
 				}
 
-				*aarg++ = *carg++;
-				*aarg++ = ++mark;
+				dlen = strlen(dctx->cctx->settings.dsoprefix);
 
-				++slash;
-				slash += strlen(dctx->cctx->settings.dsoprefix);
+				/* -module? (todo: non-portable usage, display warning) */
+				if (strncmp(++slash,dctx->cctx->settings.dsoprefix,dlen)) {
+					*--slash = '/';
+					strcpy(*carg,arg);
+					*aarg++ = *carg++;
+				} else {
+					*aarg++ = *carg++;
+					*aarg++ = ++mark;
 
-				sprintf(mark,"-l%s",slash);
-				dot  = strrchr(mark,'.');
-				*dot = 0;
+					slash += dlen;
+
+					sprintf(mark,"-l%s",slash);
+					dot  = strrchr(mark,'.');
+					*dot = 0;
+				}
 			} else {
 				*aarg++ = *carg++;
 			}
