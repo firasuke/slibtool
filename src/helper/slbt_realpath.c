@@ -15,12 +15,20 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_readlink_impl.h"
 
+#ifdef __unix__
+#include <sys/syscall.h>
+#endif
+
 #ifdef _MIDIPIX_ABI
 #include <sys/fs.h>
 #endif
 
 #ifndef ENOTSUP
 #define ENOTSUP EOPNOTSUPP
+#endif
+
+#ifdef SYS___realpathat
+extern long syscall(int, ...);
 #endif
 
 int slbt_realpath(
@@ -46,6 +54,10 @@ int slbt_realpath(
 	/* framework-based wrapper */
 #ifdef _MIDIPIX_ABI
 	return __fs_rpath(fdat,path,options,buf,buflen);
+#endif
+
+#ifdef SYS___realpathat
+	return syscall(SYS___realpathat,fdat,path,buf,buflen,0);
 #endif
 
 	/* buflen */
