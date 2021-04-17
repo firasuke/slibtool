@@ -107,6 +107,7 @@ struct slbt_driver_ctx_impl {
 	char **			dargv;
 	char **			targv;
 	char **			cargv;
+	char **			envp;
 	struct slbt_error_info**errinfp;
 	struct slbt_error_info**erricap;
 	struct slbt_error_info *erriptr[64];
@@ -136,6 +137,13 @@ static inline struct slbt_driver_ctx_impl * slbt_get_driver_ictx(const struct sl
 	}
 
 	return 0;
+}
+
+static inline char ** slbt_driver_envp(const struct slbt_driver_ctx * dctx)
+{
+	struct slbt_driver_ctx_impl * ictx;
+	ictx = slbt_get_driver_ictx(dctx);
+	return ictx->envp;
 }
 
 static inline int slbt_driver_fdin(const struct slbt_driver_ctx * dctx)

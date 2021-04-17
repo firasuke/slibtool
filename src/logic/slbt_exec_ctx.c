@@ -136,6 +136,8 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	ictx->ctx.csrc  = csrc;
 	ictx->fdwrapper = (-1);
 
+	ictx->ctx.envp  = slbt_driver_envp(dctx);
+
 	return ictx;
 }
 

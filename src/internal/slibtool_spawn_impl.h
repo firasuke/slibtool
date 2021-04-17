@@ -30,8 +30,6 @@
 #include <spawn.h>
 #endif
 
-extern char ** environ;
-
 static inline int slbt_spawn(
 	struct slbt_exec_ctx *	ectx,
 	bool			fwait)
@@ -45,7 +43,7 @@ static inline int slbt_spawn(
 			ectx->program,
 			0,0,
 			ectx->argv,
-			ectx->envp ? ectx->envp : environ))
+			ectx->envp))
 		pid = -1;
 
 #else
