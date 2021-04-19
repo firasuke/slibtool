@@ -220,7 +220,8 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	struct argv_meta *		meta,
 	const struct slbt_fd_ctx *	fdctx,
 	const struct slbt_common_ctx *	cctx,
-	struct slbt_split_vector *	sargv)
+	struct slbt_split_vector *	sargv,
+	char **				envp)
 {
 	struct slbt_driver_ctx_alloc *	ictx;
 	size_t				size;
@@ -237,6 +238,7 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	ictx->ctx.dargv = sargv->dargv;
 	ictx->ctx.targv = sargv->targv;
 	ictx->ctx.cargv = sargv->cargv;
+	ictx->ctx.envp  = envp;
 
 	memcpy(&ictx->ctx.fdctx,fdctx,sizeof(*fdctx));
 	memcpy(&ictx->ctx.cctx,cctx,sizeof(*cctx));
@@ -1701,7 +1703,7 @@ int slbt_get_driver_ctx(
 			cctx.tag = SLBT_TAG_CC;
 
 	/* driver context */
-	if (!(ctx = slbt_driver_ctx_alloc(meta,fdctx,&cctx,&sargv)))
+	if (!(ctx = slbt_driver_ctx_alloc(meta,fdctx,&cctx,&sargv,envp)))
 		return slbt_get_driver_ctx_fail(0,meta);
 
 	/* ctx */
