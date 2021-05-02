@@ -321,7 +321,7 @@ AC_REQUIRE([SLIBTOOL_PREREQ])
 ])
 
 
-# SLIBTOOL_PREREQ(_VERSION_)
+# SLIBTOOL_PREREQ(_version_)
 # --------------------------
 AC_DEFUN([SLIBTOOL_PREREQ],[
 
