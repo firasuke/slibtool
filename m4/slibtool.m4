@@ -208,6 +208,20 @@ slibtool_options="${slibtool_options} disable-static"
 ])
 
 
+# SLIBTOOL_PROG_NM
+# ----------------
+AC_DEFUN([SLIBTOOL_PROG_NM],[
+
+# slibtool: SLIBTOOL_PROG_NM
+# --------------------------
+if [[ -z "${NM:-}" ]]; then
+	NM="${RANLIB%ranlib}nm"
+fi
+
+AC_SUBST([NM])
+])
+
+
 # SLIBTOOL_INIT(_options_)
 # ------------------------
 AC_DEFUN([SLIBTOOL_INIT],[
@@ -353,6 +367,7 @@ AC_PROG_SED
 AC_PROG_YACC
 
 AC_PROG_RANLIB
+AC_PROG_NM
 
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
@@ -367,6 +382,9 @@ AC_DEFUN([LT_PREREQ],           [SLIBTOOL_PREREQ($@)])
 
 AC_DEFUN([AC_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 AC_DEFUN([AM_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
+
+AC_DEFUN([AC_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
+AC_DEFUN([AM_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
 
 AC_DEFUN([AC_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
 AC_DEFUN([AM_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
