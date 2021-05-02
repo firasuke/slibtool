@@ -629,7 +629,6 @@ int slbt_get_lconf_flags(
 	const char *			cap;
 	uint64_t			optshared;
 	uint64_t			optstatic;
-	int				optlenmax;
 	int				optsharedlen;
 	int				optstaticlen;
 	const char *			optsharedstr;
@@ -657,10 +656,6 @@ int slbt_get_lconf_flags(
 	mark = addr;
 	cap  = &mark[st.st_size];
 
-	/* hard-coded options in the generated libtool precede the code */
-	if (st.st_size >= (optlenmax = strlen("build_libtool_libs=yes\n")))
-		cap -= optlenmax;
-
 	/* scan */
 	optshared = 0;
 	optstatic = 0;
@@ -672,43 +667,61 @@ int slbt_get_lconf_flags(
 	optstaticlen = strlen(optstaticstr);
 
 	for (; mark && mark<cap; ) {
-		if (!strncmp(mark,optsharedstr,optsharedlen)) {
-			mark += optsharedlen;
-
-			if ((mark[0]=='n')
-					&& (mark[1]=='o')
-					&& (mark[2]=='\n'))
-				optshared = SLBT_DRIVER_DISABLE_SHARED;
-
-			if ((mark[0]=='y')
-					&& (mark[1]=='e')
-					&& (mark[2]=='s')
-					&& (mark[3]=='\n'))
-				optshared = SLBT_DRIVER_SHARED;
-
-		} else if (!strncmp(mark,optstaticstr,optstaticlen)) {
-			mark += optstaticlen;
-
-			if ((mark[0]=='n')
-					&& (mark[1]=='o')
-					&& (mark[2]=='\n'))
-				optstatic = SLBT_DRIVER_DISABLE_STATIC;
-
-			if ((mark[0]=='y')
-					&& (mark[1]=='e')
-					&& (mark[2]=='s')
-					&& (mark[3]=='\n'))
-				optstatic = SLBT_DRIVER_STATIC;
-		}
-
-		if (optshared && optstatic)
+		if (!optshared && (cap - mark < optsharedlen)) {
 			mark = 0;
 
-		else {
+		} else if (!optstatic && (cap - mark < optstaticlen)) {
+			mark = 0;
+
+		} else if (!optshared && !strncmp(mark,optsharedstr,optsharedlen)) {
+			mark += optsharedlen;
+
+			if ((cap - mark >= 3)
+					&& (mark[0]=='n')
+					&& (mark[1]=='o')
+					&& (mark[2]=='\n')
+					&& (mark = &mark[3]))
+				optshared = SLBT_DRIVER_DISABLE_SHARED;
+
+			else if ((cap - mark >= 4)
+					&& (mark[0]=='y')
+					&& (mark[1]=='e')
+					&& (mark[2]=='s')
+					&& (mark[3]=='\n')
+					&& (mark = &mark[4]))
+				optshared = SLBT_DRIVER_SHARED;
+
+			if (!optshared)
+				mark--;
+
+		} else if (!optstatic && !strncmp(mark,optstaticstr,optstaticlen)) {
+			mark += optstaticlen;
+
+			if ((cap - mark >= 3)
+					&& (mark[0]=='n')
+					&& (mark[1]=='o')
+					&& (mark[2]=='\n')
+					&& (mark = &mark[3]))
+				optstatic = SLBT_DRIVER_DISABLE_STATIC;
+
+			else if ((cap - mark >= 4)
+					&& (mark[0]=='y')
+					&& (mark[1]=='e')
+					&& (mark[2]=='s')
+					&& (mark[3]=='\n')
+					&& (mark = &mark[4]))
+				optstatic = SLBT_DRIVER_STATIC;
+
+			if (!optstatic)
+				mark--;
+		} else {
 			for (; (mark<cap) && (*mark!='\n'); )
 				mark++;
 			mark++;
 		}
+
+		if (optshared && optstatic)
+			mark = 0;
 	}
 
 	munmap(addr,st.st_size);
