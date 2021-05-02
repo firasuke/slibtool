@@ -686,7 +686,7 @@ int slbt_get_lconf_flags(
 					&& (mark[3]=='\n'))
 				optshared = SLBT_DRIVER_SHARED;
 
-		} if (!strncmp(mark,optstaticstr,optstaticlen)) {
+		} else if (!strncmp(mark,optstaticstr,optstaticlen)) {
 			mark += optstaticlen;
 
 			if ((mark[0]=='n')
