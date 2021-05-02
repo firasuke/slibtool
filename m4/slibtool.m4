@@ -75,7 +75,7 @@ slibtool_arg_enable()
 			IFS="${PATH_SEPARATOR}${IFS}"
 
 			for slbt_pkg in ${enableval}; do
-				if [ "_${slbt_pkg}" = "_${slbt_package}" ]; then
+				if [[ "_${slbt_pkg}" = "_${slbt_package}" ]]; then
 					slbt_eval_expr="${slbt_var}='yes'"
 					eval $slbt_eval_expr
 				fi
