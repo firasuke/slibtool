@@ -160,6 +160,54 @@ slibtool_set_flavor()
 ])
 
 
+# SLIBTOOL_ENABLE_SHARED
+# ----------------------
+AC_DEFUN([SLIBTOOL_ENABLE_SHARED],[
+AC_BEFORE([$0],[SLIBTOOL_INIT])
+
+# slibtool: SLIBTOOL_ENABLE_SHARED
+# --------------------------------
+slibtool_options="${slibtool_options:-}"
+slibtool_options="${slibtool_options} shared"
+])
+
+
+# SLIBTOOL_ENABLE_STATIC
+# ----------------------
+AC_DEFUN([SLIBTOOL_ENABLE_STATIC],[
+AC_BEFORE([$0],[SLIBTOOL_INIT])
+
+# slibtool: SLIBTOOL_ENABLE_STATIC
+# --------------------------------
+slibtool_options="${slibtool_options:-}"
+slibtool_options="${slibtool_options} static"
+])
+
+
+# SLIBTOOL_DISABLE_SHARED
+# -----------------------
+AC_DEFUN([SLIBTOOL_DISABLE_SHARED],[
+AC_BEFORE([$0],[SLIBTOOL_INIT])
+
+# slibtool: SLIBTOOL_DISABLE_SHARED
+# ---------------------------------
+slibtool_options="${slibtool_options:-}"
+slibtool_options="${slibtool_options} disable-shared"
+])
+
+
+# SLIBTOOL_DISABLE_STATIC
+# -----------------------
+AC_DEFUN([SLIBTOOL_DISABLE_STATIC],[
+AC_BEFORE([$0],[SLIBTOOL_INIT])
+
+# slibtool: SLIBTOOL_DISABLE_STATIC
+# ---------------------------------
+slibtool_options="${slibtool_options:-}"
+slibtool_options="${slibtool_options} disable-static"
+])
+
+
 # SLIBTOOL_INIT(_options_)
 # ------------------------
 AC_DEFUN([SLIBTOOL_INIT],[
@@ -174,7 +222,7 @@ AC_REQUIRE([_SLIBTOOL_ARGUMENT_HANDLING])
 slbt_cfg_ifs="${IFS}"
 IFS="${PATH_SEPARATOR}${IFS}"
 
-for slbt_opt in $@; do
+for slbt_opt in $@ ${slibtool_options:-}; do
 	case "${slbt_opt}" in
 		'shared')
 			slibtool_enable_shared_default='yes'
@@ -310,3 +358,15 @@ AC_DEFUN([LT_PREREQ],           [SLIBTOOL_PREREQ($@)])
 
 AC_DEFUN([AC_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 AC_DEFUN([AM_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
+
+AC_DEFUN([AC_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
+AC_DEFUN([AM_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
+
+AC_DEFUN([AC_ENABLE_STATIC],    [SLIBTOOL_ENABLE_STATIC($@)])
+AC_DEFUN([AM_ENABLE_STATIC],    [SLIBTOOL_ENABLE_STATIC($@)])
+
+AC_DEFUN([AC_DISABLE_SHARED],   [SLIBTOOL_DISABLE_SHARED($@)])
+AC_DEFUN([AM_DISABLE_SHARED],   [SLIBTOOL_DISABLE_SHARED($@)])
+
+AC_DEFUN([AC_DISABLE_STATIC],   [SLIBTOOL_DISABLE_STATIC($@)])
+AC_DEFUN([AM_DISABLE_STATIC],   [SLIBTOOL_DISABLE_STATIC($@)])
