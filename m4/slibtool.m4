@@ -146,6 +146,8 @@ slibtool_set_flavor()
 
 		*)
 			SLIBTOOL='false'
+			slibtool_enable_shared='no'
+			slibtool_enable_static='no'
 			;;
 	esac
 
@@ -156,6 +158,13 @@ slibtool_set_flavor()
 	enable_win32_dll=${slibtool_enable_win32_dll}
 	enable_fast_install=${slibtool_enable_fast_install}
 	pic_mode=${slibtool_pic_mode}
+
+	# backward-compatible heuristics support
+	printf "%s\n%s=%s\n%s=%s\n" \
+		'#!/dev/null'        \
+		'build_libtool_libs' "${slibtool_enable_shared}" \
+		'build_old_libs'     "${slibtool_enable_static}"  \
+		> libtool
 }
 ])
 
