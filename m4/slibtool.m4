@@ -211,6 +211,7 @@ slibtool_options="${slibtool_options} disable-static"
 # SLIBTOOL_INIT(_options_)
 # ------------------------
 AC_DEFUN([SLIBTOOL_INIT],[
+AC_BEFORE([SLIBTOOL_LANG])
 AC_REQUIRE([SLIBTOOL_PREREQ])
 AC_REQUIRE([_SLIBTOOL_DEFAULTS])
 AC_REQUIRE([_SLIBTOOL_SET_FLAVOR])
@@ -299,6 +300,13 @@ m4_define([SLIBTOOL_INIT])
 ])
 
 
+# SLIBTOOL_LANG(_language_)
+# -------------------------
+AC_DEFUN([SLIBTOOL_LANG],[
+AC_REQUIRE([SLIBTOOL_PREREQ])
+])
+
+
 # SLIBTOOL_PREREQ(_VERSION_)
 # --------------------------
 AC_DEFUN([SLIBTOOL_PREREQ],[
@@ -354,6 +362,7 @@ AC_PROG_MKDIR_P
 # drop-in replacement
 # -------------------
 AC_DEFUN([LT_INIT],             [SLIBTOOL_INIT($@)])
+AC_DEFUN([LT_LANG],             [SLIBTOOL_LANG($@)])
 AC_DEFUN([LT_PREREQ],           [SLIBTOOL_PREREQ($@)])
 
 AC_DEFUN([AC_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
