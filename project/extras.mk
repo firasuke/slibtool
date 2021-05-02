@@ -8,12 +8,12 @@ CFLAGS_CONFIG		+= $(CFLAGS_MACHINE)
 src/driver/slbt_driver_ctx.o:	version.tag
 src/driver/slbt_driver_ctx.lo:	version.tag
 
-install-app-extras:	DBGNAME  = dlibtool
-install-app-extras:	LEGABITS = clibtool
-install-app-extras:	RAPUNZEL = rlibtool
-install-app-extras:	RAPUNCEL = rclibtool
-install-app-extras:	RAPUNDEL = rdlibtool
-install-app-extras:	RAPUNJEL = rdclibtool
+DBGNAME  = dlibtool
+LEGABITS = clibtool
+RAPUNZEL = rlibtool
+RAPUNCEL = rclibtool
+RAPUNDEL = rdlibtool
+RAPUNJEL = rdclibtool
 
 install-app-extras:
 	mkdir -p $(DESTDIR)$(BINDIR)
