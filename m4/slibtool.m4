@@ -315,7 +315,7 @@ _SLIBTOOL_ARG_WITH([pic],[override defaults for pic object usage],[slibtool_pic_
 # slibtool: set flavor
 # --------------------
 slibtool_set_flavor
-LIBTOOL=${SLIBTOOL}
+LIBTOOL='$(SLIBTOOL)'
 
 AC_SUBST([LIBTOOL])
 AC_SUBST([SLIBTOOL])
