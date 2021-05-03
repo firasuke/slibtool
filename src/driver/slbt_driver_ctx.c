@@ -1882,6 +1882,26 @@ int  slbt_set_alternate_host(
 	return 0;
 }
 
+int slbt_get_flavor_settings(
+	const char *                            flavor,
+	const struct slbt_flavor_settings **    settings)
+{
+	if (!strcmp(flavor,"midipix"))
+		*settings = &host_flavor_midipix;
+	else if (!strcmp(flavor,"mingw"))
+		*settings = &host_flavor_mingw;
+	else if (!strcmp(flavor,"cygwin"))
+		*settings = &host_flavor_cygwin;
+	else if (!strcmp(flavor,"darwin"))
+		*settings = &host_flavor_darwin;
+	else if (!strcmp(flavor,"default"))
+		*settings = &host_flavor_default;
+	else
+		*settings = 0;
+
+	return *settings ? 0 : -1;
+}
+
 const struct slbt_source_version * slbt_source_version(void)
 {
 	return &slbt_src_version;
