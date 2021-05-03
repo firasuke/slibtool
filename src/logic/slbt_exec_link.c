@@ -1997,6 +1997,11 @@ int slbt_exec_link(
 
 	/* dynamic library */
 	if (dot && !strcmp(dot,".la") && dctx->cctx->rpath && !fstaticonly) {
+		const struct slbt_flavor_settings * dflavor;
+
+		if (slbt_get_flavor_settings("default",&dflavor) < 0)
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
+
 		/* -shrext support */
 		if (dctx->cctx->shrext) {
 			strcpy(target,ectx->lafilename);
@@ -2016,8 +2021,29 @@ int slbt_exec_link(
 					target,lnkname,
 					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
-		}
 
+		/* non-default shared-object suffix support */
+		} else if (strcmp(dctx->cctx->settings.dsosuffix,dflavor->dsosuffix)) {
+			strcpy(target,ectx->lafilename);
+			sprintf(lnkname,"%s.shrext%s",
+				ectx->lafilename,
+				dctx->cctx->settings.dsosuffix);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					SLBT_SYMLINK_DEFAULT))
+				return SLBT_NESTED_ERROR(dctx);
+
+			strcpy(target,lnkname);
+			sprintf(lnkname,"%s.shrext",ectx->lafilename);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					SLBT_SYMLINK_DEFAULT))
+				return SLBT_NESTED_ERROR(dctx);
+		}
 
 		/* linking: libfoo.so.x.y.z */
 		if (slbt_exec_link_create_library(
