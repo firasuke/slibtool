@@ -1935,6 +1935,36 @@ int slbt_exec_link(
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
+	/* static-only libfoo.la */
+	if (fstaticonly && dot && !strcmp(dot,".la")) {
+		const struct slbt_flavor_settings * dflavor;
+
+		if (slbt_get_flavor_settings("default",&dflavor) < 0)
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
+
+		if (strcmp(dctx->cctx->settings.dsosuffix,dflavor->dsosuffix)) {
+			strcpy(target,ectx->lafilename);
+			sprintf(lnkname,"%s.shrext%s",
+				ectx->lafilename,
+				dctx->cctx->settings.dsosuffix);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					SLBT_SYMLINK_DEFAULT))
+				return SLBT_NESTED_ERROR(dctx);
+
+			strcpy(target,lnkname);
+			sprintf(lnkname,"%s.shrext",ectx->lafilename);
+
+			if (slbt_create_symlink(
+					dctx,ectx,
+					target,lnkname,
+					SLBT_SYMLINK_DEFAULT))
+				return SLBT_NESTED_ERROR(dctx);
+		}
+	}
+
 	/* -all-static library */
 	if (fstaticonly && dctx->cctx->libname)
 		if (slbt_create_symlink(
