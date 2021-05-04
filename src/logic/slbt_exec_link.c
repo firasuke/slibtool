@@ -1277,19 +1277,13 @@ static int slbt_exec_link_create_archive(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	const char *			arfilename,
-	bool				fpic,
-	bool				fprimary)
+	bool				fpic)
 {
 	int		fdcwd;
 	char ** 	aarg;
 	char ** 	parg;
-	char *		base;
-	char *		mark;
-	char *		slash;
 	char		program[PATH_MAX];
 	char		output [PATH_MAX];
-	char		arfile [PATH_MAX];
-	char		arlink [PATH_MAX];
 
 	/* -disable-static? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC)
@@ -1357,32 +1351,6 @@ static int slbt_exec_link_create_archive(
 		if (slbt_adjust_wrapper_argument(*parg,true))
 			if (slbt_archive_import(dctx,ectx,output,*parg))
 				return SLBT_NESTED_ERROR(dctx);
-
-	if (fprimary && (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_SHARED)) {
-		strcpy(arlink,output);
-		mark  = strrchr(arlink,'/');
-		*mark = 0;
-
-		base  = output + (mark - arlink);
-		base++;
-
-		if ((slash = strrchr(arlink,'/')))
-			slash++;
-		else
-			slash = arlink;
-
-		strcpy(slash,base);
-		sprintf(arfile,".libs/%s",base);
-
-		if (slbt_exec_link_remove_file(dctx,ectx,arlink))
-			return SLBT_NESTED_ERROR(dctx);
-
-		if (slbt_create_symlink(
-				dctx,ectx,
-				arfile,arlink,
-				SLBT_SYMLINK_DEFAULT))
-			return SLBT_NESTED_ERROR(dctx);
-	}
 
 	return 0;
 }
@@ -1934,7 +1902,7 @@ int slbt_exec_link(
 
 	/* non-pic libfoo.a */
 	if (dot && !strcmp(dot,".a"))
-		if (slbt_exec_link_create_archive(dctx,ectx,output,false,false)) {
+		if (slbt_exec_link_create_archive(dctx,ectx,output,false)) {
 			slbt_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
@@ -1962,7 +1930,7 @@ int slbt_exec_link(
 		if (slbt_exec_link_create_archive(
 				dctx,ectx,
 				ectx->arfilename,
-				fpic,true)) {
+				fpic)) {
 			slbt_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
