@@ -277,6 +277,7 @@ static int slbt_split_argv(
 	int				argc;
 	const char *			program;
 	char *				compiler;
+	char *				csysroot;
 	char **				dargv;
 	char **				targv;
 	char **				cargv;
@@ -377,6 +378,8 @@ static int slbt_split_argv(
 	else if (!(sargv->dargs = calloc(1,size+1)))
 		return -1;
 
+	csysroot = 0;
+
 	for (i=0,flast=false,dargv=sargv->dargv,dst=sargv->dargs; i<argc; i++) {
 		if ((fcopy = flast)) {
 			(void)0;
@@ -441,6 +444,22 @@ static int slbt_split_argv(
 			*dst++ = 'L';
 			strcpy(dst,&argv[i][15]);
 			dst += strlen(dst)+1;
+
+		} else if (!strcmp(argv[i],"--sysroot") && (i<ctx.unitidx)) {
+			*dargv++ = dst;
+			csysroot = dst;
+			strcpy(dst,argv[i]);
+			dst[9] = '=';
+			strcpy(&dst[10],argv[++i]);
+			dst += strlen(dst)+1;
+			ctx.unitidx--;
+
+		} else if (!strncmp(argv[i],"--sysroot=",10) && (i<ctx.unitidx)) {
+			*dargv++ = dst;
+			csysroot = dst;
+			strcpy(dst,argv[i]);
+			dst += strlen(dst)+1;
+
 		} else {
 			fcopy = true;
 		}
@@ -456,8 +475,8 @@ static int slbt_split_argv(
 	argc = dargv - sargv->dargv;
 	argv = sargv->dargv;
 
-	/* allocate split vectors */
-	if ((sargv->targv = calloc(2*(argc+2),sizeof(char *))))
+	/* allocate split vectors, account for cargv's added sysroot */
+	if ((sargv->targv = calloc(2*(argc+3),sizeof(char *))))
 		sargv->cargv = sargv->targv + argc + 2;
 	else
 		return -1;
@@ -502,6 +521,14 @@ static int slbt_split_argv(
 	for (optout=optv; optout[0]->tag != TAG_OUTPUT; optout++)
 		(void)0;
 
+	/* compiler */
+	*cargv++ = argv[i++];
+
+	/* sysroot */
+	if (csysroot)
+		*cargv++ = csysroot;
+
+	/* remaining vector */
 	for (; i<argc; i++) {
 		if (argv[i][0] != '-') {
 			if (argv[i+1] && (argv[i+1][0] == '+')
@@ -539,6 +566,17 @@ static int slbt_split_argv(
 			*targv++ = argv[i];
 
 		} else if (!(strcmp("-target",&argv[i][1]))) {
+			*cargv++ = argv[i];
+			*targv++ = argv[i++];
+
+			*cargv++ = argv[i];
+			*targv++ = argv[i];
+
+		} else if (!(strncmp("-sysroot=",&argv[i][1],9))) {
+			*cargv++ = argv[i];
+			*targv++ = argv[i];
+
+		} else if (!(strcmp("-sysroot",&argv[i][1]))) {
 			*cargv++ = argv[i];
 			*targv++ = argv[i++];
 
@@ -1541,6 +1579,10 @@ int slbt_get_driver_ctx(
 
 				case TAG_RPATH:
 					cctx.rpath = entry->arg;
+					break;
+
+				case TAG_SYSROOT:
+					cctx.sysroot = entry->arg;
 					break;
 
 				case TAG_RELEASE:

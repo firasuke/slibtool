@@ -161,6 +161,10 @@ const struct argv_option slbt_default_options[] = {
 				"where a library should eventually be "
 				"installed, relative to $(DESTDIR)$(PREFIX)"},
 
+	{"sysroot",		0,TAG_SYSROOT,ARGV_OPTARG_REQUIRED,0,0,"<sysroot>",
+				"an absolute sysroot path to pass to the compiler "
+				"or linker driver"},
+
 	{"release",		0,TAG_RELEASE,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,0,0,
 				"specify release information; this will result "

@@ -252,6 +252,7 @@ struct slbt_common_ctx {
 	const char *			output;
 	const char *			shrext;
 	const char *			rpath;
+	const char *			sysroot;
 	const char *			release;
 	const char *			symfile;
 	const char *			regex;
