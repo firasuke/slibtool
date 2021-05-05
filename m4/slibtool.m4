@@ -41,6 +41,7 @@ slibtool_enable_dlopen_default='yes'
 slibtool_enable_win32_dll_default='yes'
 slibtool_enable_fast_install_default='yes'
 slibtool_pic_mode_default='default'
+slibtool_sysroot_default=
 ])
 
 
@@ -90,8 +91,32 @@ slibtool_arg_enable()
 
 slibtool_arg_with()
 {
-	enableval="${withval}"
-	slibtool_arg_enable
+	case "${slbt_var}" in
+		'slibtool_sysroot')
+			case "${withval}" in
+				'yes')
+					slbt_eval_expr="${slbt_var}='yes'"
+					eval $slbt_eval_expr
+					;;
+
+				'no')
+					slbt_eval_expr="${slbt_var}='no'"
+					eval $slbt_eval_expr
+					;;
+
+				*)
+					slbt_eval_expr="${slbt_var}=${withval}"
+					eval $slbt_eval_expr
+					;;
+			esac
+
+			;;
+
+		*)
+			enableval="${withval}"
+			slibtool_arg_enable
+			;;
+	esac
 }
 ])
 
@@ -148,6 +173,30 @@ slibtool_set_flavor()
 			SLIBTOOL='false'
 			slibtool_enable_shared='no'
 			slibtool_enable_static='no'
+			;;
+	esac
+
+	case "_${slibtool_sysroot}" in
+		'_')
+			;;
+
+		'_yes'|'_no')
+			slibtool_err_arg=[$with_sysroot]
+			slibtool_err_msg='slibtool: the command-line --sysroot argument is always respected.'
+			AC_MSG_RESULT([slibtool: --with-sysroot=$slibtool_err_arg])
+			AC_MSG_ERROR([$slibtool_err_msg])
+			;;
+
+		_/*)
+			SLIBTOOL_SYSROOT="--sysroot=${slibtool_sysroot}"
+			SLIBTOOL="${SLIBTOOL} \$(SLIBTOOL_SYSROOT)"
+			;;
+
+		*)
+			slibtool_err_arg=[$with_sysroot]
+			slibtool_err_msg='slibtool: relative sysroot paths are not supported.'
+			AC_MSG_RESULT([slibtool: --with-sysroot=$slibtool_err_arg])
+			AC_MSG_ERROR([$slibtool_err_msg])
 			;;
 	esac
 
@@ -310,6 +359,7 @@ _SLIBTOOL_ARG_ENABLE([dlopen],[allow -dlopen and -dlpreopen],[slibtool_enable_dl
 _SLIBTOOL_ARG_ENABLE([win32-dll],[natively support win32 dll's],[slibtool_enable_win32_dll])
 _SLIBTOOL_ARG_ENABLE([fast-install],[optimize for fast installation],[slibtool_enable_fast_install])
 _SLIBTOOL_ARG_WITH([pic],[override defaults for pic object usage],[slibtool_pic_mode])
+_SLIBTOOL_ARG_WITH([sysroot],[absolute path to the target's sysroot],[slibtool_sysroot])
 
 
 # slibtool: set flavor
@@ -319,6 +369,7 @@ LIBTOOL='$(SLIBTOOL)'
 
 AC_SUBST([LIBTOOL])
 AC_SUBST([SLIBTOOL])
+AC_SUBST([SLIBTOOL_SYSROOT])
 m4_define([SLIBTOOL_INIT])
 ])
 
