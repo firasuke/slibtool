@@ -8,6 +8,7 @@ extern const struct argv_option slbt_uninstall_options[];
 enum uninstall_tags {
 	TAG_UNINSTALL_HELP,
 	TAG_UNINSTALL_VERSION,
+	TAG_UNINSTALL_SYSROOT,
 	TAG_UNINSTALL_FORCE,
 	TAG_UNINSTALL_RMDIR,
 	TAG_UNINSTALL_VERBOSE,

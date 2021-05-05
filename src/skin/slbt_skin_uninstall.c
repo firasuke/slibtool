@@ -8,6 +8,9 @@ const struct argv_option slbt_uninstall_options[] = {
 	{"version",	0,TAG_UNINSTALL_VERSION,ARGV_OPTARG_NONE,0,0,0,
 			"display version information"},
 
+	{"sysroot",	0,TAG_UNINSTALL_SYSROOT,ARGV_OPTARG_REQUIRED,0,0,"<sysroot>",
+			"reference only: the target's sysroot directory"},
+
 	{"force",	'f',TAG_UNINSTALL_FORCE,ARGV_OPTARG_NONE,0,0,0,
 			"force file removal"},
 

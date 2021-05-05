@@ -326,6 +326,9 @@ int slbt_exec_uninstall(
 	for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
 		if (entry->fopt) {
 			switch (entry->tag) {
+				case TAG_UNINSTALL_SYSROOT:
+					break;
+
 				case TAG_UNINSTALL_HELP:
 					flags |= SLBT_UNINSTALL_HELP;
 					break;
