@@ -5,6 +5,9 @@ const struct argv_option slbt_install_options[] = {
 	{"help",	'h',TAG_INSTALL_HELP,ARGV_OPTARG_NONE,0,0,0,
 			"display install mode help"},
 
+	{"sysroot",	0,TAG_INSTALL_SYSROOT,ARGV_OPTARG_REQUIRED,0,0,"<sysroot>",
+			"reference only: the target's sysroot directory"},
+
 	{0,		'c',TAG_INSTALL_COPY,ARGV_OPTARG_NONE,0,0,0,
 			"copy"},
 

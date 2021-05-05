@@ -709,6 +709,9 @@ int slbt_exec_install(
 	for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
 		if (entry->fopt) {
 			switch (entry->tag) {
+				case TAG_INSTALL_SYSROOT:
+					break;
+
 				case TAG_INSTALL_COPY:
 					*argv++ = "-c";
 					copy = entry;
@@ -754,8 +757,12 @@ int slbt_exec_install(
 					break;
 			}
 
-			if (entry->fval)
+			if (entry->tag == TAG_INSTALL_SYSROOT) {
+				(void)0;
+
+			} else if (entry->fval) {
 				*argv++ = (char *)entry->arg;
+			}
 		} else
 			last = entry;
 	}

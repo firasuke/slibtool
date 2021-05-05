@@ -17,6 +17,7 @@ enum install_tags {
 	TAG_INSTALL_GROUP,
 	TAG_INSTALL_MODE,
 	TAG_INSTALL_DSTDIR,
+	TAG_INSTALL_SYSROOT,
 };
 
 #endif
