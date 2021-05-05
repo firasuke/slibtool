@@ -115,21 +115,15 @@ static int slbt_exec_install_import_libraries(
 	char *				srcdso,
 	char *				dstdir)
 {
-	int	fdcwd;
-	char *	host;
 	char *	slash;
 	char *	dot;
 	char *	mark;
 	char	srcbuf [PATH_MAX];
 	char	implib [PATH_MAX];
-	char	hosttag[PATH_MAX];
 	char	hostlnk[PATH_MAX];
 	char	major  [128];
 	char	minor  [128];
 	char	rev    [128];
-
-	/* fdcwd */
-	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* .libs/libfoo.so.x.y.z */
 	if ((size_t)snprintf(srcbuf,sizeof(srcbuf),"%s",
@@ -148,6 +142,13 @@ static int slbt_exec_install_import_libraries(
 
 	/* guard against an infinitely long version */
 	mark = srcbuf + strlen(srcbuf);
+
+	if (dctx->cctx->asettings.osdfussix[0]) {
+		if (!(dot = strrchr(srcbuf,'.')))
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+
+		*dot = 0;
+	}
 
 	/* rev */
 	if (!(dot = strrchr(srcbuf,'.')))
@@ -179,27 +180,9 @@ static int slbt_exec_install_import_libraries(
 		*dot = 0;
 	}
 
-	if (!(dot = strrchr(srcbuf,'.')))
-		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
-
-	/* .libs/libfoo.so.def.host */
-	if ((size_t)snprintf(hostlnk,sizeof(hostlnk),"%s.def.host",
-			srcbuf) >= sizeof(hostlnk))
-		return SLBT_BUFFER_ERROR(dctx);
-
-	/* libfoo.so.def.{flavor} */
-	if (slbt_readlinkat(fdcwd,hostlnk,hosttag,sizeof(hosttag)))
-		return SLBT_SYSTEM_ERROR(dctx,hostlnk);
-
-	/* host/flabor */
-	if (!(host = strrchr(hosttag,'.')))
-		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
-	else
-		host++;
-
-	/* symlink-based alternate host */
-	if (slbt_set_alternate_host(dctx,host,host))
-		return SLBT_NESTED_ERROR(dctx);
+	if (!dctx->cctx->asettings.osdfussix[0])
+		if (!(dot = strrchr(srcbuf,'.')))
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
 
 	/* .libs/libfoo.x.y.z.lib.a */
 	sprintf(dot,"%s%s%s%s",
@@ -345,6 +328,7 @@ static int slbt_exec_install_entry(
 	int		fdcwd;
 	char *		dot;
 	char *		base;
+	char *		host;
 	char *		slash;
 	char *		suffix;
 	char *		dsosuffix;
@@ -354,6 +338,7 @@ static int slbt_exec_install_entry(
 	char		dstfile [PATH_MAX];
 	char		slnkname[PATH_MAX];
 	char		dlnkname[PATH_MAX];
+	char		hosttag [PATH_MAX];
 	char		lasource[PATH_MAX - 8];
 	bool		fexe = false;
 	bool		fpe;
@@ -446,6 +431,27 @@ static int slbt_exec_install_entry(
 	/* dot/suffix */
 	strcpy(slnkname,srcfile);
 	dot = strrchr(slnkname,'.');
+
+	/* .libs/libfoo.so.def.host */
+	slen  = sizeof(slnkname);
+	slen -= (dot - slnkname);
+
+	if ((size_t)snprintf(dot,slen,"%s.def.host",dsosuffix) >= slen)
+		return SLBT_BUFFER_ERROR(dctx);
+
+	/* libfoo.so.def.{flavor} */
+	if (slbt_readlinkat(fdcwd,slnkname,hosttag,sizeof(hosttag)))
+		return SLBT_SYSTEM_ERROR(dctx,slnkname);
+
+	/* host/flabor */
+	if (!(host = strrchr(hosttag,'.')))
+		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+	else
+		host++;
+
+	/* symlink-based alternate host */
+	if (slbt_set_alternate_host(dctx,host,host))
+		return SLBT_NESTED_ERROR(dctx);
 
 	/* libfoo.a --> libfoo.so.release */
 	sprintf(dot,"%s.release",dsosuffix);
