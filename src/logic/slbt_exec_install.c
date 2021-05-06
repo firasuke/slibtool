@@ -476,6 +476,8 @@ static int slbt_exec_install_entry(
 	if (slbt_set_alternate_host(dctx,host,host))
 		return SLBT_NESTED_ERROR(dctx);
 
+	fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
+
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
 
@@ -492,13 +494,6 @@ static int slbt_exec_install_entry(
 				srcfile,
 				dest ? (char *)dest->arg : *dst))
 			return SLBT_NESTED_ERROR(dctx);
-
-	/* PE support: does .libs/libfoo.so.def exist? */
-	if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s.def",
-			slnkname) >= sizeof(dstfile))
-		return SLBT_BUFFER_ERROR(dctx);
-
-	fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
 
 	/* basename */
 	if ((base = strrchr(slnkname,'/')))
