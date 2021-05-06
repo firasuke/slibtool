@@ -345,6 +345,7 @@ static int slbt_exec_install_entry(
 	bool		frelease;
 	bool		farchive;
 	size_t		slen;
+	size_t		dlen;
 	struct stat	st;
 
 	/* executable wrapper? */
@@ -436,12 +437,34 @@ static int slbt_exec_install_entry(
 	slen  = sizeof(slnkname);
 	slen -= (dot - slnkname);
 
-	if ((size_t)snprintf(dot,slen,"%s.def.host",dsosuffix) >= slen)
-		return SLBT_BUFFER_ERROR(dctx);
+	/* libfoo.a --> libfoo.so.release */
+	sprintf(dot,"%s.release",dsosuffix);
+	frelease = fstatat(fdcwd,slnkname,&st,0) ? false : true;
 
 	/* libfoo.so.def.{flavor} */
-	if (slbt_readlinkat(fdcwd,slnkname,hosttag,sizeof(hosttag)))
-		return SLBT_SYSTEM_ERROR(dctx,slnkname);
+	if (frelease) {
+		strcpy(dlnkname,slnkname);
+		slash = strrchr(dlnkname,'/');
+
+		dlen  = sizeof(dlnkname);
+		dlen -= (++slash - dlnkname);
+		dlen -= 9;
+
+		if (slbt_readlinkat(fdcwd,slnkname,slash,dlen))
+			return SLBT_SYSTEM_ERROR(dctx,slnkname);
+
+		slash += strlen(slash);
+		strcpy(slash,".def.host");
+
+		if (slbt_readlinkat(fdcwd,dlnkname,hosttag,sizeof(hosttag)))
+			return SLBT_SYSTEM_ERROR(dctx,slnkname);
+	} else {
+		if ((size_t)snprintf(dot,slen,"%s.def.host",dsosuffix) >= slen)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		if (slbt_readlinkat(fdcwd,frelease ? dlnkname : slnkname,hosttag,sizeof(hosttag)))
+			return SLBT_SYSTEM_ERROR(dctx,slnkname);
+	}
 
 	/* host/flabor */
 	if (!(host = strrchr(hosttag,'.')))
@@ -452,10 +475,6 @@ static int slbt_exec_install_entry(
 	/* symlink-based alternate host */
 	if (slbt_set_alternate_host(dctx,host,host))
 		return SLBT_NESTED_ERROR(dctx);
-
-	/* libfoo.a --> libfoo.so.release */
-	sprintf(dot,"%s.release",dsosuffix);
-	frelease = fstatat(fdcwd,slnkname,&st,0) ? false : true;
 
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
