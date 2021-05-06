@@ -1138,54 +1138,60 @@ static int slbt_exec_link_create_dep_file(
 	return 0;
 }
 
+static int slbt_exec_link_create_host_tag(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	char *				deffilename)
+{
+	char *  slash;
+	char	hosttag[PATH_MAX];
+	char	hostlnk[PATH_MAX];
+
+	/* libfoo.so.def.{flavor} */
+	if ((size_t)snprintf(hosttag,sizeof(hosttag),"%s.%s",
+			deffilename,
+			dctx->cctx->host.flavor) >= sizeof(hosttag))
+		return SLBT_BUFFER_ERROR(dctx);
+
+	if ((size_t)snprintf(hostlnk,sizeof(hostlnk),"%s.host",
+			deffilename) >= sizeof(hostlnk))
+		return SLBT_BUFFER_ERROR(dctx);
+
+	/* libfoo.so.def is under .libs/ */
+	if (!(slash = strrchr(deffilename,'/')))
+		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
+
+	if (slbt_create_symlink(
+		dctx,ectx,
+		deffilename,
+		hosttag,
+		SLBT_SYMLINK_DEFAULT))
+	return SLBT_NESTED_ERROR(dctx);
+
+	/* libfoo.so.def.{flavor} is under .libs/ */
+	if (!(slash = strrchr(hosttag,'/')))
+		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
+
+	if (slbt_create_symlink(
+			dctx,ectx,
+			++slash,
+			hostlnk,
+			SLBT_SYMLINK_DEFAULT))
+		return SLBT_NESTED_ERROR(dctx);
+
+	return 0;
+}
+
 static int slbt_exec_link_create_import_library(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				impfilename,
 	char *				deffilename,
-	char *				soname,
-	bool				ftag)
+	char *				soname)
 {
 	int	fmdso;
-	char *	slash;
 	char *	eargv[8];
 	char	program[PATH_MAX];
-	char	hosttag[PATH_MAX];
-	char	hostlnk[PATH_MAX];
-
-	/* libfoo.so.def.{flavor} */
-	if (ftag) {
-		if ((size_t)snprintf(hosttag,sizeof(hosttag),"%s.%s",
-				deffilename,
-				dctx->cctx->host.flavor) >= sizeof(hosttag))
-			return SLBT_BUFFER_ERROR(dctx);
-
-		if ((size_t)snprintf(hostlnk,sizeof(hostlnk),"%s.host",
-				deffilename) >= sizeof(hostlnk))
-			return SLBT_BUFFER_ERROR(dctx);
-
-		/* libfoo.so.def is under .libs/ */
-		if (!(slash = strrchr(deffilename,'/')))
-			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
-
-		if (slbt_create_symlink(
-				dctx,ectx,
-				deffilename,
-				hosttag,
-				SLBT_SYMLINK_DEFAULT))
-			return SLBT_NESTED_ERROR(dctx);
-
-		/* libfoo.so.def.{flavor} is under .libs/ */
-		if (!(slash = strrchr(hosttag,'/')))
-			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
-
-		if (slbt_create_symlink(
-				dctx,ectx,
-				++slash,
-				hostlnk,
-				SLBT_SYMLINK_DEFAULT))
-			return SLBT_NESTED_ERROR(dctx);
-	}
 
 	/* dlltool or mdso? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_IMPLIB_DSOMETA)
@@ -1925,6 +1931,14 @@ int slbt_exec_link(
 		fpic        = false;
 	}
 
+	/* libfoo.so.def.{flavor} */
+	if (dctx->cctx->libname) {
+		if (slbt_exec_link_create_host_tag(
+				dctx,ectx,
+				ectx->deffilename))
+			return SLBT_NESTED_ERROR(dctx);
+	}
+
 	/* pic libfoo.a */
 	if (dot && !strcmp(dot,".la"))
 		if (slbt_exec_link_create_archive(
@@ -1963,6 +1977,13 @@ int slbt_exec_link(
 					SLBT_SYMLINK_DEFAULT))
 				return SLBT_NESTED_ERROR(dctx);
 		}
+
+		if (slbt_create_symlink(
+				dctx,ectx,
+				"/dev/null",
+				ectx->deffilename,
+				SLBT_SYMLINK_LITERAL|SLBT_SYMLINK_DEVNULL))
+			return SLBT_NESTED_ERROR(dctx);
 	}
 
 	/* -all-static library */
@@ -2086,8 +2107,7 @@ int slbt_exec_link(
 					dctx,ectx,
 					ectx->pimpfilename,
 					ectx->deffilename,
-					soname,
-					true))
+					soname))
 				return SLBT_NESTED_ERROR(dctx);
 
 			/* symlink: libfoo.lib.a --> libfoo.x.lib.a */
@@ -2103,8 +2123,14 @@ int slbt_exec_link(
 					dctx,ectx,
 					ectx->vimpfilename,
 					ectx->deffilename,
-					soxyz,
-					false))
+					soxyz))
+				return SLBT_NESTED_ERROR(dctx);
+		} else {
+			if (slbt_create_symlink(
+					dctx,ectx,
+					"/dev/null",
+					ectx->deffilename,
+					SLBT_SYMLINK_LITERAL|SLBT_SYMLINK_DEVNULL))
 				return SLBT_NESTED_ERROR(dctx);
 		}
 	}

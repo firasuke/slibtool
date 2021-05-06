@@ -7,6 +7,7 @@
 #define SLBT_SYMLINK_DEFAULT    0x0000
 #define SLBT_SYMLINK_LITERAL    0x0001
 #define SLBT_SYMLINK_WRAPPER    0x0002
+#define SLBT_SYMLINK_DEVNULL    0x0004
 
 int slbt_create_symlink(
 	const struct slbt_driver_ctx *	dctx,

@@ -28,6 +28,7 @@ int slbt_create_symlink(
 	int		fdcwd;
 	int		fliteral;
 	int		fwrapper;
+	int		fdevnull;
 	char **		oargv;
 	const char *	slash;
 	char *		ln[5];
@@ -41,9 +42,13 @@ int slbt_create_symlink(
 	/* options */
 	fliteral = (options & SLBT_SYMLINK_LITERAL);
 	fwrapper = (options & SLBT_SYMLINK_WRAPPER);
+	fdevnull = (options & SLBT_SYMLINK_DEVNULL);
 
 	/* symlink is a placeholder? */
-	if ((dctx->cctx->drvflags & SLBT_DEV_NULL_FLAGS)
+	if (fliteral && fdevnull) {
+		slash = target;
+
+	} else if ((dctx->cctx->drvflags & SLBT_DEV_NULL_FLAGS)
 			&& !strcmp(target,"/dev/null")) {
 		slash  = target;
 		suffix = ".disabled";

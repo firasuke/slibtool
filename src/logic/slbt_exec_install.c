@@ -479,7 +479,7 @@ static int slbt_exec_install_entry(
 			slnkname) >= sizeof(dstfile))
 		return SLBT_BUFFER_ERROR(dctx);
 
-	fpe = fstatat(fdcwd,dstfile,&st,0) ? false : true;
+	fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
 
 	/* basename */
 	if ((base = strrchr(slnkname,'/')))
