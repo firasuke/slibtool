@@ -1783,16 +1783,24 @@ static int slbt_exec_link_create_library_symlink(
 	char	target[PATH_MAX];
 	char	lnkname[PATH_MAX];
 
-	if (ectx->relfilename) {
+	if (ectx->relfilename && dctx->cctx->verinfo.verinfo) {
+		strcpy(target,ectx->relfilename);
+		sprintf(lnkname,"%s.dualver",ectx->dsofilename);
+
+		if (slbt_create_symlink(
+				dctx,ectx,
+				target,lnkname,
+				SLBT_SYMLINK_DEFAULT))
+			return SLBT_NESTED_ERROR(dctx);
+	} else if (ectx->relfilename) {
 		strcpy(target,ectx->relfilename);
 		sprintf(lnkname,"%s.release",ectx->dsofilename);
 
-		if (!dctx->cctx->verinfo.verinfo)
-			if (slbt_create_symlink(
-					dctx,ectx,
-					target,lnkname,
-					SLBT_SYMLINK_DEFAULT))
-				return SLBT_NESTED_ERROR(dctx);
+		if (slbt_create_symlink(
+				dctx,ectx,
+				target,lnkname,
+				SLBT_SYMLINK_DEFAULT))
+			return SLBT_NESTED_ERROR(dctx);
 	} else {
 		sprintf(target,"%s%s.%d.%d.%d%s",
 			ectx->dsobasename,
