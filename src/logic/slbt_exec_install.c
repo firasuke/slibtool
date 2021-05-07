@@ -329,6 +329,7 @@ static int slbt_exec_install_entry(
 	char *		dot;
 	char *		base;
 	char *		host;
+	char *		mark;
 	char *		slash;
 	char *		suffix;
 	char *		dsosuffix;
@@ -343,6 +344,7 @@ static int slbt_exec_install_entry(
 	bool		fexe = false;
 	bool		fpe;
 	bool		frelease;
+	bool		fdualver;
 	bool		farchive;
 	size_t		slen;
 	size_t		dlen;
@@ -437,12 +439,22 @@ static int slbt_exec_install_entry(
 	slen  = sizeof(slnkname);
 	slen -= (dot - slnkname);
 
+	/* detect -release, exclusively or alongside -version-info */
+	frelease = false;
+	fdualver = false;
+
 	/* libfoo.a --> libfoo.so.release */
 	sprintf(dot,"%s.release",dsosuffix);
-	frelease = fstatat(fdcwd,slnkname,&st,0) ? false : true;
+	frelease = !fstatat(fdcwd,slnkname,&st,0);
+
+	/* libfoo.a --> libfoo.so.dualver */
+	if (!frelease) {
+		sprintf(dot,"%s.dualver",dsosuffix);
+		fdualver = !fstatat(fdcwd,slnkname,&st,0);
+	}
 
 	/* libfoo.so.def.{flavor} */
-	if (frelease) {
+	if (frelease || fdualver) {
 		strcpy(dlnkname,slnkname);
 		slash = strrchr(dlnkname,'/');
 
@@ -453,8 +465,27 @@ static int slbt_exec_install_entry(
 		if (slbt_readlinkat(fdcwd,slnkname,slash,dlen))
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
-		slash += strlen(slash);
-		strcpy(slash,".def.host");
+		if (fdualver) {
+			/* remove .patch */
+			if (!(mark = strrchr(dlnkname,'.')))
+				return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+
+			*mark = 0;
+
+			/* remove .minor */
+			if (!(mark = strrchr(dlnkname,'.')))
+				return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+
+			*mark = 0;
+
+			/* remove .major */
+			if (!(mark = strrchr(dlnkname,'.')))
+				return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
+		} else {
+			mark = slash += strlen(slash);
+		}
+
+		strcpy(mark,".def.host");
 
 		if (slbt_readlinkat(fdcwd,dlnkname,hosttag,sizeof(hosttag)))
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
