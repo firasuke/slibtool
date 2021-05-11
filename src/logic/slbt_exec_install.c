@@ -345,6 +345,7 @@ static int slbt_exec_install_entry(
 	bool		fpe;
 	bool		frelease;
 	bool		fdualver;
+	bool		fstatic;
 	bool		farchive;
 	size_t		slen;
 	size_t		dlen;
@@ -442,19 +443,30 @@ static int slbt_exec_install_entry(
 	/* detect -release, exclusively or alongside -version-info */
 	frelease = false;
 	fdualver = false;
+	fstatic  = false;
+	fpe      = false;
+
+	/* static library only? */
+	sprintf(dot,"%s",dsosuffix);
+	fstatic = slbt_symlink_is_a_placeholder(fdcwd,slnkname);
 
 	/* libfoo.a --> libfoo.so.release */
-	sprintf(dot,"%s.release",dsosuffix);
-	frelease = !fstatat(fdcwd,slnkname,&st,0);
+	if (!fstatic) {
+		sprintf(dot,"%s.release",dsosuffix);
+		frelease = !fstatat(fdcwd,slnkname,&st,0);
+	}
 
 	/* libfoo.a --> libfoo.so.dualver */
-	if (!frelease) {
+	if (!fstatic && !frelease) {
 		sprintf(dot,"%s.dualver",dsosuffix);
 		fdualver = !fstatat(fdcwd,slnkname,&st,0);
 	}
 
 	/* libfoo.so.def.{flavor} */
-	if (frelease || fdualver) {
+	if (fstatic) {
+		(void)0;
+
+	} else if (frelease || fdualver) {
 		strcpy(dlnkname,slnkname);
 		slash = strrchr(dlnkname,'/');
 
@@ -498,16 +510,22 @@ static int slbt_exec_install_entry(
 	}
 
 	/* host/flabor */
-	if (!(host = strrchr(hosttag,'.')))
+	if (fstatic) {
+		(void)0;
+
+	} else if (!(host = strrchr(hosttag,'.'))) {
 		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
-	else
+	} else {
 		host++;
+	}
 
 	/* symlink-based alternate host */
-	if (slbt_set_alternate_host(dctx,host,host))
-		return SLBT_NESTED_ERROR(dctx);
+	if (!fstatic) {
+		if (slbt_set_alternate_host(dctx,host,host))
+			return SLBT_NESTED_ERROR(dctx);
 
-	fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
+		fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
+	}
 
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
@@ -515,7 +533,7 @@ static int slbt_exec_install_entry(
 	/* libfoo.a installation */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC))
 		farchive = true;
-	else if (slbt_symlink_is_a_placeholder(fdcwd,slnkname))
+	else if (fstatic)
 		farchive = true;
 	else
 		farchive = false;
@@ -535,7 +553,7 @@ static int slbt_exec_install_entry(
 	/* source (build) symlink target */
 	if (slbt_readlinkat(fdcwd,slnkname,target,sizeof(target)) < 0) {
 		/* -all-static? */
-		if (slbt_symlink_is_a_placeholder(fdcwd,slnkname))
+		if (fstatic)
 			return 0;
 
 		/* -avoid-version? */
