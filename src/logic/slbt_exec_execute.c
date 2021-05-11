@@ -49,16 +49,6 @@ int  slbt_exec_execute(
 	script  = ectx->cargv[1];
 
 	if (script) {
-		/* wrapper */
-		if ((size_t)snprintf(wrapper,sizeof(wrapper),
-					"%s%s.exe.wrapper",
-					(script[0] == '/') ? "" : "./",
-					script)
-				>= sizeof(wrapper)) {
-			slbt_free_exec_ctx(actx);
-			return SLBT_BUFFER_ERROR(dctx);
-		}
-
 		/* exeref */
 		if ((base = strrchr(script,'/')))
 			base++;
@@ -68,6 +58,15 @@ int  slbt_exec_execute(
 		strcpy(exeref,script);
 		mark = exeref + (base - script);
 		sprintf(mark,".libs/%s",base);
+
+		/* wrapper */
+		if ((size_t)snprintf(wrapper,sizeof(wrapper),
+					"%s.exe.wrapper",
+					exeref)
+				>= sizeof(wrapper)) {
+			slbt_free_exec_ctx(actx);
+			return SLBT_BUFFER_ERROR(dctx);
+		}
 
 		/* fdcwd */
 		fdcwd = slbt_driver_fdcwd(dctx);

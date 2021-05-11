@@ -1698,16 +1698,14 @@ static int slbt_exec_link_create_executable(
 
 	/* executable wrapper symlink */
 	if ((size_t)snprintf(wraplnk,sizeof(wraplnk),"%s.exe.wrapper",
-			dctx->cctx->output) >= sizeof(wraplnk))
+			exefilename) >= sizeof(wraplnk))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_BUFFER_ERROR(dctx));
 
 	/* executable wrapper: base name */
-	if ((base = strrchr(wraplnk,'/')))
-		base++;
-	else
-		base = wraplnk;
+	base = strrchr(wraplnk,'/');
+	base++;
 
 	/* executable wrapper: footer */
 	fabspath = (exefilename[0] == '/');
@@ -1752,7 +1750,7 @@ static int slbt_exec_link_create_executable(
 	if (slbt_create_symlink(
 			dctx,ectx,
 			dctx->cctx->output,wraplnk,
-			SLBT_SYMLINK_DEFAULT))
+			SLBT_SYMLINK_WRAPPER))
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_NESTED_ERROR(dctx));

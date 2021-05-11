@@ -326,8 +326,8 @@ static int slbt_exec_install_entry(
 {
 	int		ret;
 	int		fdcwd;
+	const char *	base;
 	char *		dot;
-	char *		base;
 	char *		host;
 	char *		mark;
 	char *		slash;
@@ -352,8 +352,16 @@ static int slbt_exec_install_entry(
 	struct stat	st;
 
 	/* executable wrapper? */
-	if ((size_t)snprintf(slnkname,sizeof(slnkname),"%s.exe.wrapper",
-			entry->arg) >= sizeof(slnkname))
+	base = (slash = strrchr(entry->arg,'/'))
+		? ++slash : entry->arg;
+
+	strcpy(slnkname,entry->arg);
+	mark = &slnkname[base - entry->arg];
+	slen = sizeof(slnkname) - (mark - slnkname);
+
+	if ((size_t)snprintf(mark,slen,
+			".libs/%s.exe.wrapper",
+			base) >= slen)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* fdcwd */
