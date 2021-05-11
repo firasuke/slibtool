@@ -404,20 +404,24 @@ int  slbt_get_exec_ctx(
 
 		/* primary implib file name */
 		ictx->ctx.pimpfilename = ch;
-		ch += sprintf(ch,"%s%s%s.%d%s",
+		ch += sprintf(ch,"%s%s%s%s%s.%d%s",
 				ictx->ctx.ldirname,
 				impprefix,
 				dctx->cctx->libname,
+				dctx->cctx->release ? "-" : "",
+				dctx->cctx->release ? dctx->cctx->release : "",
 				dctx->cctx->verinfo.major,
 				dctx->cctx->settings.impsuffix);
 		ch++;
 
 		/* versioned implib file name */
 		ictx->ctx.vimpfilename = ch;
-		ch += sprintf(ch,"%s%s%s.%d.%d.%d%s",
+		ch += sprintf(ch,"%s%s%s%s%s.%d.%d.%d%s",
 				ictx->ctx.ldirname,
 				impprefix,
 				dctx->cctx->libname,
+				dctx->cctx->release ? "-" : "",
+				dctx->cctx->release ? dctx->cctx->release : "",
 				dctx->cctx->verinfo.major,
 				dctx->cctx->verinfo.minor,
 				dctx->cctx->verinfo.revision,

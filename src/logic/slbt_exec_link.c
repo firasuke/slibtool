@@ -1870,9 +1870,11 @@ int slbt_exec_link(
 		actx = ectx;
 
 	/* libfoo.so.x.y.z */
-	if ((size_t)snprintf(soxyz,sizeof(soxyz),"%s%s%s.%d.%d.%d%s",
+	if ((size_t)snprintf(soxyz,sizeof(soxyz),"%s%s%s%s%s.%d.%d.%d%s",
 				ectx->sonameprefix,
 				dctx->cctx->libname,
+				dctx->cctx->release ? "-" : "",
+				dctx->cctx->release ? dctx->cctx->release : "",
 				dctx->cctx->settings.osdsuffix,
 				dctx->cctx->verinfo.major,
 				dctx->cctx->verinfo.minor,
@@ -1884,9 +1886,11 @@ int slbt_exec_link(
 	}
 
 	/* libfoo.so.x */
-	sprintf(soname,"%s%s%s.%d%s",
+	sprintf(soname,"%s%s%s%s%s.%d%s",
 		ectx->sonameprefix,
 		dctx->cctx->libname,
+		dctx->cctx->release ? "-" : "",
+		dctx->cctx->release ? dctx->cctx->release : "",
 		dctx->cctx->settings.osdsuffix,
 		dctx->cctx->verinfo.major,
 		dctx->cctx->settings.osdfussix);
