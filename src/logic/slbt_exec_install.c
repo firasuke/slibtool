@@ -390,6 +390,19 @@ static int slbt_exec_install_entry(
 		sprintf(srcfile,".libs/%s",lasource);
 	}
 
+	/* executable? ordinary file? */
+	if (fexe || !dot || strcmp(dot,".la")) {
+		*src = fexe ? srcfile : (char *)entry->arg;
+		*dst = dest ? 0 : (char *)last->arg;
+
+		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
+			if (slbt_output_install(dctx,ectx))
+				return SLBT_NESTED_ERROR(dctx);
+
+		return (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
+			? SLBT_SPAWN_ERROR(dctx) : 0;
+	}
+
 	/* -shrext, dsosuffix */
 	strcpy(sobuf,dctx->cctx->settings.dsosuffix);
 	dsosuffix = sobuf;
@@ -409,19 +422,6 @@ static int slbt_exec_install_entry(
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
 
 		strcpy(sobuf,&target[slen+7]);
-	}
-
-	/* executable? ordinary file? */
-	if (fexe || !dot || strcmp(dot,".la")) {
-		*src = fexe ? srcfile : (char *)entry->arg;
-		*dst = dest ? 0 : (char *)last->arg;
-
-		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-			if (slbt_output_install(dctx,ectx))
-				return SLBT_NESTED_ERROR(dctx);
-
-		return (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
-			? SLBT_SPAWN_ERROR(dctx) : 0;
 	}
 
 	/* legabits? */
