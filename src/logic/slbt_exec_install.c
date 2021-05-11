@@ -360,9 +360,7 @@ static int slbt_exec_install_entry(
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* fexe */
-	fexe = fstatat(fdcwd,slnkname,&st,0)
-		? false
-		: true;
+	fexe = !fstatat(fdcwd,slnkname,&st,0);
 
 	/* argument suffix */
 	dot  = strrchr(entry->arg,'.');
@@ -380,8 +378,9 @@ static int slbt_exec_install_entry(
 	if ((slash = strrchr(lasource,'/'))) {
 		*slash++ = 0;
 		sprintf(srcfile,"%s/.libs/%s",lasource,slash);
-	} else
+	} else {
 		sprintf(srcfile,".libs/%s",lasource);
+	}
 
 	/* -shrext, dsosuffix */
 	strcpy(sobuf,dctx->cctx->settings.dsosuffix);
