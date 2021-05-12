@@ -1,3 +1,53 @@
+0.5.34:
+
+This is the last patch release in the 0.5.x series. As of this release,
+there are no known problems pertaining to slibtool's core functionality
+or compatibility with the historic libtool implementation. Outstanding
+features that are not covered by this release are the internal
+implementation of archive merging (as opposed to using ar(1) and MRI
+scripts), as well as the internal implementation, integration, and
+support of -dlpreopen.
+
+Included with this release is also m4/slibtool.m4, which by now has
+been tested against, and may be successfully used with legacy autoconf
+versions (such as 2.64), as well as more recent ones (2.69 or later).
+A new invocation mode, --mode=slibtoolize (or the slibtoolize symlink)
+is currently under development, and will be included with the next
+release.
+
+- driver: slbt_get_driver_ctx(): properly record the envp parameter.
+- driver api: slbt_get_flavor_settings(): initial implementation.
+- driver: added explicit --sysroot support.
+- link mode: set the -soname linker flag alongside the -avoid-version argument.
+- link mode: slbt_exec_link_create_executable(): enclose $DL_PATH in quotes.
+- link mode: slbt_exec_link_create_executable(): replace backtick with $().
+- link mode: -module without -rpath is an executable, not a dynamic library.
+- link mode: legacy libtool compatibility: support linking against -module libs.
+- link mode: slbt_exec_link(): properly support non-default shared-object suffix.
+- link mode: slbt_exec_link_create_archive(): eliminate the libfoo.a symlink.
+- link mode: static-only libfoo.la: account for non-default shared-object suffix.
+- link mode: always create libfoo.so.def.{host|flavor} and related tags.
+- link mode: PE targets: -release: fix names used for and in import libraries.
+- link mode: slbt_exec_link_create_executable(): place .exe.wrapper under .libs/.
+- install mode: driver: added (referential) --sysroot support.
+- install mode: slbt_exec_install_entry: properly handle fussix flavors.
+- install mode: libfoo.la and ibfoo.so.def.host: properly handle -release.
+- install mode: slbt_exec_install_entry(): remove dead code.
+- install mode: libfoo.la installation: early detect static-only operation mode.
+- uninstall mode: driver: added (referential) --sysroot support.
+- heuristics: slbt_get_lconf_flags(): added missing 'else' in if-then block.
+- heuristics: slbt_get_lconf_flags(): enhanced the string-scanning logic.
+- library: replace all uses of open() with openat().
+- library: replace all uses of chmod() with fchmodat().
+- library: replace all uses of unlink() with unlinkat().
+- library: replace all uses of rmdir() with unlinkat().
+- library: replace all uses of rename() with renameat().
+- library: replace all uses of symlink() with symlinkat().
+- library: replace all uses of [slbt_]readlink() with [slbt_]readlinkat().
+- library: replace all uses of stat() and lstat() with fstatat() counterparts.
+- library: replace all uses of getcwd() with slbt_realpath().
+- library: eliminate use of the external environ variable.
+
 0.5.33:
 
 This patch release provides several bug fixes and improvements, as well as
