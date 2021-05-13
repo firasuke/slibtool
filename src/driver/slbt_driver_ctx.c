@@ -290,6 +290,7 @@ static int slbt_split_argv(
 	struct argv_entry *		entry;
 	struct argv_entry *		mode;
 	struct argv_entry *		help;
+	struct argv_entry *		version;
 	struct argv_entry *		config;
 	struct argv_entry *		finish;
 	struct argv_entry *		features;
@@ -336,14 +337,16 @@ static int slbt_split_argv(
 		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 	}
 
-	/* missing all of --mode, --help, --config, --features, and --finish? */
-	mode = help = config = finish = features = ccwrap = 0;
+	/* missing all of --mode, --help, --version, --config, --features, and --finish? */
+	mode = help = version = config = finish = features = ccwrap = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
 			mode = entry;
 		else if (entry->tag == TAG_HELP)
 			help = entry;
+		else if (entry->tag == TAG_VERSION)
+			version = entry;
 		else if (entry->tag == TAG_CONFIG)
 			config = entry;
 		else if (entry->tag == TAG_FINISH)
@@ -355,7 +358,7 @@ static int slbt_split_argv(
 
 	argv_free(meta);
 
-	if (!mode && !help && !config && !finish && !features) {
+	if (!mode && !help && !version && !config && !finish && !features) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -363,7 +366,7 @@ static int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !finish && !features) {
+	if (!ctx.unitidx && !help && !version && !finish && !features) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -488,7 +491,7 @@ static int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || features) {
+	} else if (help || version || features) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 

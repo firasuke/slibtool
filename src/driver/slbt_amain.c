@@ -91,39 +91,16 @@ static int slbt_exit(struct slbt_driver_ctx * dctx, int ret)
 int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 {
 	int				ret;
-	const char *			harg;
 	int				fdout;
 	uint64_t			flags;
 	uint64_t			noclr;
 	struct slbt_driver_ctx *	dctx;
 	char *				program;
 	char *				dash;
-	char *				sargv[5];
 
 	flags = SLBT_DRIVER_FLAGS;
 	fdout = fdctx ? fdctx->fdout : STDOUT_FILENO;
 	noclr = getenv("NO_COLOR") ? SLBT_DRIVER_ANNOTATE_NEVER : 0;
-
-	/* harg */
-	harg = (!argv || !argv[0] || !argv[1] || argv[2])
-		? 0 : argv[1];
-
-	/* --version only? */
-	if (harg && (!strcmp(harg,"--version")
-				|| !strcmp(harg,"--help-all")
-				|| !strcmp(harg,"--help")
-				|| !strcmp(harg,"-h"))) {
-		sargv[0] = argv[0];
-		sargv[1] = argv[1];
-		sargv[2] = "--mode=compile";
-		sargv[3] = "<compiler>";
-		sargv[4] = 0;
-
-		return (slbt_get_driver_ctx(sargv,envp,flags|noclr,fdctx,&dctx))
-			? SLBT_ERROR : (slbt_version(dctx,fdout) < 0)
-				? slbt_exit(dctx,SLBT_ERROR)
-				: slbt_exit(dctx,SLBT_OK);
-	}
 
 	/* program */
 	if ((program = strrchr(argv[0],'/')))
