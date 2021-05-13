@@ -289,6 +289,7 @@ static int slbt_split_argv(
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
 	struct argv_entry *		mode;
+	struct argv_entry *		help;
 	struct argv_entry *		config;
 	struct argv_entry *		finish;
 	struct argv_entry *		features;
@@ -335,12 +336,14 @@ static int slbt_split_argv(
 		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 	}
 
-	/* missing all of --mode, --config, --features, and --finish? */
-	mode = config = finish = features = ccwrap = 0;
+	/* missing all of --mode, --help, --config, --features, and --finish? */
+	mode = help = config = finish = features = ccwrap = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
 			mode = entry;
+		else if (entry->tag == TAG_HELP)
+			help = entry;
 		else if (entry->tag == TAG_CONFIG)
 			config = entry;
 		else if (entry->tag == TAG_FINISH)
@@ -352,7 +355,7 @@ static int slbt_split_argv(
 
 	argv_free(meta);
 
-	if (!mode && !config && !finish && !features) {
+	if (!mode && !help && !config && !finish && !features) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -360,7 +363,7 @@ static int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !finish && !features) {
+	if (!ctx.unitidx && !help && !finish && !features) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -482,7 +485,10 @@ static int slbt_split_argv(
 		return -1;
 
 	/* --features and no <compiler>? */
-	if (features && !ctx.unitidx) {
+	if (ctx.unitidx) {
+		(void)0;
+
+	} else if (help || features) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
@@ -1386,13 +1392,22 @@ int slbt_get_driver_ctx(
 			switch (entry->tag) {
 				case TAG_HELP:
 				case TAG_HELP_ALL:
-					return (flags & SLBT_DRIVER_VERBOSITY_USAGE)
-						? slbt_driver_usage(
-							fdctx->fdout,program,
-							entry->arg,optv,
-							meta,&sargv,
-							(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
-						: SLBT_USAGE;
+					switch (cctx.mode) {
+						case SLBT_MODE_INSTALL:
+						case SLBT_MODE_UNINSTALL:
+							break;
+
+					default:
+						return (flags & SLBT_DRIVER_VERBOSITY_USAGE)
+							? slbt_driver_usage(
+								fdctx->fdout,program,
+								entry->arg,optv,
+								meta,&sargv,
+								(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
+							: SLBT_USAGE;
+					}
+
+					break;
 
 				case TAG_VERSION:
 					cctx.drvflags |= SLBT_DRIVER_VERSION;
