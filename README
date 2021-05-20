@@ -153,7 +153,7 @@ of such hidden bugs, see commits [94d109f], [1142bf2], and [55c95a8].
 [dlopen()]:     http://pubs.opengroup.org/onlinepubs/9699919799/functions/dlopen.html
 [CONTRIB]:      http://git.foss21.org/slibtool/tree/CONTRIB
 [libtool]:      https://www.gnu.org/software/libtool/
-[#midipix]:     irc://irc.freenode.net/#midipix
+[#midipix]:     ircs://irc.libera.chat/#midipix
 [cparser]:      http://pp.ipd.kit.edu/git/cparser/
 [94d109f]:      http://git.foss21.org/slibtool/commit/?id=94d109fa418c024c214a50d645624e2e2935e6d1
 [1142bf2]:      http://git.foss21.org/slibtool/commit/?id=1142bf2e13f411cf967c1ed8b4060d7829eb13bb
