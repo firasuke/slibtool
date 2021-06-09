@@ -89,7 +89,7 @@ static const char cfgexplicit[] = "command-line argument";
 static const char cfghost[]     = "derived from <host>";
 static const char cfgtarget[]   = "derived from <target>";
 static const char cfgcompiler[] = "derived from <compiler>";
-static const char cfgnmachine[] = "native (derived from -dumpmachine)";
+static const char cfgnmachine[] = "native (cached in ccenv/host.mk)";
 static const char cfgxmachine[] = "foreign (derived from -dumpmachine)";
 static const char cfgnative[]   = "native";
 
