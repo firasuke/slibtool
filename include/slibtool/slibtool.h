@@ -310,6 +310,7 @@ slbt_api int  slbt_main                 (char **, char **,
                                          const struct slbt_fd_ctx *);
 
 slbt_api int  slbt_output_config        (const struct slbt_driver_ctx *);
+slbt_api int  slbt_output_machine       (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_features      (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_fdcwd         (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_exec          (const struct slbt_driver_ctx *, const struct slbt_exec_ctx *, const char *);
