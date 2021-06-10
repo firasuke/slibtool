@@ -164,6 +164,12 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 			? !argv || !argv[0] || !argv[1] || !argv[2]
 			: SLBT_ERROR;
 
+	/* --dumpmachine disables all other actions */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_MACHINE)
+		return slbt_output_machine(dctx)
+			? SLBT_ERROR : SLBT_OK;
+
+	/* --version is always the first action */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_VERSION)
 		if ((slbt_version(dctx,fdout)) < 0)
 			return slbt_exit(dctx,SLBT_ERROR);

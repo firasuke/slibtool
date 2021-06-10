@@ -295,6 +295,7 @@ static int slbt_split_argv(
 	struct argv_entry *		finish;
 	struct argv_entry *		features;
 	struct argv_entry *		ccwrap;
+	struct argv_entry *		dumpmachine;
 	const struct argv_option **	popt;
 	const struct argv_option **	optout;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
@@ -337,8 +338,8 @@ static int slbt_split_argv(
 		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 	}
 
-	/* missing all of --mode, --help, --version, --config, --features, and --finish? */
-	mode = help = version = config = finish = features = ccwrap = 0;
+	/* missing all of --mode, --help, --version, --config, --dumpmachine, --features, and --finish? */
+	mode = help = version = config = finish = features = ccwrap = dumpmachine = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
@@ -355,10 +356,12 @@ static int slbt_split_argv(
 			features = entry;
 		else if (entry->tag == TAG_CCWRAP)
 			ccwrap = entry;
+		else if (entry->tag == TAG_DUMPMACHINE)
+			dumpmachine = entry;
 
 	argv_free(meta);
 
-	if (!mode && !help && !version && !config && !finish && !features) {
+	if (!mode && !help && !version && !config && !finish && !features && !dumpmachine) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -366,7 +369,7 @@ static int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !version && !finish && !features) {
+	if (!ctx.unitidx && !help && !version && !finish && !features && !dumpmachine) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -491,7 +494,7 @@ static int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || version || features) {
+	} else if (help || version || features || dumpmachine) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
@@ -1480,6 +1483,10 @@ int slbt_get_driver_ctx(
 
 				case TAG_CONFIG:
 					cctx.drvflags |= SLBT_DRIVER_CONFIG;
+					break;
+
+				case TAG_DUMPMACHINE:
+					cctx.drvflags |= SLBT_DRIVER_OUTPUT_MACHINE;
 					break;
 
 				case TAG_DEBUG:

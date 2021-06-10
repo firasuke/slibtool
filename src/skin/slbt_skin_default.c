@@ -48,6 +48,11 @@ const struct argv_option slbt_default_options[] = {
 	{"features",		0,TAG_FEATURES,ARGV_OPTARG_NONE,0,0,0,
 				"show feature information"},
 
+	{"dumpmachine",		0,TAG_DUMPMACHINE,ARGV_OPTARG_NONE,0,0,0,
+				"print the cached result of the native compiler's "
+				"-dumpmachine output (bootstrapping: print the cached, "
+				"manual setting of CCHOST)."},
+
 	{"legabits",		0,TAG_LEGABITS,ARGV_OPTARG_OPTIONAL,0,
 				"enabled|disabled",0,
 				"enable/disable legacy bits, i.e. "
