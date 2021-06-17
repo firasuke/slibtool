@@ -133,7 +133,7 @@ that should be noted.
 
 ## Development
 
-Major changes to slibtool should be discussed on [#midipix] prior to pursuing
+Major changes to slibtool should be discussed on [#slibtool] prior to pursuing
 a considerable effort, and patches should be sent, gpg-signed, to the project
 maintainer; before hacking on slibtool, please take a moment of your time and
 read the [CONTRIB] document.
@@ -148,7 +148,7 @@ of such hidden bugs, see commits [94d109f], [1142bf2], and [55c95a8].
 
 `slibtool` is distributed under a permissive [MIT license].
 
-[#midipix]:     ircs://irc.libera.chat/#midipix
+[#slibtool]:    ircs://irc.oftc.net/#slibtool
 [MIT license]:  https://git.foss21.org/slibtool/tree/COPYING.SLIBTOOL
 [CONTRIB]:      https://git.foss21.org/slibtool/tree/CONTRIB
 [libltdl]:      https://www.gnu.org/software/libtool/manual/html_node/Using-libltdl.html#Using-libltdl
