@@ -1,7 +1,7 @@
 
 /*******************************************************************/
 /*  slibtool: a skinny libtool implementation, written in C        */
-/*  Copyright (C) 2016--2021  Z. Gilboa                            */
+/*  Copyright (C) 2016--2021  SysDeer Technologies, LLC            */
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
