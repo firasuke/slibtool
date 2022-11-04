@@ -15,7 +15,7 @@
 #include "slibtool_dprintf_impl.h"
 #include "argv/argv.h"
 
-#define SLBT_OPTV_ELEMENTS 64
+#define SLBT_OPTV_ELEMENTS 128
 
 extern const struct argv_option slbt_default_options[];
 
@@ -78,6 +78,7 @@ enum app_tags {
 	TAG_COMPILER_FLAG,
 	TAG_VERBATIM_FLAG,
 	TAG_THREAD_SAFE,
+	TAG_WEAK,
 };
 
 struct slbt_split_vector {

@@ -615,6 +615,10 @@ static int slbt_split_argv(
 			*targv++ = argv[i++];
 			*targv++ = argv[i];
 
+		} else if (!(strcmp("weak",&argv[i][1]))) {
+			*targv++ = argv[i++];
+			*targv++ = argv[i];
+
 		} else if (!(strcmp("static-libtool-libs",&argv[i][1]))) {
 			*targv++ = argv[i];
 
@@ -1683,6 +1687,9 @@ int slbt_get_driver_ctx(
 
 				case TAG_STATIC:
 					cmdstatic = entry;
+					break;
+
+				case TAG_WEAK:
 					break;
 			}
 		}

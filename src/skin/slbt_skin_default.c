@@ -300,6 +300,11 @@ const struct argv_option slbt_default_options[] = {
 				0,"<flag>",
 				"pass a raw flag to the compiler linker-driver"},
 
+	{"weak",		0,TAG_WEAK,ARGV_OPTARG_REQUIRED,
+				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
+				0,"<LIBNAME>",
+				"hint only, currently a no-op"},
+
 	{"no-undefined",	0,TAG_NO_UNDEFINED,ARGV_OPTARG_NONE,
 				ARGV_OPTION_HYBRID_ONLY,0,0,
 				"disallow unresolved references"},
