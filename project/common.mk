@@ -4,6 +4,7 @@ API_SRCS = \
 	src/helper/slbt_archive_import.c \
 	src/helper/slbt_copy_file.c \
 	src/helper/slbt_dump_machine.c \
+	src/helper/slbt_map_input.c \
 	src/helper/slbt_realpath.c \
 	src/logic/slbt_exec_compile.c \
 	src/logic/slbt_exec_ctx.c \
