@@ -18,6 +18,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_version.h"
 #include "slibtool_driver_impl.h"
+#include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_lconf_impl.h"
 #include "argv/argv.h"
@@ -171,8 +172,12 @@ static uint32_t slbt_argv_flags(uint32_t flags)
 	return ret;
 }
 
-static int slbt_free_argv_buffer(struct slbt_split_vector * sargv)
+static int slbt_free_argv_buffer(
+	struct slbt_split_vector * sargv,
+	struct slbt_obj_list *     objlistv)
 {
+	struct slbt_obj_list * objlistp;
+
 	if (sargv->dargs)
 		free(sargv->dargs);
 
@@ -181,6 +186,15 @@ static int slbt_free_argv_buffer(struct slbt_split_vector * sargv)
 
 	if (sargv->targv)
 		free(sargv->targv);
+
+	if (objlistv) {
+		for (objlistp=objlistv; objlistp->name; objlistp++) {
+			free(objlistp->objv);
+			free(objlistp->addr);
+		}
+
+		free(objlistv);
+	}
 
 	return -1;
 }
@@ -192,6 +206,7 @@ static int slbt_driver_usage(
 	const struct argv_option **	optv,
 	struct argv_meta *		meta,
 	struct slbt_split_vector *	sargv,
+	struct slbt_obj_list *		objlistv,
 	int				noclr)
 {
 	char header[512];
@@ -211,7 +226,7 @@ static int slbt_driver_usage(
 	}
 
 	argv_free(meta);
-	slbt_free_argv_buffer(sargv);
+	slbt_free_argv_buffer(sargv,objlistv);
 
 	return SLBT_USAGE;
 }
@@ -221,6 +236,7 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	const struct slbt_fd_ctx *	fdctx,
 	const struct slbt_common_ctx *	cctx,
 	struct slbt_split_vector *	sargv,
+	struct slbt_obj_list *		objlistv,
 	char **				envp)
 {
 	struct slbt_driver_ctx_alloc *	ictx;
@@ -230,7 +246,7 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	size =  sizeof(struct slbt_driver_ctx_alloc);
 
 	if (!(ictx = calloc(1,size))) {
-		slbt_free_argv_buffer(sargv);
+		slbt_free_argv_buffer(sargv,objlistv);
 		return 0;
 	}
 
@@ -248,8 +264,11 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	ictx->ctx.errinfp  = &ictx->ctx.erriptr[0];
 	ictx->ctx.erricap  = &ictx->ctx.erriptr[--elements];
 
+	ictx->ctx.objlistv = objlistv;
+
 	ictx->meta = meta;
 	ictx->ctx.ctx.errv  = ictx->ctx.errinfp;
+
 	return &ictx->ctx;
 }
 
@@ -271,16 +290,22 @@ static int slbt_split_argv(
 	char **				argv,
 	uint32_t			flags,
 	struct slbt_split_vector *	sargv,
-	int				fderr)
+	struct slbt_obj_list **		aobjlistv,
+	int				fderr,
+	int				fdcwd)
 {
 	int				i;
 	int				argc;
+	int				objc;
 	const char *			program;
 	char *				compiler;
 	char *				csysroot;
 	char **				dargv;
 	char **				targv;
 	char **				cargv;
+	char **				objp;
+	struct slbt_obj_list *		objlistv;
+	struct slbt_obj_list *		objlistp;
 	char *				dst;
 	bool				flast;
 	bool				fcopy;
@@ -311,7 +336,7 @@ static int slbt_split_argv(
 	if (!argv[1] && (flags & SLBT_DRIVER_VERBOSITY_USAGE))
 		return slbt_driver_usage(
 			fderr,program,
-			0,optv,0,sargv,
+			0,optv,0,sargv,0,
 			!!getenv("NO_COLOR"));
 
 	/* initial argv scan: ... --mode=xxx ... <compiler> ... */
@@ -387,6 +412,14 @@ static int slbt_split_argv(
 	else if (!(sargv->dargs = calloc(1,size+1)))
 		return -1;
 
+	else if (!(*aobjlistv = calloc(argc >> 1,sizeof(**aobjlistv)))) {
+		free(sargv->dargv);
+		free(sargv->dargs);
+		return -1;
+	}
+
+	objlistv = *aobjlistv;
+	objlistp = objlistv;
 	csysroot = 0;
 
 	for (i=0,flast=false,dargv=sargv->dargv,dst=sargv->dargs; i<argc; i++) {
@@ -469,6 +502,15 @@ static int slbt_split_argv(
 			strcpy(dst,argv[i]);
 			dst += strlen(dst)+1;
 
+		} else if (!strcmp(argv[i],"-objectlist")) {
+			*dargv++ = dst;
+			strcpy(dst,argv[i++]);
+			dst += strlen(dst)+1;
+
+			objlistp->name = dst;
+			objlistp++;
+			fcopy = true;
+
 		} else {
 			fcopy = true;
 		}
@@ -484,8 +526,16 @@ static int slbt_split_argv(
 	argc = dargv - sargv->dargv;
 	argv = sargv->dargv;
 
+	/* iterate through the object list vector: map, parse, store */
+	for (objlistp=objlistv; objlistp->name; objlistp++)
+		if (slbt_objlist_read(fdcwd,objlistp) < 0)
+			return -1;
+
+	for (objc=0,objlistp=objlistv; objlistp->name; objlistp++)
+		objc += objlistp->objc;
+
 	/* allocate split vectors, account for cargv's added sysroot */
-	if ((sargv->targv = calloc(2*(argc+3),sizeof(char *))))
+	if ((sargv->targv = calloc(objc + 2*(argc+3),sizeof(char *))))
 		sargv->cargv = sargv->targv + argc + 2;
 	else
 		return -1;
@@ -541,7 +591,7 @@ static int slbt_split_argv(
 		*cargv++ = csysroot;
 
 	/* remaining vector */
-	for (; i<argc; i++) {
+	for (objlistp=objlistv; i<argc; i++) {
 		if (argv[i][0] != '-') {
 			if (argv[i+1] && (argv[i+1][0] == '+')
 					&& (argv[i+1][1] == '=')
@@ -551,6 +601,14 @@ static int slbt_split_argv(
 				i++;
 			else
 				*cargv++ = argv[i];
+
+		/* must capture -objectlist prior to -o */
+		} else if (!(strcmp("objectlist",&argv[i][1]))) {
+			for (objp=objlistp->objv; *objp; objp++)
+				*cargv++ = *objp;
+
+			i++;
+			objlistp++;
 
 		} else if (argv[i][1] == 'o') {
 			*targv++ = argv[i];
@@ -1346,6 +1404,7 @@ int slbt_get_driver_ctx(
 	struct slbt_driver_ctx **	pctx)
 {
 	struct slbt_split_vector	sargv;
+	struct slbt_obj_list *		objlistv;
 	struct slbt_driver_ctx_impl *	ctx;
 	struct slbt_common_ctx		cctx;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
@@ -1368,15 +1427,16 @@ int slbt_get_driver_ctx(
 	sargv.dargv = 0;
 	sargv.targv = 0;
 	sargv.cargv = 0;
+	objlistv    = 0;
 
-	if (slbt_split_argv(argv,flags,&sargv,fdctx->fderr))
-		return slbt_free_argv_buffer(&sargv);
+	if (slbt_split_argv(argv,flags,&sargv,&objlistv,fdctx->fderr,fdctx->fdcwd))
+		return slbt_free_argv_buffer(&sargv,objlistv);
 
 	if (!(meta = argv_get(
 			sargv.targv,optv,
 			slbt_argv_flags(flags),
 			fdctx->fderr)))
-		return slbt_free_argv_buffer(&sargv);
+		return slbt_free_argv_buffer(&sargv,objlistv);
 
 	lconf   = 0;
 	program = argv_program_name(argv[0]);
@@ -1412,7 +1472,7 @@ int slbt_get_driver_ctx(
 							? slbt_driver_usage(
 								fdctx->fdout,program,
 								entry->arg,optv,
-								meta,&sargv,
+								meta,&sargv,objlistv,
 								(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
 							: SLBT_USAGE;
 					}
@@ -1777,7 +1837,7 @@ int slbt_get_driver_ctx(
 			cctx.tag = SLBT_TAG_CC;
 
 	/* driver context */
-	if (!(ctx = slbt_driver_ctx_alloc(meta,fdctx,&cctx,&sargv,envp)))
+	if (!(ctx = slbt_driver_ctx_alloc(meta,fdctx,&cctx,&sargv,objlistv,envp)))
 		return slbt_get_driver_ctx_fail(0,meta);
 
 	/* ctx */
@@ -1860,6 +1920,7 @@ static void slbt_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 {
 	struct slbt_error_info ** perr;
 	struct slbt_error_info *  erri;
+	struct slbt_obj_list *    objlistp;
 
 	for (perr=ictx->ctx.errinfp; *perr; perr++) {
 		erri = *perr;
@@ -1868,9 +1929,15 @@ static void slbt_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 			free(erri->eany);
 	}
 
-
 	if (ictx->ctx.libname)
 		free(ictx->ctx.libname);
+
+	for (objlistp=ictx->ctx.objlistv; objlistp->name; objlistp++) {
+		free(objlistp->objv);
+		free(objlistp->addr);
+	}
+
+	free(ictx->ctx.objlistv);
 
 	free(ictx->ctx.dargs);
 	free(ictx->ctx.dargv);
@@ -1879,6 +1946,7 @@ static void slbt_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 	slbt_free_host_params(&ictx->ctx.host);
 	slbt_free_host_params(&ictx->ctx.ahost);
 	argv_free(ictx->meta);
+
 	free(ictx);
 }
 

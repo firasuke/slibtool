@@ -177,6 +177,11 @@ const struct argv_option slbt_default_options[] = {
 				"followed by the creation of libfoo.so "
 				"as a symlink thereto"},
 
+	{"objectlist",		0,TAG_OBJECTLIST,ARGV_OPTARG_REQUIRED,
+				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
+				0,"<file>",
+				"add the object listed in %s to the object vector}"},
+
 	{"dlopen",		0,TAG_DLOPEN,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<module>",

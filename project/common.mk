@@ -28,6 +28,7 @@ INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_lconf_impl.c \
 	src/internal/$(PACKAGE)_libmeta_impl.c \
 	src/internal/$(PACKAGE)_mapfile_impl.c \
+	src/internal/$(PACKAGE)_objlist_impl.c \
 	src/internal/$(PACKAGE)_objmeta_impl.c \
 	src/internal/$(PACKAGE)_symlink_impl.c \
 

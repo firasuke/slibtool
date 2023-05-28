@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 
 #include <slibtool/slibtool.h>
@@ -54,6 +55,7 @@ enum app_tags {
 	TAG_RPATH,
 	TAG_SYSROOT,
 	TAG_RELEASE,
+	TAG_OBJECTLIST,
 	TAG_DLOPEN,
 	TAG_DLPREOPEN,
 	TAG_EXPORT_DYNAMIC,
@@ -99,12 +101,21 @@ struct slbt_host_strs {
 	char *		mdso;
 };
 
+struct slbt_obj_list {
+	const char *	name;
+	void *		addr;
+	size_t		size;
+	int		objc;
+	char **		objv;
+};
+
 struct slbt_driver_ctx_impl {
 	struct slbt_common_ctx	cctx;
 	struct slbt_driver_ctx	ctx;
 	struct slbt_host_strs	host;
 	struct slbt_host_strs	ahost;
 	struct slbt_fd_ctx	fdctx;
+	struct slbt_obj_list *	objlistv;
 	char *			libname;
 	char *			dargs;
 	char **			dargv;
