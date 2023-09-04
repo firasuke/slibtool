@@ -14,7 +14,7 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_readlink_impl.h"
 
-#ifdef __unix__
+#ifdef HAVE_SYS_SYSCALL_H
 #include <sys/syscall.h>
 #endif
 
