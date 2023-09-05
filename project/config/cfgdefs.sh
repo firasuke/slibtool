@@ -56,9 +56,6 @@ cfgdefs_output_custom_defs
 # strict: some tests might fail
 set +e
 
-# strict: some tests might fail
-set +e
-
 # target-specific tests
 cfgdefs_perform_target_tests
 
