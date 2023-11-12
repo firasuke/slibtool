@@ -1216,6 +1216,9 @@ static int slbt_init_version_info(
 	int	current;
 	int	revision;
 	int	age;
+	int	colons;
+	int	fmtcnt;
+	const char * ch;
 
 	if (!verinfo->verinfo && !verinfo->vernumber)
 		return 0;
@@ -1230,8 +1233,20 @@ static int slbt_init_version_info(
 
 	current = revision = age = 0;
 
-	sscanf(verinfo->verinfo,"%d:%d:%d",
+	for (colons=0, ch=verinfo->verinfo; *ch; ch++)
+		if (*ch == ':')
+			colons++;
+
+	fmtcnt = sscanf(verinfo->verinfo,"%d:%d:%d",
 		&current,&revision,&age);
+
+	if (!fmtcnt || (fmtcnt > 3) || (fmtcnt != colons + 1)) {
+		slbt_dprintf(ictx->fdctx.fderr,
+			"%s: error: invalid version info: "
+			"supported argument format is %%d[:%%d[:%%d]].\n",
+			argv_program_name(ictx->cctx.targv[0]));
+		return -1;
+	}
 
 	if (current < age) {
 		if (ictx->cctx.drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
