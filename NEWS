@@ -1,3 +1,20 @@
+0.5.35:
+
+This post-last patch release in the 0.5.x series includes fixes to
+bugs that were discovered since release 0.5.34. In addition, this
+release introduces several new features in slibtool's driver, as
+well as some minor improvements in the implementation of existing
+program functionality.
+
+- driver: properly handle --help after --mode.
+- driver: handle --version as only (repeated) argument more elegantly.
+- driver: modify the cfgnmachine string for accuracy (-dumpmachine or --cchost).
+- driver: added --dumpmachine support.
+- driver: added -weak support, currently a no-op.
+- driver: added -objectlist support.
+- driver: -version-info suport: strictly verify the version info argument.
+- helper: added slbt_map_input(), slbt_unmap_input().
+
 0.5.34:
 
 This is the last patch release in the 0.5.x series. As of this release,
