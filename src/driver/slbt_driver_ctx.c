@@ -156,7 +156,7 @@ static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool f
 	slbt_dprintf(fderr,"%s\n\n",fcolor ? aclr_reset : "");
 }
 
-static uint32_t slbt_argv_flags(uint32_t flags)
+static uint64_t slbt_argv_flags(uint64_t flags)
 {
 	uint32_t ret = 0;
 
@@ -288,7 +288,7 @@ static int slbt_get_driver_ctx_fail(
 
 static int slbt_split_argv(
 	char **				argv,
-	uint32_t			flags,
+	uint64_t			flags,
 	struct slbt_split_vector *	sargv,
 	struct slbt_obj_list **		aobjlistv,
 	int				fderr,
@@ -1414,7 +1414,7 @@ static int slbt_driver_fail_incompatible_args(
 int slbt_get_driver_ctx(
 	char **				argv,
 	char **				envp,
-	uint32_t			flags,
+	uint64_t			flags,
 	const struct slbt_fd_ctx *	fdctx,
 	struct slbt_driver_ctx **	pctx)
 {

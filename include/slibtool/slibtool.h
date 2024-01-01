@@ -281,7 +281,7 @@ slbt_api int  slbt_map_input            (const struct slbt_driver_ctx *,
 slbt_api int  slbt_unmap_input          (struct slbt_input *);
 
 /* driver api */
-slbt_api int  slbt_get_driver_ctx       (char ** argv, char ** envp, uint32_t flags,
+slbt_api int  slbt_get_driver_ctx       (char ** argv, char ** envp, uint64_t flags,
                                          const struct slbt_fd_ctx *,
                                          struct slbt_driver_ctx **);
 
