@@ -1444,8 +1444,16 @@ int slbt_get_driver_ctx(
 	sargv.cargv = 0;
 	objlistv    = 0;
 
-	if (slbt_split_argv(argv,flags,&sargv,&objlistv,fdctx->fderr,fdctx->fdcwd))
-		return slbt_free_argv_buffer(&sargv,objlistv);
+	switch (slbt_split_argv(argv,flags,&sargv,&objlistv,fdctx->fderr,fdctx->fdcwd)) {
+		case SLBT_OK:
+			break;
+
+		case SLBT_USAGE:
+			return SLBT_USAGE;
+
+		default:
+			return slbt_free_argv_buffer(&sargv,objlistv);
+	}
 
 	if (!(meta = argv_get(
 			sargv.targv,optv,
