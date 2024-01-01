@@ -71,6 +71,8 @@ extern "C" {
 #define SLBT_DRIVER_STATIC_LIBTOOL_LIBS	SLBT_DRIVER_XFLAG(0x0100)
 #define SLBT_DRIVER_OUTPUT_MACHINE	SLBT_DRIVER_XFLAG(0x1000)
 
+#define SLBT_DRIVER_MODE_AR		SLBT_DRIVER_XFLAG(0x010000)
+
 /* error flags */
 #define SLBT_ERROR_TOP_LEVEL		0x0001
 #define SLBT_ERROR_NESTED		0x0002
@@ -93,6 +95,7 @@ enum slbt_custom_error {
 	SLBT_ERR_LCONF_OPEN,
 	SLBT_ERR_LCONF_MAP,
 	SLBT_ERR_LCONF_PARSE,
+	SLBT_ERR_AR_FAIL,
 };
 
 /* execution modes */
@@ -106,6 +109,7 @@ enum slbt_mode {
 	SLBT_MODE_INSTALL,
 	SLBT_MODE_LINK,
 	SLBT_MODE_UNINSTALL,
+	SLBT_MODE_AR,
 };
 
 enum slbt_tag {
@@ -304,6 +308,7 @@ slbt_api int  slbt_exec_execute         (const struct slbt_driver_ctx *, struct 
 slbt_api int  slbt_exec_install         (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
+slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 
 slbt_api int  slbt_set_alternate_host   (const struct slbt_driver_ctx *, const char * host, const char * flavor);
 slbt_api void slbt_reset_alternate_host (const struct slbt_driver_ctx *);

@@ -79,6 +79,9 @@ static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 
 	if (dctx->cctx->mode == SLBT_MODE_UNINSTALL)
 		slbt_exec_uninstall(dctx,0);
+
+	if (dctx->cctx->mode == SLBT_MODE_AR)
+		slbt_exec_ar(dctx,0);
 }
 
 static int slbt_exit(struct slbt_driver_ctx * dctx, int ret)
@@ -121,6 +124,10 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 
 	else if (!(strcmp(dash,"static")))
 		flags = SLBT_DRIVER_FLAGS | SLBT_DRIVER_DISABLE_SHARED;
+
+	/* internal ar mode */
+	else if (!(strcmp(dash,"ar")))
+		flags |= SLBT_DRIVER_MODE_AR;
 
 	/* debug */
 	if (!(strcmp(program,"dlibtool")))

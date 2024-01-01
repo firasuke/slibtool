@@ -6,6 +6,7 @@ API_SRCS = \
 	src/helper/slbt_dump_machine.c \
 	src/helper/slbt_map_input.c \
 	src/helper/slbt_realpath.c \
+	src/logic/slbt_exec_ar.c \
 	src/logic/slbt_exec_compile.c \
 	src/logic/slbt_exec_ctx.c \
 	src/logic/slbt_exec_execute.c \
@@ -18,6 +19,7 @@ API_SRCS = \
 	src/output/slbt_output_fdcwd.c \
 	src/output/slbt_output_features.c \
 	src/output/slbt_output_machine.c \
+	src/skin/slbt_skin_ar.c \
 	src/skin/slbt_skin_default.c \
 	src/skin/slbt_skin_install.c \
 	src/skin/slbt_skin_uninstall.c \

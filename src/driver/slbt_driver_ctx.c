@@ -21,6 +21,7 @@
 #include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_lconf_impl.h"
+#include "slibtool_ar_impl.h"
 #include "argv/argv.h"
 
 extern char ** environ;
@@ -309,6 +310,7 @@ static int slbt_split_argv(
 	char *				dst;
 	bool				flast;
 	bool				fcopy;
+	bool				altmode;
 	size_t				size;
 	const char *			base;
 	struct argv_meta *		meta;
@@ -321,6 +323,7 @@ static int slbt_split_argv(
 	struct argv_entry *		features;
 	struct argv_entry *		ccwrap;
 	struct argv_entry *		dumpmachine;
+	struct argv_entry *		aropt;
 	const struct argv_option **	popt;
 	const struct argv_option **	optout;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
@@ -331,9 +334,14 @@ static int slbt_split_argv(
 	program = argv_program_name(argv[0]);
 
 	/* missing arguments? */
-	argv_optv_init(slbt_default_options,optv);
+	if ((altmode = (flags & SLBT_DRIVER_MODE_AR))) {
+		argv_optv_init(slbt_ar_options,optv);
+	} else {
+		argv_optv_init(slbt_default_options,optv);
+	}
 
-	if (!argv[1] && (flags & SLBT_DRIVER_VERBOSITY_USAGE))
+
+	if (!argv[1] && !altmode && (flags & SLBT_DRIVER_VERBOSITY_USAGE))
 		return slbt_driver_usage(
 			fderr,program,
 			0,optv,0,sargv,0,
@@ -343,7 +351,7 @@ static int slbt_split_argv(
 	argv_scan(argv,optv,&ctx,0);
 
 	/* invalid slibtool arguments? */
-	if (ctx.erridx && !ctx.unitidx) {
+	if (ctx.erridx && !ctx.unitidx && altmode) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			argv_get(
 				argv,optv,
@@ -351,6 +359,10 @@ static int slbt_split_argv(
 				fderr);
 		return -1;
 	}
+
+	/* error possibly due to an altmode argument? */
+	if (ctx.erridx && !ctx.unitidx)
+		ctx.unitidx = ctx.erridx;
 
 	/* obtain slibtool's own arguments */
 	if (ctx.unitidx) {
@@ -364,7 +376,7 @@ static int slbt_split_argv(
 	}
 
 	/* missing all of --mode, --help, --version, --config, --dumpmachine, --features, and --finish? */
-	mode = help = version = config = finish = features = ccwrap = dumpmachine = 0;
+	mode = help = version = config = finish = features = ccwrap = dumpmachine = aropt = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
@@ -384,9 +396,24 @@ static int slbt_split_argv(
 		else if (entry->tag == TAG_DUMPMACHINE)
 			dumpmachine = entry;
 
+	/* alternate execusion mode? */
+	if (!altmode && mode && !strcmp(mode->arg,"ar"))
+		aropt = mode;
+
+	/* release temporary argv meta context */
 	argv_free(meta);
 
-	if (!mode && !help && !version && !config && !finish && !features && !dumpmachine) {
+	/* error not due to an altmode argument? */
+	if (!aropt && ctx.erridx && (ctx.erridx == ctx.unitidx)) {
+		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			argv_get(
+				argv,optv,
+				slbt_argv_flags(flags),
+				fderr);
+		return -1;
+	}
+
+	if (!mode && !help && !version && !config && !finish && !features && !dumpmachine && !altmode) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -394,7 +421,7 @@ static int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !version && !finish && !features && !dumpmachine) {
+	if (!ctx.unitidx && !help && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -423,7 +450,7 @@ static int slbt_split_argv(
 	csysroot = 0;
 
 	for (i=0,flast=false,dargv=sargv->dargv,dst=sargv->dargs; i<argc; i++) {
-		if ((fcopy = flast)) {
+		if ((fcopy = (flast || altmode || aropt))) {
 			(void)0;
 
 		} else if (!strcmp(argv[i],"--")) {
@@ -544,14 +571,18 @@ static int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || version || features || dumpmachine) {
+	} else if (help || version || features || dumpmachine || altmode) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
-		sargv->cargv = slbt_default_cargv;
+		sargv->cargv = altmode ? sargv->targv : slbt_default_cargv;
 
 		return 0;
 	}
+
+	/* --mode=ar and no ar-specific arguments? */
+	if (aropt && !ctx.unitidx)
+		ctx.unitidx = argc;
 
 	/* split vectors: slibtool's own options */
 	for (i=0; i<ctx.unitidx; i++)
@@ -562,7 +593,7 @@ static int slbt_split_argv(
 	cargv = sargv->cargv;
 
 	/* known wrappers */
-	if (ctx.unitidx && !ccwrap) {
+	if (ctx.unitidx && !ccwrap && !aropt) {
 		if ((base = strrchr(argv[i],'/')))
 			base++;
 		else if ((base = strrchr(argv[i],'\\')))
@@ -580,11 +611,17 @@ static int slbt_split_argv(
 	}
 
 	/* split vectors: legacy mixture */
-	for (optout=optv; optout[0]->tag != TAG_OUTPUT; optout++)
+	for (optout=optv; optout[0] && (optout[0]->tag != TAG_OUTPUT); optout++)
 		(void)0;
 
-	/* compiler */
-	*cargv++ = argv[i++];
+	/* compiler, archiver, etc. */
+	if (altmode) {
+		i = 0;
+	} else if (aropt) {
+		*cargv++ = argv[0];
+	} else {
+		*cargv++ = argv[i++];
+	}
 
 	/* sysroot */
 	if (csysroot)
@@ -592,7 +629,10 @@ static int slbt_split_argv(
 
 	/* remaining vector */
 	for (objlistp=objlistv; i<argc; i++) {
-		if (argv[i][0] != '-') {
+		if (aropt && (i >= ctx.unitidx)) {
+			*cargv++ = argv[i];
+
+		} else if (argv[i][0] != '-') {
 			if (argv[i+1] && (argv[i+1][0] == '+')
 					&& (argv[i+1][1] == '=')
 					&& (argv[i+1][2] == 0)
@@ -1433,7 +1473,10 @@ int slbt_get_driver_ctx(
 	const char *			lconf;
 	uint64_t			lflags;
 
-	argv_optv_init(slbt_default_options,optv);
+	if (flags & SLBT_DRIVER_MODE_AR)
+		argv_optv_init(slbt_ar_options,optv);
+	else
+		argv_optv_init(slbt_default_options,optv);
 
 	if (!fdctx)
 		fdctx = &slbt_default_fdctx;
@@ -1466,6 +1509,9 @@ int slbt_get_driver_ctx(
 
 	memset(&cctx,0,sizeof(cctx));
 
+	if (flags & SLBT_DRIVER_MODE_AR)
+		cctx.mode = SLBT_MODE_AR;
+
 	/* shared and static objects: enable by default, disable by ~switch */
 	cctx.drvflags = flags | SLBT_DRIVER_SHARED | SLBT_DRIVER_STATIC;
 
@@ -1488,6 +1534,7 @@ int slbt_get_driver_ctx(
 					switch (cctx.mode) {
 						case SLBT_MODE_INSTALL:
 						case SLBT_MODE_UNINSTALL:
+						case SLBT_MODE_AR:
 							break;
 
 					default:
@@ -1532,6 +1579,9 @@ int slbt_get_driver_ctx(
 
 					else if (!strcmp("uninstall",entry->arg))
 						cctx.mode = SLBT_MODE_UNINSTALL;
+
+					else if (!strcmp("ar",entry->arg))
+						cctx.mode = SLBT_MODE_AR;
 					break;
 
 				case TAG_FINISH:
