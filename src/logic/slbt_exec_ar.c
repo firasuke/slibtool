@@ -71,6 +71,7 @@ int slbt_exec_ar(
 	char **				argv;
 	char **				iargv;
 	struct slbt_archive_ctx **	arctxv;
+	struct slbt_archive_ctx **	arctxp;
 	const char **			unitv;
 	const char **			unitp;
 	size_t				nunits;
@@ -160,7 +161,25 @@ int slbt_exec_ar(
 		if (!entry->fopt)
 			*unitp++ = entry->arg;
 
+	/* archive context vector initialization */
+	for (unitp=unitv,arctxp=arctxv; *unitp; unitp++,arctxp++) {
+		if (slbt_get_archive_ctx(dctx,*unitp,arctxp) < 0) {
+			for (arctxp=arctxv; *arctxp; arctxp++)
+				slbt_free_archive_ctx(*arctxp);
+
+			free(unitv);
+			free(arctxv);
+
+			return slbt_exec_ar_fail(
+				actx,meta,
+				SLBT_NESTED_ERROR(dctx));
+		}
+	}
+
 	/* all done */
+	for (arctxp=arctxv; *arctxp; arctxp++)
+		slbt_free_archive_ctx(*arctxp);
+
 	free(unitv);
 	free(arctxv);
 

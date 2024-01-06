@@ -74,6 +74,9 @@ extern "C" {
 
 #define SLBT_DRIVER_MODE_AR		SLBT_DRIVER_XFLAG(0x010000)
 
+/* unit action flags */
+#define SLBT_ACTION_MAP_READWRITE	0x0001
+
 /* error flags */
 #define SLBT_ERROR_TOP_LEVEL		0x0001
 #define SLBT_ERROR_NESTED		0x0002
@@ -357,6 +360,11 @@ slbt_api int  slbt_dump_machine         (const char * compiler, char * machine, 
 slbt_api int  slbt_realpath             (int, const char *, int, char *, size_t);
 
 /* archiver api */
+slbt_api int  slbt_get_archive_ctx      (const struct slbt_driver_ctx *, const char * path,
+                                         struct slbt_archive_ctx **);
+
+slbt_api void slbt_free_archive_ctx     (struct slbt_archive_ctx *);
+
 slbt_api int  slbt_get_archive_meta     (const struct slbt_driver_ctx *,
                                          const struct slbt_raw_archive *,
                                          struct slbt_archive_meta **);

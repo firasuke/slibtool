@@ -116,6 +116,10 @@ struct slbt_driver_ctx_impl {
 	struct slbt_host_strs	ahost;
 	struct slbt_fd_ctx	fdctx;
 	struct slbt_obj_list *	objlistv;
+
+	const struct slbt_archive_ctx * arctx;
+	const char *                    arpath;
+
 	char *			libname;
 	char *			dargs;
 	char **			dargv;
@@ -141,6 +145,13 @@ struct slbt_exec_ctx_impl {
 	char *			vbuffer[];
 };
 
+struct slbt_archive_ctx_impl {
+	const char *			path;
+	struct slbt_raw_archive		map;
+	struct slbt_archive_meta *	meta;
+	struct slbt_archive_ctx		actx;
+};
+
 static inline struct slbt_driver_ctx_impl * slbt_get_driver_ictx(const struct slbt_driver_ctx * dctx)
 {
 	uintptr_t addr;
@@ -151,6 +162,19 @@ static inline struct slbt_driver_ctx_impl * slbt_get_driver_ictx(const struct sl
 	}
 
 	return 0;
+}
+
+static inline void slbt_driver_set_arctx(
+	const struct slbt_driver_ctx *  dctx,
+	const struct slbt_archive_ctx * arctx,
+	const char *                    arpath)
+{
+	struct slbt_driver_ctx_impl * ictx;
+
+
+	ictx         = slbt_get_driver_ictx(dctx);
+	ictx->arctx  = arctx;
+	ictx->arpath = arpath;
 }
 
 static inline char ** slbt_driver_envp(const struct slbt_driver_ctx * dctx)
