@@ -12,6 +12,8 @@
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
 
+#define SLBT_DRIVER_MODE_AR_ACTIONS     (SLBT_DRIVER_MODE_AR_CHECK)
+
 static int slbt_ar_usage(
 	int				fdout,
 	const char *			program,
@@ -68,8 +70,11 @@ int slbt_exec_ar(
 {
 	int				ret;
 	int				fdout;
+	int				fderr;
 	char **				argv;
 	char **				iargv;
+	struct slbt_driver_ctx_impl *	ictx;
+	const struct slbt_common_ctx *	cctx;
 	struct slbt_archive_ctx **	arctxv;
 	struct slbt_archive_ctx **	arctxp;
 	const char **			unitv;
@@ -91,8 +96,13 @@ int slbt_exec_ar(
 	/* initial state, ar mode skin */
 	slbt_reset_arguments(ectx);
 	slbt_disable_placeholders(ectx);
+
+	ictx  = slbt_get_driver_ictx(dctx);
+	cctx  = dctx->cctx;
 	iargv = ectx->cargv;
+
 	fdout = slbt_driver_fdout(dctx);
+	fderr = slbt_driver_fderr(dctx);
 
 	/* missing arguments? */
 	argv_optv_init(slbt_ar_options,optv);
@@ -131,6 +141,10 @@ int slbt_exec_ar(
 						dctx->cctx->drvflags
 							& SLBT_DRIVER_ANNOTATE_NEVER);
 					return 0;
+
+				case TAG_AR_CHECK:
+					ictx->cctx.drvflags |= SLBT_DRIVER_MODE_AR_CHECK;
+					break;
 			}
 
 			if (entry->fval) {
@@ -139,6 +153,34 @@ int slbt_exec_ar(
 		} else {
 			nunits++;
 		};
+	}
+
+	/* at least one action must be specified */
+	if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {
+		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			slbt_dprintf(fderr,
+				"%s: at least one action must be specified\n",
+				dctx->program);
+
+		return slbt_exec_ar_fail(
+			actx,meta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_NO_ACTION_SPECIFIED));
+	}
+
+	/* at least one unit must be specified */
+	if (!nunits) {
+		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			slbt_dprintf(fderr,
+				"%s: all actions require at least one input unit\n",
+				dctx->program);
+
+		return slbt_exec_ar_fail(
+			actx,meta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_NO_INPUT_SPECIFIED));
 	}
 
 	/* archive vector allocation */

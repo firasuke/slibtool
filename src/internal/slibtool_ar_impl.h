@@ -9,6 +9,7 @@ extern const struct argv_option slbt_ar_options[];
 
 enum ar_tags {
 	TAG_AR_HELP,
+	TAG_AR_CHECK,
 };
 
 struct ar_armaps_impl {
