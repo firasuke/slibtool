@@ -12,8 +12,6 @@
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
 
-struct slbt_archive_ctx;
-
 static int slbt_ar_usage(
 	int				fdout,
 	const char *			program,

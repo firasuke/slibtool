@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "slibtool_api.h"
+#include "slibtool_arbits.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,6 +97,13 @@ enum slbt_custom_error {
 	SLBT_ERR_LCONF_MAP,
 	SLBT_ERR_LCONF_PARSE,
 	SLBT_ERR_AR_FAIL,
+	SLBT_ERR_AR_EMPTY_FILE,
+	SLBT_ERR_AR_INVALID_SIGNATURE,
+	SLBT_ERR_AR_INVALID_HEADER,
+	SLBT_ERR_AR_TRUNCATED_DATA,
+	SLBT_ERR_AR_DUPLICATE_LONG_NAMES,
+	SLBT_ERR_AR_DUPLICATE_ARMAP_MEMBER,
+	SLBT_ERR_AR_MISPLACED_ARMAP_MEMBER,
 };
 
 /* execution modes */
@@ -277,6 +285,31 @@ struct slbt_driver_ctx {
 	void *				any;
 };
 
+struct slbt_raw_archive {
+	void *				map_addr;
+	size_t				map_size;
+};
+
+struct slbt_archive_meta {
+	struct slbt_raw_archive         r_archive;
+	struct ar_raw_signature *       r_signature;
+
+	struct ar_meta_signature *      m_signature;
+
+	struct ar_meta_member_info **   a_memberv;
+	struct ar_meta_member_info *    a_namestrs;
+
+	struct ar_meta_armap_info       a_armap_primary;
+	struct ar_meta_armap_info       a_armap_pecoff;
+};
+
+struct slbt_archive_ctx {
+	const char * const *		path;
+	const struct slbt_raw_archive *	map;
+	const struct slbt_archive_meta *meta;
+	void *				any;
+};
+
 /* raw input api */
 slbt_api int  slbt_map_input            (const struct slbt_driver_ctx *,
                                          int, const char *, int,
@@ -322,6 +355,13 @@ slbt_api int  slbt_copy_file            (const struct slbt_driver_ctx *, struct 
                                          char * src, char * dst);
 slbt_api int  slbt_dump_machine         (const char * compiler, char * machine, size_t bufsize);
 slbt_api int  slbt_realpath             (int, const char *, int, char *, size_t);
+
+/* archiver api */
+slbt_api int  slbt_get_archive_meta     (const struct slbt_driver_ctx *,
+                                         const struct slbt_raw_archive *,
+                                         struct slbt_archive_meta **);
+
+slbt_api void slbt_free_archive_meta    (struct slbt_archive_meta *);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
