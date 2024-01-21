@@ -439,7 +439,7 @@ static int slbt_split_argv(
 	else if (!(sargv->dargs = calloc(1,size+1)))
 		return -1;
 
-	else if (!(*aobjlistv = calloc(argc >> 1,sizeof(**aobjlistv)))) {
+	else if (!(*aobjlistv = calloc(argc,sizeof(**aobjlistv)))) {
 		free(sargv->dargv);
 		free(sargv->dargs);
 		return -1;
