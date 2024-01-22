@@ -176,10 +176,11 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 		return slbt_output_machine(dctx)
 			? SLBT_ERROR : SLBT_OK;
 
-	/* --version is always the first action */
+	/* --version must be the first (and only) action */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_VERSION)
-		if ((slbt_version(dctx,fdout)) < 0)
-			return slbt_exit(dctx,SLBT_ERROR);
+		return (slbt_version(dctx,fdout) < 0)
+			? slbt_exit(dctx,SLBT_ERROR)
+			: slbt_exit(dctx,SLBT_OK);
 
 	slbt_perform_driver_actions(dctx);
 
