@@ -140,7 +140,10 @@ int slbt_exec_ar(
 						0,optv,0,ectx,
 						dctx->cctx->drvflags
 							& SLBT_DRIVER_ANNOTATE_NEVER);
-					return 0;
+
+					argv_free(meta);
+
+					return SLBT_OK;
 
 				case TAG_AR_VERSION:
 					ictx->cctx.drvflags |= SLBT_DRIVER_VERSION;
