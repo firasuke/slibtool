@@ -178,11 +178,19 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 
 	/* --version must be the first (and only) action */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_VERSION)
+		if (dctx->cctx->mode != SLBT_MODE_AR)
+			return (slbt_version(dctx,fdout) < 0)
+				? slbt_exit(dctx,SLBT_ERROR)
+				: slbt_exit(dctx,SLBT_OK);
+
+	/* perform all other actions */
+	slbt_perform_driver_actions(dctx);
+
+	/* print --version on behalf of a secondary tool as needed */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_VERSION)
 		return (slbt_version(dctx,fdout) < 0)
 			? slbt_exit(dctx,SLBT_ERROR)
 			: slbt_exit(dctx,SLBT_OK);
-
-	slbt_perform_driver_actions(dctx);
 
 	return slbt_exit(dctx,dctx->errv[0] ? SLBT_ERROR : SLBT_OK);
 }

@@ -142,6 +142,10 @@ int slbt_exec_ar(
 							& SLBT_DRIVER_ANNOTATE_NEVER);
 					return 0;
 
+				case TAG_AR_VERSION:
+					ictx->cctx.drvflags |= SLBT_DRIVER_VERSION;
+					break;
+
 				case TAG_AR_CHECK:
 					ictx->cctx.drvflags |= SLBT_DRIVER_MODE_AR_CHECK;
 					break;
@@ -153,6 +157,13 @@ int slbt_exec_ar(
 		} else {
 			nunits++;
 		};
+	}
+
+	/* defer --version printing to slbt_main() as needed */
+	if (cctx->drvflags & SLBT_DRIVER_VERSION) {
+		argv_free(meta);
+		slbt_free_exec_ctx(actx);
+		return SLBT_OK;
 	}
 
 	/* at least one action must be specified */

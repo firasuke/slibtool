@@ -2,6 +2,9 @@
 #include "argv/argv.h"
 
 const struct argv_option slbt_ar_options[] = {
+	{"version",	0,TAG_AR_VERSION,ARGV_OPTARG_NONE,0,0,0,
+			"show version information"},
+
 	{"help",	'h',TAG_AR_HELP,ARGV_OPTARG_NONE,0,0,0,
 			"display ar mode help"},
 
