@@ -81,6 +81,10 @@ enum app_tags {
 	TAG_VERBATIM_FLAG,
 	TAG_THREAD_SAFE,
 	TAG_WEAK,
+	/* ar mode */
+	TAG_AR_HELP,
+	TAG_AR_VERSION,
+	TAG_AR_CHECK,
 };
 
 struct slbt_split_vector {

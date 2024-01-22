@@ -7,12 +7,6 @@
 
 extern const struct argv_option slbt_ar_options[];
 
-enum ar_tags {
-	TAG_AR_HELP,
-	TAG_AR_VERSION,
-	TAG_AR_CHECK,
-};
-
 struct ar_armaps_impl {
 	struct ar_raw_armap_bsd_32      armap_bsd_32;
 	struct ar_raw_armap_bsd_64      armap_bsd_64;
