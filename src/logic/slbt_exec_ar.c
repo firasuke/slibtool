@@ -141,6 +141,9 @@ int slbt_exec_ar(
 						dctx->cctx->drvflags
 							& SLBT_DRIVER_ANNOTATE_NEVER);
 
+					ictx->cctx.drvflags |= SLBT_DRIVER_VERSION;
+					ictx->cctx.drvflags ^= SLBT_DRIVER_VERSION;
+
 					argv_free(meta);
 
 					return SLBT_OK;
