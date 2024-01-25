@@ -245,6 +245,7 @@ static int slbt_ar_parse_primary_armap_bsd_32(
 	uint32_t                        sizeofrefs;
 	uint32_t                        sizeofstrs;
 	const char *                    ch;
+	const char *                    cap;
 	unsigned char *                 uch;
 	unsigned char                   (*mark)[0x04];
 
@@ -291,16 +292,35 @@ static int slbt_ar_parse_primary_armap_bsd_32(
 
 	m->symstrs = (const char *)mark;
 
+	cap  = memberp->ar_object_data;
+	cap += memberp->ar_object_size;
+
+	if ((cap == m->symstrs) && nsyms)
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
 	if (nsyms && !m->symstrs[0])
 		return SLBT_CUSTOM_ERROR(
 			dctx,
 			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
 
-	for (ch=&m->symstrs[1],nstrs=0; ch<&m->symstrs[sizeofstrs]; ch++)
+	for (ch=&m->symstrs[1],nstrs=0; ch<cap; ch++) {
+		if (!ch[0] && !ch[-1] && (nstrs < nsyms))
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
 		if (!ch[0] && ch[-1])
 			nstrs++;
+	}
 
 	if (nstrs != nsyms)
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
+	if (cap[-1])
 		return SLBT_CUSTOM_ERROR(
 			dctx,
 			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
