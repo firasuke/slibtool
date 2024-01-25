@@ -706,6 +706,18 @@ int slbt_get_archive_meta(
 
 			arlongnames = arhdr;
 
+		/* the /SYM64/ string must be special cased, also below when it gets copied */
+		} else if (!strncmp(arhdr->ar_file_id,"/SYM64/",7)) {
+			for (ch=&arhdr->ar_file_id[7]; ch<fldcap; ch++)
+				if (*ch != AR_DEC_PADDING)
+					return slbt_free_archive_meta_impl(
+						m,SLBT_CUSTOM_ERROR(
+							dctx,
+							SLBT_ERR_AR_INVALID_HEADER));
+
+			attr      = AR_HEADER_ATTR_FILE_ID | AR_HEADER_ATTR_SYSV;
+			stblsize += 8;
+
 		/* sysv armap member or sysv long name reference? */
 		} else if (arhdr->ar_file_id[0] == '/') {
 			if (slbt_ar_read_decimal_64(
@@ -869,6 +881,16 @@ int slbt_get_archive_meta(
 		if (attr == (AR_HEADER_ATTR_FILE_ID | AR_HEADER_ATTR_SYSV)) {
 			if ((arhdr->ar_file_id[0] == '/') && (arhdr->ar_file_id[1] == '/')) {
 				*longnamep++ = '/';
+				*longnamep++ = '/';
+				longnamep++;
+
+			} else if ((arhdr->ar_file_id[0] == '/') && (arhdr->ar_file_id[1] == 'S')) {
+				*longnamep++ = '/';
+				*longnamep++ = 'S';
+				*longnamep++ = 'Y';
+				*longnamep++ = 'M';
+				*longnamep++ = '6';
+				*longnamep++ = '4';
 				*longnamep++ = '/';
 				longnamep++;
 
