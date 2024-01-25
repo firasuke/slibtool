@@ -527,6 +527,9 @@ static int slbt_ar_parse_primary_armap_sysv_64(
 	uint64_t                        nsyms_hi;
 	uint64_t                        nsyms_lo;
 	uint64_t                        nsyms;
+	uint64_t                        nstrs;
+	const char *                    ch;
+	const char *                    cap;
 	unsigned char *                 uch;
 	unsigned char                   (*mark)[0x08];
 
@@ -546,7 +549,45 @@ static int slbt_ar_parse_primary_armap_sysv_64(
 	nsyms = (nsyms_hi << 32) + nsyms_lo;
 	mark += nsyms;
 
+	if (memberp->ar_object_size < (sizeof(*mark) + (nsyms * sizeof(*mark))))
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_NUMBER_OF_SYMS);
+
 	m->symstrs = (const char *)mark;
+
+	cap  = memberp->ar_object_data;
+	cap += memberp->ar_object_size;
+
+	if (cap == m->symstrs)
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
+	if (nsyms && !m->symstrs[0])
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
+	for (ch=&m->symstrs[1],nstrs=0; ch<cap; ch++) {
+		if (!ch[0] && !ch[-1] && (nstrs < nsyms))
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
+		if (!ch[0] && ch[-1])
+			nstrs++;
+	}
+
+	if (nstrs != nsyms)
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
+
+	if (cap[-1])
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
 
 	if (!(m->symstrv = calloc(nsyms + 1,sizeof(const char *))))
 		return SLBT_SYSTEM_ERROR(dctx,0);
