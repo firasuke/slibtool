@@ -23,7 +23,7 @@
 #define AR_OBJ_PADDING (0x0A)
 
 /* initial number of elements in the transient, on-stack vector */
-# define AR_STACK_VECTOR_ELEMENTS   (0x10)
+# define AR_STACK_VECTOR_ELEMENTS   (0x200)
 
 /* transient header info vector */
 struct ar_header_info {
@@ -791,7 +791,7 @@ int slbt_get_archive_meta(
 		/* transient header info vector */
 		if (&hdrinfov[nentries] == hdrinfov_cap) {
 			nelements = (nelements == AR_STACK_VECTOR_ELEMENTS)
-				? 0x2000 : nelements + 0x4000;
+				? (nelements << 4) : (nelements << 1);
 
 			if (!(hdrinfov_next = calloc(nelements,sizeof(*hdrinfov))))
 				return slbt_free_archive_meta_impl(
