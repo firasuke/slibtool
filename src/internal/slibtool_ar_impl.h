@@ -22,6 +22,7 @@ struct slbt_archive_meta_impl {
 	char *                          namestrs;
 	const char *                    symstrs;
 	const char **                   symstrv;
+	off_t *                         offsetv;
 	struct ar_meta_member_info **   memberv;
 	struct ar_meta_member_info *    members;
 	struct ar_armaps_impl           armaps;

@@ -45,6 +45,9 @@ static int slbt_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, int
 		if (meta->memberv)
 			free(meta->memberv);
 
+		if (meta->offsetv)
+			free(meta->offsetv);
+
 		if (meta->members)
 			free(meta->members);
 
@@ -713,6 +716,10 @@ int slbt_get_archive_meta(
 	uint64_t                        namelen;
 	uint64_t                        nameoff;
 	uint32_t			attr;
+	void *                          s_addr;
+	void *                          m_addr;
+	const char *                    s_ptr;
+	const char *                    m_ptr;
 	struct ar_raw_file_header *	arhdr;
 	struct ar_raw_file_header *	arlongnames;
 	struct ar_meta_member_info *    memberp;
@@ -955,6 +962,10 @@ int slbt_get_archive_meta(
 		return slbt_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
+	if (!(m->offsetv = calloc(nentries+1,sizeof(*m->offsetv))))
+		return slbt_free_archive_meta_impl(
+			m,SLBT_SYSTEM_ERROR(dctx,0));
+
 	if (!(m->memberv = calloc(nentries+1,sizeof(*m->memberv))))
 		return slbt_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
@@ -963,12 +974,20 @@ int slbt_get_archive_meta(
 		return slbt_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
+	/* archive signature reference */
+	s_addr = archive->map_addr;
+	s_ptr  = s_addr;
+
 	/* iterate, store meta data in library-friendly form */
 	for (idx=0,longnamep=m->namestrs; idx<nentries; idx++) {
 		arhdr           = hdrinfov[idx].phdr;
 		attr            = hdrinfov[idx].attr;
 
+		m_addr          = arhdr;
+		m_ptr           = m_addr;
+
 		memberp         = &m->members[idx];
+		m->offsetv[idx] = m_ptr - s_ptr;
 		m->memberv[idx] = memberp;
 
 		memberp->ar_file_header.ar_header_attr = attr;
