@@ -1165,6 +1165,9 @@ int slbt_get_archive_meta(
 	if (m->armaps.armap_common_64.ar_member)
 		m->armaps.armap_common_64.ar_num_of_members = nmembers;
 
+	/* number of archive members, including internal ones */
+	m->nentries = nentries;
+
 	/* pe/coff armap attributes (second linker member) */
 	(void)m->armeta.a_armap_pecoff;
 
