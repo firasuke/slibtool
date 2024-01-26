@@ -1068,7 +1068,7 @@ int slbt_get_archive_meta(
 			longnamep++;
 		}
 
-		/* object size, object data */
+		/* member raw header, object size, object data */
 		mark    = arhdr->ar_file_id;
 		mark   += sizeof(*arhdr);
 		namelen = 0;
@@ -1086,6 +1086,7 @@ int slbt_get_archive_meta(
 			mark += namelen;
 		};
 
+		memberp->ar_member_data = arhdr;
 		memberp->ar_object_data = (void *)mark;
 		memberp->ar_object_size = memberp->ar_file_header.ar_file_size - namelen;
 

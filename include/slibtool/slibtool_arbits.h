@@ -118,6 +118,7 @@ struct ar_meta_file_header {
 
 struct ar_meta_member_info {
 	struct ar_meta_file_header      ar_file_header;
+	struct ar_raw_file_header *     ar_member_data;
 	uint32_t                        ar_member_attr;
 	uint32_t                        ar_object_attr;
 	uint64_t                        ar_object_size;
