@@ -711,6 +711,7 @@ int slbt_get_archive_meta(
 	const char *                    fldcap;
 	size_t				nelements;
 	uint64_t                        nentries;
+	uint64_t                        nmembers;
 	uint64_t                        stblsize;
 	uint64_t                        filesize;
 	uint64_t                        namelen;
@@ -1144,6 +1145,25 @@ int slbt_get_archive_meta(
 		ch += strlen(ch);
 		ch++;
 	}
+
+	/* number of public archive members */
+	for (idx=0,nmembers=0; idx<nentries; idx++) {
+		switch (m->memberv[idx]->ar_member_attr) {
+			case AR_MEMBER_ATTR_ARMAP:
+			case AR_MEMBER_ATTR_LINKINFO:
+			case AR_MEMBER_ATTR_NAMESTRS:
+				break;
+
+			default:
+				nmembers++;
+		}
+	}
+
+	if (m->armaps.armap_common_32.ar_member)
+		m->armaps.armap_common_32.ar_num_of_members = nmembers;
+
+	if (m->armaps.armap_common_64.ar_member)
+		m->armaps.armap_common_64.ar_num_of_members = nmembers;
 
 	/* pe/coff armap attributes (second linker member) */
 	(void)m->armeta.a_armap_pecoff;
