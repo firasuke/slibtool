@@ -108,12 +108,12 @@ struct ar_meta_signature {
 
 struct ar_meta_file_header {
 	const char *    ar_member_name;
-	uint64_t        ar_time_date_stamp;
+	uint32_t        ar_header_attr;
 	uint32_t        ar_uid;
 	uint32_t        ar_gid;
 	uint32_t        ar_file_mode;
 	uint64_t        ar_file_size;
-	uint32_t        ar_header_attr;
+	uint64_t        ar_time_date_stamp;
 };
 
 struct ar_meta_member_info {
