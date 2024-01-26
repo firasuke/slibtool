@@ -1128,6 +1128,9 @@ int slbt_get_archive_meta(
 	/* pe/coff armap attributes (second linker member) */
 	(void)m->armeta.a_armap_pecoff;
 
+	/* member vector */
+	m->armeta.a_memberv = m->memberv;
+
 	/* all done */
 	if (m->hdrinfov) {
 		free(m->hdrinfov);
