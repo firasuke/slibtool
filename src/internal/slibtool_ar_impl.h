@@ -30,6 +30,10 @@ struct slbt_archive_meta_impl {
 	struct slbt_archive_meta        armeta;
 };
 
+struct ar_meta_member_info * slbt_archive_member_from_offset(
+	struct slbt_archive_meta_impl * meta,
+	off_t                           offset);
+
 static inline struct slbt_archive_meta_impl * slbt_archive_meta_ictx(const struct slbt_archive_meta * meta)
 {
 	uintptr_t addr;

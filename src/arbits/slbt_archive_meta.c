@@ -698,6 +698,32 @@ static int slbt_ar_parse_primary_armap(
 	return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_FLOW_ERROR);
 }
 
+struct ar_meta_member_info * slbt_archive_member_from_offset(
+	struct slbt_archive_meta_impl * meta,
+	off_t                           offset)
+{
+	intptr_t l,r,m;
+	off_t *  offsetv;
+
+	l = 0;
+	r = meta->nentries - 1;
+
+	offsetv = meta->offsetv;
+
+	while (l != r) {
+		m  = (l + r) / 2;
+		m += (l + 2) % 2;
+
+		if (offsetv[m] > offset) {
+			r = --m;
+		} else {
+			l = m;
+		}
+	}
+
+	return (offsetv[l] == offset) ? meta->memberv[l] : 0;
+}
+
 int slbt_get_archive_meta(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_raw_archive * archive,
