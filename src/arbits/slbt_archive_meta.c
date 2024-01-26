@@ -508,7 +508,7 @@ static int slbt_ar_parse_primary_armap_sysv_32(
 	cap  = memberp->ar_object_data;
 	cap += memberp->ar_object_size;
 
-	if (cap == m->symstrs)
+	if ((cap == m->symstrs) && nsyms)
 		return SLBT_CUSTOM_ERROR(
 			dctx,
 			SLBT_ERR_AR_INVALID_ARMAP_STRING_TABLE);
