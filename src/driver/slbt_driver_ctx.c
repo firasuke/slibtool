@@ -375,6 +375,15 @@ static int slbt_split_argv(
 		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 	}
 
+	if (!meta) {
+		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			argv_get(
+				argv,optv,
+				slbt_argv_flags(flags),
+				fderr);
+		return -1;
+	}
+
 	/* missing all of --mode, --help, --version, --config, --dumpmachine, --features, and --finish? */
 	mode = help = version = config = finish = features = ccwrap = dumpmachine = aropt = 0;
 
