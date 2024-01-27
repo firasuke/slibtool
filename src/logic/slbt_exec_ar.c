@@ -7,12 +7,22 @@
 #define ARGV_DRIVER
 
 #include <slibtool/slibtool.h>
+#include <slibtool/slibtool_output.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_ar_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
 
 #define SLBT_DRIVER_MODE_AR_ACTIONS     (SLBT_DRIVER_MODE_AR_CHECK)
+
+#define SLBT_DRIVER_MODE_AR_OUTPUTS     (SLBT_OUTPUT_ARCHIVE_MEMBERS  \
+	                                 | SLBT_OUTPUT_ARCHIVE_HEADERS \
+	                                 | SLBT_OUTPUT_ARCHIVE_SYMBOLS  \
+	                                 | SLBT_OUTPUT_ARCHIVE_ARMAPS)
+
+#define SLBT_PRETTY_FLAGS               (SLBT_PRETTY_YAML      \
+	                                 | SLBT_PRETTY_POSIX    \
+	                                 | SLBT_PRETTY_HEXDATA)
 
 static int slbt_ar_usage(
 	int				fdout,
@@ -62,6 +72,25 @@ static int slbt_exec_ar_fail(
 	argv_free(meta);
 	slbt_free_exec_ctx(actx);
 	return ret;
+}
+
+static int slbt_exec_ar_perform_archive_actions(
+	const struct slbt_driver_ctx *  dctx,
+	struct slbt_archive_ctx **      arctxv)
+{
+	struct slbt_archive_ctx **      arctxp;
+
+	for (arctxp=arctxv; *arctxp; arctxp++) {
+		if (dctx->cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS)
+			if (slbt_ar_output_arname(*arctxp) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+
+		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MEMBERS)
+			if (slbt_ar_output_members((*arctxp)->meta) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+	}
+
+	return 0;
 }
 
 int slbt_exec_ar(
@@ -155,6 +184,36 @@ int slbt_exec_ar(
 				case TAG_AR_CHECK:
 					ictx->cctx.drvflags |= SLBT_DRIVER_MODE_AR_CHECK;
 					break;
+
+				case TAG_AR_PRINT:
+					if (!entry->arg)
+						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MEMBERS;
+
+					else if (!strcmp(entry->arg,"members"))
+						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MEMBERS;
+
+					else if (!strcmp(entry->arg,"headers"))
+						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_HEADERS;
+
+					else if (!strcmp(entry->arg,"symbols"))
+						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_SYMBOLS;
+
+					else if (!strcmp(entry->arg,"armaps"))
+						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_ARMAPS;
+
+					break;
+
+				case TAG_AR_PRETTY:
+					if (!strcmp(entry->arg,"yaml")) {
+						ictx->cctx.fmtflags &= ~(uint64_t)SLBT_PRETTY_FLAGS;
+						ictx->cctx.fmtflags |= SLBT_PRETTY_YAML;
+
+					} else if (!strcmp(entry->arg,"posix")) {
+						ictx->cctx.fmtflags &= ~(uint64_t)SLBT_PRETTY_FLAGS;
+						ictx->cctx.fmtflags |= SLBT_PRETTY_POSIX;
+					}
+
+					break;
 			}
 
 			if (entry->fval) {
@@ -173,7 +232,10 @@ int slbt_exec_ar(
 	}
 
 	/* at least one action must be specified */
-	if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {
+	if (cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS) {
+		(void)0;
+
+	} else if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {
 		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: at least one action must be specified\n",
@@ -235,6 +297,9 @@ int slbt_exec_ar(
 		}
 	}
 
+	/* archive operations */
+	ret = slbt_exec_ar_perform_archive_actions(dctx,arctxv);
+
 	/* all done */
 	for (arctxp=arctxv; *arctxp; arctxp++)
 		slbt_free_archive_ctx(*arctxp);
@@ -245,5 +310,5 @@ int slbt_exec_ar(
 	argv_free(meta);
 	slbt_free_exec_ctx(actx);
 
-	return 0;
+	return ret;
 }
