@@ -1200,6 +1200,9 @@ int slbt_get_archive_meta(
 	/* member vector */
 	m->armeta.a_memberv = m->memberv;
 
+	/* associated driver context */
+	m->dctx = dctx;
+
 	/* all done */
 	if (m->hdrinfov) {
 		free(m->hdrinfov);
