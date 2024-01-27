@@ -11,7 +11,7 @@ const struct argv_option slbt_ar_options[] = {
 	{"Wcheck",	0,TAG_AR_CHECK,ARGV_OPTARG_NONE,
 			ARGV_OPTION_HYBRID_ONLY,
 			"[ARCHIVE-FILE]",0,
-			"verify that %s is a valid archive; "
+			"verify that each %s is a valid archive; "
 			"supported variants are BSD, SysV, and PE/COFF"},
 
 	{"Wprint",	0,TAG_AR_PRINT,ARGV_OPTARG_OPTIONAL,
