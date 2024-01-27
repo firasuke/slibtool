@@ -150,6 +150,7 @@ struct slbt_exec_ctx_impl {
 };
 
 struct slbt_archive_ctx_impl {
+	const struct slbt_driver_ctx *	dctx;
 	const char *			path;
 	struct slbt_raw_archive		map;
 	struct slbt_archive_meta *	meta;

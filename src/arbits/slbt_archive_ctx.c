@@ -84,6 +84,7 @@ int slbt_get_archive_ctx(
 		return slbt_free_archive_ctx_impl(ctx,
 			SLBT_NESTED_ERROR(dctx));
 
+	ctx->dctx       = dctx;
 	ctx->path	= path;
 	ctx->actx.path	= &ctx->path;
 	ctx->actx.map	= &ctx->map;
