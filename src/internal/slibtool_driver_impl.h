@@ -157,6 +157,18 @@ struct slbt_archive_ctx_impl {
 	struct slbt_archive_ctx		actx;
 };
 
+static inline struct slbt_archive_ctx_impl * slbt_get_archive_ictx(const struct slbt_archive_ctx * actx)
+{
+	uintptr_t addr;
+
+	if (actx) {
+		addr = (uintptr_t)actx - offsetof(struct slbt_archive_ctx_impl,actx);
+		return (struct slbt_archive_ctx_impl *)addr;
+	}
+
+	return 0;
+}
+
 static inline struct slbt_driver_ctx_impl * slbt_get_driver_ictx(const struct slbt_driver_ctx * dctx)
 {
 	uintptr_t addr;

@@ -1,6 +1,7 @@
 API_SRCS = \
 	src/arbits/slbt_archive_ctx.c \
 	src/arbits/slbt_archive_meta.c \
+	src/arbits/output/slbt_ar_output_arname.c \
 	src/arbits/output/slbt_ar_output_members.c \
 	src/driver/slbt_amain.c \
 	src/driver/slbt_driver_ctx.c \
