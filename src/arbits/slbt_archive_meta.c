@@ -782,6 +782,9 @@ int slbt_get_archive_meta(
 	if (!(m = calloc(1,sizeof(*m))))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
+	/* associated driver context */
+	m->dctx = dctx;
+
 	/* archive map info */
 	m->armeta.r_archive.map_addr = archive->map_addr;
 	m->armeta.r_archive.map_size = archive->map_size;
@@ -1199,9 +1202,6 @@ int slbt_get_archive_meta(
 
 	/* member vector */
 	m->armeta.a_memberv = m->memberv;
-
-	/* associated driver context */
-	m->dctx = dctx;
 
 	/* all done */
 	if (m->hdrinfov) {
