@@ -7,4 +7,5 @@ tree.tag:
 		mkdir -p src/logic
 		mkdir -p src/output
 		mkdir -p src/skin
+		mkdir -p src/arbits/output
 		touch tree.tag
