@@ -784,7 +784,7 @@ struct ar_meta_member_info * slbt_archive_member_from_offset(
 
 	while (l != r) {
 		m  = (l + r) / 2;
-		m += (l + 2) % 2;
+		m += (l + r) % 2;
 
 		if (offsetv[m] > offset) {
 			r = --m;
