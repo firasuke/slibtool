@@ -8,6 +8,8 @@
 extern const struct argv_option slbt_ar_options[];
 
 struct ar_armaps_impl {
+	struct ar_meta_armap_ref_32 *   armap_symrefs_32;
+	struct ar_meta_armap_ref_64 *   armap_symrefs_64;
 	struct ar_raw_armap_bsd_32      armap_bsd_32;
 	struct ar_raw_armap_bsd_64      armap_bsd_64;
 	struct ar_raw_armap_sysv_32     armap_sysv_32;

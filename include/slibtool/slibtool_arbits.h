@@ -136,6 +136,7 @@ struct ar_meta_armap_ref_64 {
 
 struct ar_meta_armap_common_32 {
 	struct ar_meta_member_info *    ar_member;
+	struct ar_meta_armap_ref_32 *   ar_symrefs;
 	struct ar_raw_armap_bsd_32 *    ar_armap_bsd;
 	struct ar_raw_armap_sysv_32 *   ar_armap_sysv;
 	struct ar_raw_armap_xcoff_32 *  ar_armap_xcoff;
@@ -151,6 +152,7 @@ struct ar_meta_armap_common_32 {
 
 struct ar_meta_armap_common_64 {
 	struct ar_meta_member_info *    ar_member;
+	struct ar_meta_armap_ref_64 *   ar_symrefs;
 	struct ar_raw_armap_bsd_64 *    ar_armap_bsd;
 	struct ar_raw_armap_sysv_64 *   ar_armap_sysv;
 	void *                          ar_armap_xcoff;

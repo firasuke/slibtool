@@ -36,6 +36,12 @@ static const char ar_signature[] = AR_SIGNATURE;
 static int slbt_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, int ret)
 {
 	if (meta) {
+		if (meta->armaps.armap_symrefs_32)
+			free(meta->armaps.armap_symrefs_32);
+
+		if (meta->armaps.armap_symrefs_64)
+			free(meta->armaps.armap_symrefs_64);
+
 		if (meta->hdrinfov)
 			free(meta->hdrinfov);
 
