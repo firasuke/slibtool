@@ -824,6 +824,8 @@ int slbt_get_archive_meta(
 	struct ar_meta_member_info *    memberp;
 	char *				longnamep;
 	size_t				idx;
+	struct ar_meta_armap_ref_32 *   symrefs_32;
+	struct ar_meta_armap_ref_64 *   symrefs_64;
 	struct ar_header_info *		hdrinfov;
 	struct ar_header_info *		hdrinfov_cap;
 	struct ar_header_info *		hdrinfov_next;
@@ -1245,6 +1247,20 @@ int slbt_get_archive_meta(
 		m->symstrv[idx] = ch;
 		ch += strlen(ch);
 		ch++;
+	}
+
+	if (m->armaps.armap_common_32.ar_member) {
+		symrefs_32 = m->armaps.armap_symrefs_32;
+
+		for (idx=0; idx<m->armaps.armap_nsyms; idx++)
+			symrefs_32[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
+	}
+
+	if (m->armaps.armap_common_64.ar_member) {
+		symrefs_64 = m->armaps.armap_symrefs_64;
+
+		for (idx=0; idx<m->armaps.armap_nsyms; idx++)
+			symrefs_64[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
 	}
 
 	/* number of public archive members */
