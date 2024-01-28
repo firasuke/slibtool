@@ -246,6 +246,9 @@ static int slbt_ar_parse_primary_armap_bsd_32(
 	struct ar_raw_armap_bsd_32 *    armap;
 	struct ar_meta_member_info *    memberp;
 	struct ar_meta_armap_common_32 *armapref;
+	struct ar_meta_armap_ref_32 *   symrefs;
+	uint32_t                        idx;
+	uint32_t                        uref;
 	uint32_t                        attr;
 	uint32_t                        nsyms;
 	uint32_t                        nstrs;
@@ -337,10 +340,26 @@ static int slbt_ar_parse_primary_armap_bsd_32(
 	if (!(m->symstrv = calloc(nsyms + 1,sizeof(const char *))))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
+	if (!(m->armaps.armap_symrefs_32 = calloc(nsyms + 1,sizeof(*symrefs))))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	mark    = armap->ar_first_name_offset;
+	symrefs = m->armaps.armap_symrefs_32;
+
+	for (idx=0,uch=*++mark; idx<nsyms; idx++,uch=*++mark) {
+		uref = (attr == AR_ARMAP_ATTR_BE_32)
+			? (uch[0] << 24) + (uch[1] << 16) + (uch[2] << 8) + uch[3]
+			: (uch[3] << 24) + (uch[2] << 16) + (uch[1] << 8) + uch[0];
+
+		symrefs[idx].ar_member_offset = uref;
+		mark++;
+	}
+
 	armap->ar_string_table = m->symstrv;
 
 	armapref = &m->armaps.armap_common_32;
 	armapref->ar_member         = memberp;
+	armapref->ar_symrefs        = symrefs;
 	armapref->ar_armap_bsd      = armap;
 	armapref->ar_armap_attr     = AR_ARMAP_ATTR_BSD | attr;
 	armapref->ar_num_of_symbols = nsyms;
