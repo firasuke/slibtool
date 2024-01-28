@@ -1238,6 +1238,9 @@ int slbt_get_archive_meta(
 		}
 	}
 
+	/* number of archive members, including internal ones */
+	m->nentries = nentries;
+
 	/* primary armap (first linker member) */
 	if (slbt_ar_parse_primary_armap(dctx,m) < 0)
 		return slbt_free_archive_meta_impl(
@@ -1252,15 +1255,30 @@ int slbt_get_archive_meta(
 	if (m->armaps.armap_common_32.ar_member) {
 		symrefs_32 = m->armaps.armap_symrefs_32;
 
-		for (idx=0; idx<m->armaps.armap_nsyms; idx++)
+		for (idx=0; idx<m->armaps.armap_nsyms; idx++) {
 			symrefs_32[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
+
+			if (!slbt_archive_member_from_offset(m,symrefs_32[idx].ar_member_offset))
+				return slbt_free_archive_meta_impl(
+					m,SLBT_CUSTOM_ERROR(
+						dctx,
+						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
+
+		}
 	}
 
 	if (m->armaps.armap_common_64.ar_member) {
 		symrefs_64 = m->armaps.armap_symrefs_64;
 
-		for (idx=0; idx<m->armaps.armap_nsyms; idx++)
+		for (idx=0; idx<m->armaps.armap_nsyms; idx++) {
 			symrefs_64[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
+
+			if (!slbt_archive_member_from_offset(m,symrefs_64[idx].ar_member_offset))
+				return slbt_free_archive_meta_impl(
+					m,SLBT_CUSTOM_ERROR(
+						dctx,
+						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
+		}
 	}
 
 	/* number of public archive members */
@@ -1281,9 +1299,6 @@ int slbt_get_archive_meta(
 
 	if (m->armaps.armap_common_64.ar_member)
 		m->armaps.armap_common_64.ar_num_of_members = nmembers;
-
-	/* number of archive members, including internal ones */
-	m->nentries = nentries;
 
 	/* pe/coff armap attributes (second linker member) */
 	(void)m->armeta.a_armap_pecoff;
