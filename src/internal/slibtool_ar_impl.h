@@ -5,6 +5,15 @@
 #include <slibtool/slibtool.h>
 #include <slibtool/slibtool_arbits.h>
 
+/* decimal values in archive header are right padded with ascii spaces */
+#define AR_DEC_PADDING (0x20)
+
+/* archive file members are right padded as needed with ascii newline */
+#define AR_OBJ_PADDING (0x0A)
+
+/* initial number of elements in the transient, on-stack vector */
+# define AR_STACK_VECTOR_ELEMENTS   (0x200)
+
 extern const struct argv_option slbt_ar_options[];
 
 struct ar_armaps_impl {

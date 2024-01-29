@@ -16,15 +16,6 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
 
-/* decimal values in archive header are right padded with ascii spaces */
-#define AR_DEC_PADDING (0x20)
-
-/* archive file members are right padded as needed with ascii newline */
-#define AR_OBJ_PADDING (0x0A)
-
-/* initial number of elements in the transient, on-stack vector */
-# define AR_STACK_VECTOR_ELEMENTS   (0x200)
-
 /* transient header info vector */
 struct ar_header_info {
 	struct ar_raw_file_header * phdr;
