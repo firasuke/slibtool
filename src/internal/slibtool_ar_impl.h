@@ -54,6 +54,10 @@ int slbt_ar_parse_primary_armap_bsd_64(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * m);
 
+int slbt_ar_parse_primary_armap_sysv_32(
+	const struct slbt_driver_ctx *  dctx,
+	struct slbt_archive_meta_impl * m);
+
 static inline struct slbt_archive_meta_impl * slbt_archive_meta_ictx(const struct slbt_archive_meta * meta)
 {
 	uintptr_t addr;
