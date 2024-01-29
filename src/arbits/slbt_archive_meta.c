@@ -605,6 +605,8 @@ static int slbt_ar_parse_primary_armap_sysv_32(
 	armapref->ar_armap_sysv     = armap;
 	armapref->ar_armap_attr     = AR_ARMAP_ATTR_SYSV | AR_ARMAP_ATTR_BE_32;
 	armapref->ar_num_of_symbols = nsyms;
+	armapref->ar_size_of_refs   = nsyms * sizeof(*mark);
+	armapref->ar_size_of_strs   = cap - m->symstrs;
 	armapref->ar_string_table   = m->symstrs;
 
 	m->armaps.armap_nsyms = nsyms;
@@ -714,6 +716,8 @@ static int slbt_ar_parse_primary_armap_sysv_64(
 	armapref->ar_armap_sysv     = armap;
 	armapref->ar_armap_attr     = AR_ARMAP_ATTR_SYSV | AR_ARMAP_ATTR_BE_64;
 	armapref->ar_num_of_symbols = nsyms;
+	armapref->ar_size_of_refs   = nsyms * sizeof(*mark);
+	armapref->ar_size_of_strs   = cap - m->symstrs;
 	armapref->ar_string_table   = m->symstrs;
 
 	m->armaps.armap_nsyms = nsyms;
@@ -1264,6 +1268,16 @@ int slbt_get_archive_meta(
 						dctx,
 						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
 
+			if (symrefs_32[idx].ar_name_offset) {
+				ch = &m->symstrs[symrefs_32[idx].ar_name_offset];
+
+				if ((ch > m->symstrv[m->armaps.armap_nsyms - 1]) || *--ch)
+					return slbt_free_archive_meta_impl(
+						m,SLBT_CUSTOM_ERROR(
+							dctx,
+							SLBT_ERR_AR_INVALID_ARMAP_NAME_OFFSET));
+			}
+
 		}
 	}
 
@@ -1278,6 +1292,17 @@ int slbt_get_archive_meta(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
+
+			if (symrefs_64[idx].ar_name_offset) {
+				ch = &m->symstrs[symrefs_64[idx].ar_name_offset];
+
+				if ((ch > m->symstrv[m->armaps.armap_nsyms - 1]) || *--ch)
+					return slbt_free_archive_meta_impl(
+						m,SLBT_CUSTOM_ERROR(
+							dctx,
+							SLBT_ERR_AR_INVALID_ARMAP_NAME_OFFSET));
+			}
+
 		}
 	}
 
