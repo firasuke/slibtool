@@ -214,6 +214,10 @@ int slbt_exec_ar(
 					}
 
 					break;
+
+				case TAG_AR_VERBOSE:
+					ictx->cctx.fmtflags |= SLBT_PRETTY_VERBOSE;
+					break;
 			}
 
 			if (entry->fval) {

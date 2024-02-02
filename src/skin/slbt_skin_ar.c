@@ -29,5 +29,11 @@ const struct argv_option slbt_ar_options[] = {
 			"'hexdata' for yaml-formatted data with additional "
 			"hexdump output"},
 
+	{"Wverbose",	0,TAG_AR_VERBOSE,ARGV_OPTARG_NONE,
+			ARGV_OPTION_HYBRID_ONLY,0,0,
+			"produce verbose output; "
+			"in combination with -Wpretty=posix, this will result "
+			"in `ar(1) -tv` compatible output."},
+
 	{0,0,0,0,0,0,0,0}
 };
