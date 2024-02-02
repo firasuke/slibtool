@@ -16,13 +16,24 @@
 	                         | SLBT_PRETTY_HEXDATA)
 
 
+static int slbt_ar_output_one_member_posix(
+	int                             fdout,
+	struct ar_meta_member_info *    memberp)
+{
+	return slbt_dprintf(
+		fdout,"%s\n",
+		memberp->ar_file_header.ar_member_name);
+}
+
 static int slbt_ar_output_members_posix(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_meta * meta,
 	const struct slbt_fd_ctx *       fdctx)
 {
 	struct ar_meta_member_info **   memberp;
-	const char *                    name;
+	int                             fdout;
+
+	fdout = fdctx->fdout;
 
 	for (memberp=meta->a_memberv; *memberp; memberp++) {
 		switch ((*memberp)->ar_member_attr) {
@@ -32,9 +43,7 @@ static int slbt_ar_output_members_posix(
 				break;
 
 			default:
-				name = (*memberp)->ar_file_header.ar_member_name;
-
-				if (slbt_dprintf(fdctx->fdout,"%s\n",name) < 0)
+				if (slbt_ar_output_one_member_posix(fdout,*memberp) < 0)
 					return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
