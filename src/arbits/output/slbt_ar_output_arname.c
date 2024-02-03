@@ -43,8 +43,8 @@ static int slbt_ar_output_arname_yaml(
 	if (slbt_dprintf(
 			fdctx->fdout,
 			"Archive:\n"
-			"  - name:\n"
-			"    - [ %s ]\n\n",
+			"  - Meta:\n"
+			"    - [ name: %s ]\n\n",
 			path) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
