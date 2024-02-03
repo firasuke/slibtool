@@ -121,7 +121,17 @@ static int slbt_ar_output_members_posix(
 		gidlen  = slbt_ar_output_decimal_len_from_val(gidlen,1);
 		arloc   = newlocale(LC_ALL,setlocale(LC_ALL,0),0);
 
-		sprintf(fmtstr,"%%s%%s%%s %%%zuu/%%-%zuu %%%zuu %%s %%s\n",uidlen,gidlen,sizelen);
+		sprintf(
+			fmtstr,
+			"%%s%%s%%s "
+			"%%"   PPRIU64 "u"
+			"/%%-" PPRIU64 "u "
+			"%%"   PPRIU64 "u "
+			"%%s "
+			"%%s\n",
+			uidlen,
+			gidlen,
+			sizelen);
 	}
 
 	for (memberp=meta->a_memberv; *memberp; memberp++) {
