@@ -215,6 +215,16 @@ int slbt_exec_ar(
 
 					break;
 
+				case TAG_AR_POSIX:
+					ictx->cctx.fmtflags &= ~(uint64_t)SLBT_PRETTY_FLAGS;
+					ictx->cctx.fmtflags |= SLBT_PRETTY_POSIX;
+					break;
+
+				case TAG_AR_YAML:
+					ictx->cctx.fmtflags &= ~(uint64_t)SLBT_PRETTY_FLAGS;
+					ictx->cctx.fmtflags |= SLBT_PRETTY_YAML;
+					break;
+
 				case TAG_AR_VERBOSE:
 					ictx->cctx.fmtflags |= SLBT_PRETTY_VERBOSE;
 					break;
