@@ -147,13 +147,25 @@ static int slbt_ar_output_members_posix(
 	return 0;
 }
 
+static int slbt_ar_output_one_member_yaml(
+	int                             fdout,
+	struct ar_meta_member_info *    memberp)
+{
+	return slbt_dprintf(
+		fdout,
+		"    - [ member: %s ]\n",
+		memberp->ar_file_header.ar_member_name);
+}
+
 static int slbt_ar_output_members_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_meta * meta,
 	const struct slbt_fd_ctx *       fdctx)
 {
 	struct ar_meta_member_info **   memberp;
-	const char *                    name;
+	int                             fdout;
+
+	fdout = fdctx->fdout;
 
 	if (slbt_dprintf(fdctx->fdout,"  - Members:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -166,12 +178,8 @@ static int slbt_ar_output_members_yaml(
 				break;
 
 			default:
-				name = (*memberp)->ar_file_header.ar_member_name;
-
-				if (slbt_dprintf(
-						fdctx->fdout,
-						"    - [ member: %s ]\n",
-						name) < 0)
+				if (slbt_ar_output_one_member_yaml(
+						fdout,*memberp) < 0)
 					return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
