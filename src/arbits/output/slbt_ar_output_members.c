@@ -155,7 +155,7 @@ static int slbt_ar_output_members_yaml(
 	struct ar_meta_member_info **   memberp;
 	const char *                    name;
 
-	if (slbt_dprintf(fdctx->fdout,"  - Members = {\n") < 0)
+	if (slbt_dprintf(fdctx->fdout,"  - Members:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	for (memberp=meta->a_memberv; *memberp; memberp++) {
@@ -168,13 +168,13 @@ static int slbt_ar_output_members_yaml(
 			default:
 				name = (*memberp)->ar_file_header.ar_member_name;
 
-				if (slbt_dprintf(fdctx->fdout,"    - %s\n",name) < 0)
+				if (slbt_dprintf(
+						fdctx->fdout,
+						"    - [ member: %s ]\n",
+						name) < 0)
 					return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
-
-	if (slbt_dprintf(fdctx->fdout,"  }\n") < 0)
-		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }
