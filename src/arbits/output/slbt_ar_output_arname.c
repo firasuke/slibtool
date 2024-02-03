@@ -40,7 +40,12 @@ static int slbt_ar_output_arname_yaml(
 
 	path = actx->path && *actx->path ? *actx->path : mema;
 
-	if (slbt_dprintf(fdctx->fdout,"Archive: %s\n",path) < 0)
+	if (slbt_dprintf(
+			fdctx->fdout,
+			"Archive:\n"
+			"  - name:\n"
+			"    - [ %s ]\n\n",
+			path) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
