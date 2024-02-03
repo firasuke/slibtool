@@ -6,6 +6,7 @@
 
 #include <time.h>
 #include <locale.h>
+#include <inttypes.h>
 #include <slibtool/slibtool.h>
 #include <slibtool/slibtool_output.h>
 #include "slibtool_driver_impl.h"
@@ -16,6 +17,8 @@
 #define SLBT_PRETTY_FLAGS       (SLBT_PRETTY_YAML      \
 	                         | SLBT_PRETTY_POSIX    \
 	                         | SLBT_PRETTY_HEXDATA)
+
+#define PPRIU64 "%"PRIu64
 
 const char slbt_ar_perm_strs[8][4] = {
 	{'-','-','-','\0'},
@@ -157,6 +160,40 @@ static int slbt_ar_output_one_member_yaml(
 		memberp->ar_file_header.ar_member_name);
 }
 
+static int slbt_ar_output_one_member_yaml_verbose(
+	int                             fdout,
+	struct ar_meta_member_info *    memberp,
+	locale_t                        arlocale)
+{
+	time_t      artimeval;
+	struct tm   artimeloc;
+	char        artimestr[64] = {0};
+
+	artimeval = memberp->ar_file_header.ar_time_date_stamp;
+
+	if (localtime_r(&artimeval,&artimeloc))
+		strftime_l(
+			artimestr,sizeof(artimestr),
+			"%Y/%m/%d @ %H:%M",&artimeloc,
+			arlocale);
+
+	return slbt_dprintf(
+		fdout,
+		"    - Member:\n"
+		"      - [ name:       " "%s"    " ]\n"
+		"      - [ timestamp:  " "%s"    " ]\n"
+		"      - [ filesize:   " PPRIU64 " ]\n"
+		"      - [ uid:        " "%d"    " ]\n"
+		"      - [ gid:        " "%d"    " ]\n"
+		"      - [ mode:       " "%d"    " ]\n\n",
+		memberp->ar_file_header.ar_member_name,
+		artimestr,
+		memberp->ar_file_header.ar_file_size,
+		memberp->ar_file_header.ar_uid,
+		memberp->ar_file_header.ar_gid,
+		memberp->ar_file_header.ar_file_mode);
+}
+
 static int slbt_ar_output_members_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_meta * meta,
@@ -164,8 +201,14 @@ static int slbt_ar_output_members_yaml(
 {
 	struct ar_meta_member_info **   memberp;
 	int                             fdout;
+	locale_t                        arloc;
 
 	fdout = fdctx->fdout;
+	arloc = 0;
+
+	if (dctx->cctx->fmtflags & SLBT_PRETTY_VERBOSE) {
+		arloc   = newlocale(LC_ALL,setlocale(LC_ALL,0),0);
+	}
 
 	if (slbt_dprintf(fdctx->fdout,"  - Members:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -178,11 +221,20 @@ static int slbt_ar_output_members_yaml(
 				break;
 
 			default:
-				if (slbt_ar_output_one_member_yaml(
-						fdout,*memberp) < 0)
-					return SLBT_SYSTEM_ERROR(dctx,0);
+				if (arloc) {
+					if (slbt_ar_output_one_member_yaml_verbose(
+							fdout,*memberp,arloc) < 0)
+						return SLBT_SYSTEM_ERROR(dctx,0);
+				} else {
+					if (slbt_ar_output_one_member_yaml(
+							fdout,*memberp) < 0)
+						return SLBT_SYSTEM_ERROR(dctx,0);
+				}
 		}
 	}
+
+	if (arloc)
+		freelocale(arloc);
 
 	return 0;
 }
