@@ -830,6 +830,12 @@ int slbt_get_archive_meta(
 	/* pe/coff armap attributes (second linker member) */
 	(void)m->armeta.a_armap_pecoff;
 
+	/* reference to the long names member */
+	if (arlongnames)
+		for (idx=0; idx<nentries && !m->armeta.a_arref_longnames; idx++)
+			if (m->memberv[idx]->ar_member_data == arlongnames)
+				m->armeta.a_arref_longnames = m->memberv[idx];
+
 	/* member vector */
 	m->armeta.a_memberv = m->memberv;
 

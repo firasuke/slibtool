@@ -316,6 +316,7 @@ struct slbt_archive_meta {
 	struct ar_meta_signature *      m_signature;
 
 	struct ar_meta_member_info **   a_memberv;
+	struct ar_meta_member_info *    a_arref_longnames;
 	struct ar_meta_armap_info       a_armap_primary;
 	struct ar_meta_armap_info       a_armap_pecoff;
 };
