@@ -691,6 +691,13 @@ static int slbt_split_argv(
 			*cargv++ = argv[i];
 			*targv++ = argv[i];
 
+		} else if (!(strcmp("target",&argv[i][1]))) {
+			*cargv++ = argv[i];
+			*targv++ = argv[i++];
+
+			*cargv++ = argv[i];
+			*targv++ = argv[i];
+
 		} else if (!(strncmp("-sysroot=",&argv[i][1],9))) {
 			*cargv++ = argv[i];
 			*targv++ = argv[i];

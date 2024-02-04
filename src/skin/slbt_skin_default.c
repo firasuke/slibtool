@@ -139,7 +139,8 @@ const struct argv_option slbt_default_options[] = {
 	{"output",		'o',TAG_OUTPUT,ARGV_OPTARG_REQUIRED,0,0,"<file>",
 				"write output to %s"},
 
-	{"target",		0,TAG_TARGET,ARGV_OPTARG_REQUIRED,0,0,"<target>",
+	{"target",		0,TAG_TARGET,ARGV_OPTARG_REQUIRED,
+				ARGV_OPTION_HYBRID_SPACE,0,"<target>",
 				"set an explicit (cross-)target, then pass it to "
 				"the compiler"},
 
