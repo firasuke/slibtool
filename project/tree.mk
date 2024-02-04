@@ -2,6 +2,7 @@ tree.tag:
 		mkdir -p src
 		mkdir -p src/arbits
 		mkdir -p src/driver
+		mkdir -p src/fallback
 		mkdir -p src/helper
 		mkdir -p src/internal
 		mkdir -p src/logic
