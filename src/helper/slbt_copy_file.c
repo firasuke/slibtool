@@ -58,9 +58,17 @@ int slbt_copy_file(
 		}
 	}
 
-	/* dlltool spawn */
-	ret = ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
-		? SLBT_SYSTEM_ERROR(dctx,0) : 0;
+	/* cp spawn */
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
+		ret = SLBT_SPAWN_ERROR(dctx);
+
+	} else if (ectx->exitcode) {
+		ret = SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_COPY_ERROR);
+	} else {
+		ret = 0;
+	}
 
 	ectx->argv = oargv;
 	ectx->program = oprogram;
