@@ -1244,8 +1244,14 @@ static int slbt_exec_link_create_import_library(
 			return SLBT_NESTED_ERROR(dctx);
 
 	/* dlltool/mdso spawn */
-	if ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 		return SLBT_SPAWN_ERROR(dctx);
+
+	} else if (ectx->exitcode) {
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			fmdso ? SLBT_ERR_MDSO_ERROR : SLBT_ERR_DLLTOOL_ERROR);
+	}
 
 	return 0;
 }
@@ -1349,8 +1355,14 @@ static int slbt_exec_link_create_archive(
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* ar spawn */
-	if ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 		return SLBT_SPAWN_ERROR(dctx);
+
+	} else if (ectx->exitcode) {
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_ERROR);
+	}
 
 	/* input objects associated with .la archives */
 	for (parg=ectx->cargv; *parg; parg++)
@@ -1566,10 +1578,18 @@ static int slbt_exec_link_create_library(
 				SLBT_NESTED_ERROR(dctx));
 
 	/* spawn */
-	if ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_SPAWN_ERROR(dctx));
+
+	} else if (ectx->exitcode) {
+		return slbt_exec_link_exit(
+			&depsmeta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_LINK_ERROR));
+	}
 
 	return slbt_exec_link_exit(&depsmeta,0);
 }
@@ -1739,10 +1759,18 @@ static int slbt_exec_link_create_executable(
 				SLBT_NESTED_ERROR(dctx));
 
 	/* spawn */
-	if ((slbt_spawn(ectx,true) < 0) || ectx->exitcode)
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 		return slbt_exec_link_exit(
 			&depsmeta,
 			SLBT_SPAWN_ERROR(dctx));
+
+	} else if (ectx->exitcode) {
+		return slbt_exec_link_exit(
+			&depsmeta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_LINK_ERROR));
+	}
 
 	/* executable wrapper: finalize */
 	slbt_exec_close_fdwrapper(ectx);
