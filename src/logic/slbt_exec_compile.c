@@ -204,9 +204,13 @@ int  slbt_exec_compile(
 			}
 		}
 
-		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode) {
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 			slbt_free_exec_ctx(actx);
 			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		} else if (ectx->exitcode) {
+			slbt_free_exec_ctx(actx);
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_COMPILE_ERROR);
 		}
 
 		if (cctx->drvflags & SLBT_DRIVER_STATIC)
@@ -235,9 +239,13 @@ int  slbt_exec_compile(
 			}
 		}
 
-		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode) {
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 			slbt_free_exec_ctx(actx);
 			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		} else if (ectx->exitcode) {
+			slbt_free_exec_ctx(actx);
+			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_COMPILE_ERROR);
 		}
 	}
 
