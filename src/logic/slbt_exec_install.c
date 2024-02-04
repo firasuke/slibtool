@@ -324,7 +324,6 @@ static int slbt_exec_install_entry(
 	char **				src,
 	char **				dst)
 {
-	int		ret;
 	int		fdcwd;
 	const char *	base;
 	char *		dot;
@@ -399,8 +398,16 @@ static int slbt_exec_install_entry(
 			if (slbt_output_install(dctx,ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
-		return (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
-			? SLBT_SPAWN_ERROR(dctx) : 0;
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
+			return SLBT_SPAWN_ERROR(dctx);
+
+		} else if (ectx->exitcode) {
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_INSTALL_ERROR);
+		}
+
+		return 0;
 	}
 
 	/* -shrext, dsosuffix */
@@ -580,8 +587,14 @@ static int slbt_exec_install_entry(
 			if (slbt_output_install(dctx,ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
-		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 			return SLBT_SPAWN_ERROR(dctx);
+
+		} else if (ectx->exitcode) {
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_INSTALL_ERROR);
+		}
 
 		return 0;
 	}
@@ -604,8 +617,14 @@ static int slbt_exec_install_entry(
 		if (slbt_output_install(dctx,ectx))
 			return SLBT_NESTED_ERROR(dctx);
 
-	if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 		return SLBT_SPAWN_ERROR(dctx);
+
+	} else if (ectx->exitcode) {
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_INSTALL_ERROR);
+	}
 
 	/* destination symlink: dstdir/libfoo.so */
 	if ((size_t)snprintf(dlnkname,sizeof(dlnkname),"%s/%s",
@@ -883,10 +902,18 @@ int slbt_exec_install(
 			if (slbt_output_install(dctx,ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
-		if (((ret = slbt_spawn(ectx,true)) < 0) || ectx->exitcode)
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 			return slbt_exec_install_fail(
 				actx,meta,
 				SLBT_SPAWN_ERROR(dctx));
+
+		} else if (ectx->exitcode) {
+			return slbt_exec_install_fail(
+				actx,meta,
+				SLBT_CUSTOM_ERROR(
+					dctx,
+					SLBT_ERR_INSTALL_ERROR));
+		}
 	}
 
 	argv_free(meta);
