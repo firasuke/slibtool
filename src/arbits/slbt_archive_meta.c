@@ -762,7 +762,8 @@ int slbt_get_archive_meta(
 		symrefs_32 = m->armaps.armap_symrefs_32;
 
 		for (idx=0; idx<m->armaps.armap_nsyms; idx++) {
-			symrefs_32[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
+			if (m->armaps.armap_common_32.ar_armap_attr & AR_ARMAP_ATTR_SYSV)
+				symrefs_32[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
 
 			if (!slbt_archive_member_from_offset(m,symrefs_32[idx].ar_member_offset))
 				return slbt_free_archive_meta_impl(
@@ -787,7 +788,8 @@ int slbt_get_archive_meta(
 		symrefs_64 = m->armaps.armap_symrefs_64;
 
 		for (idx=0; idx<m->armaps.armap_nsyms; idx++) {
-			symrefs_64[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
+			if (m->armaps.armap_common_64.ar_armap_attr & AR_ARMAP_ATTR_SYSV)
+				symrefs_64[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
 
 			if (!slbt_archive_member_from_offset(m,symrefs_64[idx].ar_member_offset))
 				return slbt_free_archive_meta_impl(

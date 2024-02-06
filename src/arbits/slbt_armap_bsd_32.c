@@ -118,13 +118,22 @@ int slbt_ar_parse_primary_armap_bsd_32(
 	mark    = armap->ar_first_name_offset;
 	symrefs = m->armaps.armap_symrefs_32;
 
-	for (idx=0,uch=*++mark; idx<nsyms; idx++,uch=*++mark) {
+	for (idx=0; idx<nsyms; idx++) {
+		uch  = *mark++;
+
+		uref = (attr == AR_ARMAP_ATTR_BE_32)
+			? (uch[0] << 24) + (uch[1] << 16) + (uch[2] << 8) + uch[3]
+			: (uch[3] << 24) + (uch[2] << 16) + (uch[1] << 8) + uch[0];
+
+		symrefs[idx].ar_name_offset = uref;
+
+		uch  = *mark++;
+
 		uref = (attr == AR_ARMAP_ATTR_BE_32)
 			? (uch[0] << 24) + (uch[1] << 16) + (uch[2] << 8) + uch[3]
 			: (uch[3] << 24) + (uch[2] << 16) + (uch[1] << 8) + uch[0];
 
 		symrefs[idx].ar_member_offset = uref;
-		mark++;
 	}
 
 	armap->ar_string_table = m->symstrv;
