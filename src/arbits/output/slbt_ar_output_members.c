@@ -81,7 +81,7 @@ static int slbt_ar_output_one_member_posix_verbose(
 		slbt_ar_perm_strs[worldbits],
 		memberp->ar_file_header.ar_uid,
 		memberp->ar_file_header.ar_gid,
-		memberp->ar_file_header.ar_file_size,
+		memberp->ar_object_size,
 		artimestr,
 		memberp->ar_file_header.ar_member_name);
 }
@@ -105,7 +105,7 @@ static int slbt_ar_output_members_posix(
 
 	if (dctx->cctx->fmtflags & SLBT_PRETTY_VERBOSE) {
 		for (sizelen=0,memberp=meta->a_memberv; *memberp; memberp++)
-			if ((testval = memberp[0]->ar_file_header.ar_file_size) > sizelen)
+			if ((testval = memberp[0]->ar_object_size) > sizelen)
 				sizelen = testval;
 
 		for (uidlen=0,memberp=meta->a_memberv; *memberp; memberp++)
@@ -198,7 +198,7 @@ static int slbt_ar_output_one_member_yaml_verbose(
 		"      - [ mode:       " "%d"    " ]\n\n",
 		memberp->ar_file_header.ar_member_name,
 		artimestr,
-		memberp->ar_file_header.ar_file_size,
+		memberp->ar_object_size,
 		memberp->ar_file_header.ar_uid,
 		memberp->ar_file_header.ar_gid,
 		memberp->ar_file_header.ar_file_mode);
