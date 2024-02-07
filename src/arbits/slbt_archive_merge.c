@@ -636,7 +636,7 @@ int slbt_merge_archives(
 			ch++;
 		}
 
-		uch +=armap_write_uint32(uch,ssymstrs);
+		uch += armap_write_uint32(uch,ssymstrs);
 
 		free(bsdmap32);
 
@@ -669,7 +669,7 @@ int slbt_merge_archives(
 			ch++;
 		}
 
-		uch +=armap_write_uint64(uch,ssymstrs);
+		uch += armap_write_uint64(uch,ssymstrs);
 
 		free(bsdmap64);
 	}
