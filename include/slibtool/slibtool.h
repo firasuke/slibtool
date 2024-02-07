@@ -117,6 +117,8 @@ enum slbt_custom_error {
 	SLBT_ERR_AR_MISPLACED_ARMAP_MEMBER,
 	SLBT_ERR_AR_NO_ACTION_SPECIFIED,
 	SLBT_ERR_AR_NO_INPUT_SPECIFIED,
+	SLBT_ERR_AR_DRIVER_MISMATCH,
+	SLBT_ERR_AR_ARMAP_MISMATCH,
 	SLBT_ERR_AR_INVALID_ARMAP_NUMBER_OF_SYMS,
 	SLBT_ERR_AR_INVALID_ARMAP_SIZE_OF_REFS,
 	SLBT_ERR_AR_INVALID_ARMAP_SIZE_OF_STRS,
@@ -385,6 +387,9 @@ slbt_api int  slbt_get_archive_meta     (const struct slbt_driver_ctx *,
                                          struct slbt_archive_meta **);
 
 slbt_api void slbt_free_archive_meta    (struct slbt_archive_meta *);
+
+slbt_api int  slbt_merge_archives       (struct slbt_archive_ctx * const [],
+                                         struct slbt_archive_ctx **);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
