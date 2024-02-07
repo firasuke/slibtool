@@ -343,14 +343,6 @@ int slbt_merge_archives(
 	ch += sizeof(struct ar_raw_signature);
 
 
-	/* signature only? */
-	if (!armap && !arnames && !nmembers) {
-		slbt_free_archive_ctx(arctx);
-		*arctxm = 0;
-		return 0;
-	}
-
-
 	/* armap header */
 	if (armap) {
 		arhdr = (struct ar_raw_file_header *)ch;
