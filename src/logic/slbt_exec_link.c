@@ -37,7 +37,7 @@ struct slbt_deps_meta {
 /* ----------  --------------------- -----   ------                */
 /* libfoo.a    [-shared|-static]     bar.lo  libfoo.a              */
 /*                                                                 */
-/* ar crs libfoo.a bar.o                                           */
+/* ar -crs libfoo.a bar.o                                          */
 /*                                                                 */
 /*******************************************************************/
 
@@ -49,7 +49,7 @@ struct slbt_deps_meta {
 /*                                           .libs/libfoo.a        */
 /*                                           .libs/libfoo.la (lnk) */
 /*                                                                 */
-/* ar crs .libs/libfoo.a .libs/bar.o                               */
+/* ar -crs .libs/libfoo.a .libs/bar.o                              */
 /* (generate libfoo.la)                                            */
 /* ln -s ../libfoo.la .libs/libfoo.la                              */
 /*                                                                 */
@@ -63,7 +63,7 @@ struct slbt_deps_meta {
 /*                                           .libs/libfoo.a        */
 /*                                           .libs/libfoo.la (lnk) */
 /*                                                                 */
-/* ar crs .libs/libfoo.a bar.o                                     */
+/* ar -crs .libs/libfoo.a bar.o                                    */
 /* (generate libfoo.la)                                            */
 /* ln -s ../libfoo.la .libs/libfoo.la                              */
 /*                                                                 */
@@ -1329,7 +1329,7 @@ static int slbt_exec_link_create_archive(
 	/* input argument adjustment */
 	aarg    = ectx->altv;
 	*aarg++ = program;
-	*aarg++ = "crs";
+	*aarg++ = "-crs";
 	*aarg++ = output;
 
 	for (parg=ectx->cargv; *parg; parg++)
