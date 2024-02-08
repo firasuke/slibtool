@@ -4,6 +4,7 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <ctype.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -616,6 +617,84 @@ static int slbt_lconf_open(
 	return fdlconf;
 }
 
+static int slbt_get_lconf_var(
+	void *          addr,
+	const char *    cap,
+	const char *    var,
+	char            (*val)[PATH_MAX])
+{
+	const char *    mark;
+	const char *    match;
+	ssize_t         len;
+
+	/* init */
+	len   = strlen(var);
+	mark  = addr;
+	match = 0;
+
+	memset(*val,0,PATH_MAX);
+
+	/* search for ^var= */
+	for (; (mark < cap) && !match; ) {
+		if ((cap - mark) <= len)
+			return 0;
+
+		if (!strncmp(mark,var,len)) {
+			match = mark;
+
+		} else {
+			while ((*mark != '\n') && (mark < cap))
+				mark++;
+
+			while (isspace(*mark) && (mark < cap))
+				mark++;
+		}
+	}
+
+	/* not found? */
+	if (mark == cap)
+		return 0;
+
+	/* for our purposes, only support non-quoted values */
+	match = &match[len];
+	mark  = match;
+
+	for (; !isspace(*mark) && (mark < cap); )
+		mark++;
+
+	/* validate */
+	if ((len = mark - match) >= PATH_MAX)
+		return -1;
+
+	/* copy and validate */
+	strncpy(*val,match,len);
+
+	for (mark=*val; *mark; mark++) {
+		if ((*mark >= 'a') && (*mark <= 'z'))
+			(void)0;
+
+		else if ((*mark >= 'A') && (*mark <= 'Z'))
+			(void)0;
+
+		else if ((*mark >= '0') && (*mark <= '9'))
+			(void)0;
+
+		else if ((*mark == '+') || (*mark == '-'))
+			(void)0;
+
+		else if ((*mark == '/') || (*mark == '@'))
+			(void)0;
+
+		else if ((*mark == '.') || (*mark == '_'))
+			(void)0;
+
+		else
+			return -1;
+	}
+
+	return 0;
+}
+
 int slbt_get_lconf_flags(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf,
@@ -628,10 +707,7 @@ int slbt_get_lconf_flags(
 	const char *			cap;
 	uint64_t			optshared;
 	uint64_t			optstatic;
-	int				optsharedlen;
-	int				optstaticlen;
-	const char *			optsharedstr;
-	const char *			optstaticstr;
+	char                            val[PATH_MAX];
 
 	/* open relative libtool script */
 	if ((fdlconf = slbt_lconf_open(dctx,lconf)) < 0)
@@ -659,68 +735,29 @@ int slbt_get_lconf_flags(
 	optshared = 0;
 	optstatic = 0;
 
-	optsharedstr = "build_libtool_libs=";
-	optstaticstr = "build_old_libs=";
+	/* shared libraries option */
+	if (slbt_get_lconf_var(addr,cap,"build_libtool_libs=",&val) < 0)
+		return SLBT_CUSTOM_ERROR(
+			dctx,SLBT_ERR_LCONF_PARSE);
 
-	optsharedlen = strlen(optsharedstr);
-	optstaticlen = strlen(optstaticstr);
+	if (!strcmp(val,"yes")) {
+		optshared = SLBT_DRIVER_SHARED;
 
-	for (; mark && mark<cap; ) {
-		if (!optshared && (cap - mark < optsharedlen)) {
-			mark = 0;
+	} else if (!strcmp(val,"no")) {
+		optshared = SLBT_DRIVER_DISABLE_SHARED;
+	}
 
-		} else if (!optstatic && (cap - mark < optstaticlen)) {
-			mark = 0;
 
-		} else if (!optshared && !strncmp(mark,optsharedstr,optsharedlen)) {
-			mark += optsharedlen;
+	/* static libraries option */
+	if (slbt_get_lconf_var(addr,cap,"build_old_libs=",&val) < 0)
+		return SLBT_CUSTOM_ERROR(
+			dctx,SLBT_ERR_LCONF_PARSE);
 
-			if ((cap - mark >= 3)
-					&& (mark[0]=='n')
-					&& (mark[1]=='o')
-					&& (mark[2]=='\n')
-					&& (mark = &mark[3]))
-				optshared = SLBT_DRIVER_DISABLE_SHARED;
+	if (!strcmp(val,"yes")) {
+		optstatic = SLBT_DRIVER_STATIC;
 
-			else if ((cap - mark >= 4)
-					&& (mark[0]=='y')
-					&& (mark[1]=='e')
-					&& (mark[2]=='s')
-					&& (mark[3]=='\n')
-					&& (mark = &mark[4]))
-				optshared = SLBT_DRIVER_SHARED;
-
-			if (!optshared)
-				mark--;
-
-		} else if (!optstatic && !strncmp(mark,optstaticstr,optstaticlen)) {
-			mark += optstaticlen;
-
-			if ((cap - mark >= 3)
-					&& (mark[0]=='n')
-					&& (mark[1]=='o')
-					&& (mark[2]=='\n')
-					&& (mark = &mark[3]))
-				optstatic = SLBT_DRIVER_DISABLE_STATIC;
-
-			else if ((cap - mark >= 4)
-					&& (mark[0]=='y')
-					&& (mark[1]=='e')
-					&& (mark[2]=='s')
-					&& (mark[3]=='\n')
-					&& (mark = &mark[4]))
-				optstatic = SLBT_DRIVER_STATIC;
-
-			if (!optstatic)
-				mark--;
-		} else {
-			for (; (mark<cap) && (*mark!='\n'); )
-				mark++;
-			mark++;
-		}
-
-		if (optshared && optstatic)
-			mark = 0;
+	} else if (!strcmp(val,"no")) {
+		optstatic = SLBT_DRIVER_DISABLE_STATIC;
 	}
 
 	munmap(addr,st.st_size);
