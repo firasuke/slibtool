@@ -133,8 +133,10 @@ int slbt_archive_import_mri(
 	dst = slbt_mri_argument(fdcwd,dstarchive,mridst);
 	src = slbt_mri_argument(fdcwd,srcarchive,mrisrc);
 
-	if (!dst || !src)
+	if (!dst || !src) {
+		close(fd[1]);
 		return SLBT_SYSTEM_ERROR(dctx,0);
+	}
 
 	fmt = "OPEN %s\n"
 	      "ADDLIB %s\n"
