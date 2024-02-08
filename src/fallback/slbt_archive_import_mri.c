@@ -35,10 +35,12 @@ static char * slbt_mri_argument(
 	if ((!(strchr(arg,'+'))) && (!(strchr(arg,'-'))))
 		return arg;
 
-	if (arg[0] == '/')
+	if (arg[0] == '/') {
 		target = arg;
-	else {
-		if (slbt_realpath(fdat,".",O_DIRECTORY,mricwd,sizeof(mricwd)))
+	} else {
+		if (slbt_realpath(
+				fdat,".",O_DIRECTORY,
+				mricwd,sizeof(mricwd)) < 0)
 			return 0;
 
 		if ((size_t)snprintf(dstbuf,sizeof(dstbuf),"%s/%s",
@@ -103,8 +105,7 @@ int slbt_archive_import_mri(
 
 	/* program */
 	if ((size_t)snprintf(program,sizeof(program),
-				"%s",
-				dctx->cctx->host.ar)
+			"%s",dctx->cctx->host.ar)
 			>= sizeof(program))
 		return SLBT_BUFFER_ERROR(dctx);
 
