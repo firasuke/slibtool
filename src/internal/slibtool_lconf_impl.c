@@ -655,12 +655,21 @@ static int slbt_get_lconf_var(
 	if (mark == cap)
 		return 0;
 
-	/* for our purposes, only support non-quoted values */
+	/* support a single pair of double quotes */
 	match = &match[len];
 	mark  = match;
 
-	for (; !isspace(*mark) && (mark < cap); )
+	if (match[0] == '"') {
+		match++;
 		mark++;
+
+		for (; (*mark != '"') && (mark < cap); )
+			mark++;
+	} else {
+		for (; !isspace(*mark) && (mark < cap); )
+			mark++;
+	}
+
 
 	/* validate */
 	if ((len = mark - match) >= PATH_MAX)
@@ -700,6 +709,7 @@ int slbt_get_lconf_flags(
 	const char *			lconf,
 	uint64_t *			flags)
 {
+	struct slbt_driver_ctx_impl *   ctx;
 	int				fdlconf;
 	struct stat			st;
 	void *				addr;
@@ -708,6 +718,9 @@ int slbt_get_lconf_flags(
 	uint64_t			optshared;
 	uint64_t			optstatic;
 	char                            val[PATH_MAX];
+
+	/* driver context (ar, ranlib, cc) */
+	ctx = slbt_get_driver_ictx(dctx);
 
 	/* open relative libtool script */
 	if ((fdlconf = slbt_lconf_open(dctx,lconf)) < 0)
@@ -760,13 +773,37 @@ int slbt_get_lconf_flags(
 		optstatic = SLBT_DRIVER_DISABLE_STATIC;
 	}
 
-	munmap(addr,st.st_size);
-
 	if (!optshared || !optstatic)
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_PARSE);
 
 	*flags = optshared | optstatic;
+
+
+	/* ar tool */
+	if (!ctx->cctx.host.ar) {
+		if (slbt_get_lconf_var(addr,cap,"AR=",&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
+
+		if (val[0] && !(ctx->cctx.host.ar = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+	}
+
+
+	/* ranlib tool */
+	if (!ctx->cctx.host.ranlib) {
+		if (slbt_get_lconf_var(addr,cap,"RANLIB=",&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
+
+		if (val[0] && !(ctx->cctx.host.ranlib = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+	}
+
+
+	/* all done */
+	munmap(addr,st.st_size);
 
 	return 0;
 }

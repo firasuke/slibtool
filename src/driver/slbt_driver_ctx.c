@@ -89,6 +89,7 @@ SLBT_FLAVOR_SETTINGS(host_flavor_darwin,        \
 /* annotation strings */
 static const char cfgexplicit[] = "command-line argument";
 static const char cfghost[]     = "derived from <host>";
+static const char cfglconf[]    = "derived from <libtool>";
 static const char cfgtarget[]   = "derived from <target>";
 static const char cfgcompiler[] = "derived from <compiler>";
 static const char cfgnmachine[] = "native (cached in ccenv/host.mk)";
@@ -826,7 +827,9 @@ static int slbt_init_host_params(
 	const struct slbt_common_ctx *	cctx,
 	struct slbt_host_strs *		drvhost,
 	struct slbt_host_params *	host,
-	struct slbt_host_params *	cfgmeta)
+	struct slbt_host_params *	cfgmeta,
+	const char *                    cfgmeta_ar,
+	const char *                    cfgmeta_ranlib)
 {
 	int		fdcwd;
 	int		arprobe;
@@ -982,7 +985,7 @@ static int slbt_init_host_params(
 
 	/* ar */
 	if (host->ar)
-		cfgmeta->ar = cfgexplicit;
+		cfgmeta->ar = cfgmeta_ar ? cfgmeta_ar : cfgexplicit;
 	else {
 		if (!(drvhost->ar = calloc(1,toollen)))
 			return -1;
@@ -1059,7 +1062,7 @@ static int slbt_init_host_params(
 
 	/* ranlib */
 	if (host->ranlib)
-		cfgmeta->ranlib = cfgexplicit;
+		cfgmeta->ranlib = cfgmeta_ranlib ? cfgmeta_ranlib : cfgexplicit;
 	else {
 		if (!(drvhost->ranlib = calloc(1,toollen)))
 			return -1;
@@ -1488,6 +1491,8 @@ int slbt_get_driver_ctx(
 	const char *			program;
 	const char *			lconf;
 	uint64_t			lflags;
+	const char *                    cfgmeta_ar;
+	const char *                    cfgmeta_ranlib;
 
 	if (flags & SLBT_DRIVER_MODE_AR)
 		argv_optv_init(slbt_ar_options,optv);
@@ -1540,6 +1545,9 @@ int slbt_get_driver_ctx(
 	cmdshared   = 0;
 	cmdnostatic = 0;
 	cmdnoshared = 0;
+
+	cfgmeta_ar     = 0;
+	cfgmeta_ranlib = 0;
 
 	/* get options */
 	for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
@@ -1729,10 +1737,12 @@ int slbt_get_driver_ctx(
 
 				case TAG_AR:
 					cctx.host.ar = entry->arg;
+					cfgmeta_ar   = cfgexplicit;
 					break;
 
 				case TAG_RANLIB:
 					cctx.host.ranlib = entry->arg;
+					cfgmeta_ranlib   = cfgexplicit;
 					break;
 
 				case TAG_WINDRES:
@@ -1941,6 +1951,12 @@ int slbt_get_driver_ctx(
 		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags) < 0)
 			return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
+		if (ctx->cctx.host.ar && !cfgmeta_ar)
+			cfgmeta_ar = cfglconf;
+
+		if (ctx->cctx.host.ranlib && !cfgmeta_ranlib)
+			cfgmeta_ranlib = cfglconf;
+
 		if (cmdnoshared)
 			lflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
 
@@ -1979,7 +1995,9 @@ int slbt_get_driver_ctx(
 			&ctx->cctx,
 			&ctx->host,
 			&ctx->cctx.host,
-			&ctx->cctx.cfgmeta))
+			&ctx->cctx.cfgmeta,
+			cfgmeta_ar,
+			cfgmeta_ranlib))
 		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
 	/* flavor settings */
@@ -2093,7 +2111,8 @@ int  slbt_set_alternate_host(
 			ctx->cctx,
 			&ictx->ctx.ahost,
 			&ictx->ctx.cctx.ahost,
-			&ictx->ctx.cctx.acfgmeta)) {
+			&ictx->ctx.cctx.acfgmeta,
+			0,0)) {
 		slbt_free_host_params(&ictx->ctx.ahost);
 		return SLBT_CUSTOM_ERROR(ctx,SLBT_ERR_HOST_INIT);
 	}
