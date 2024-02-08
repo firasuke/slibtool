@@ -6,6 +6,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
+#include "slibtool_symlink_impl.h"
 #include "slibtool_errinfo_impl.h"
 
 /* legacy fallback, no longer in use */
@@ -56,6 +57,11 @@ int slbt_archive_import(
 	char *				dstarchive,
 	char *				srcarchive)
 {
+	if (slbt_symlink_is_a_placeholder(
+			slbt_driver_fdcwd(dctx),
+			srcarchive))
+		return 0;
+
 	return slbt_archive_import_impl(
 		dctx,ectx,
 		dstarchive,
