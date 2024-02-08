@@ -1,6 +1,7 @@
 #ifndef SLIBTOOL_H
 #define SLIBTOOL_H
 
+#include <fcntl.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -390,6 +391,9 @@ slbt_api void slbt_free_archive_meta    (struct slbt_archive_meta *);
 
 slbt_api int  slbt_merge_archives       (struct slbt_archive_ctx * const [],
                                          struct slbt_archive_ctx **);
+
+slbt_api int  slbt_store_archive        (struct slbt_archive_ctx *,
+                                         const char *, mode_t);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
