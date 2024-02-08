@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <inttypes.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include <slibtool/slibtool.h>
@@ -21,12 +23,13 @@
 #include "slibtool_readlink_impl.h"
 #include "slibtool_errinfo_impl.h"
 
+#define PPRIX64 "%"PRIx64
+
 static char * slbt_mri_argument(
 	int	fdat,
 	char *	arg,
 	char *	buf)
 {
-	int	i;
 	char *	lnk;
 	char *	target;
 	char 	mricwd[PATH_MAX];
@@ -50,9 +53,25 @@ static char * slbt_mri_argument(
 		target = dstbuf;
 	}
 
-	for (i=0,lnk=0; i<1024 && !lnk; i++) {
-		if (!(tmpnam(buf)))
+	lnk = 0;
+
+	{
+		struct stat st;
+
+		if (fstatat(fdat,target,&st,0) < 0)
 			return 0;
+
+		sprintf(buf,
+			".mri.tmplnk"
+			".dev."PPRIX64
+			".inode."PPRIX64
+			".size."PPRIX64
+			".tmp",
+			st.st_dev,
+			st.st_ino,
+			st.st_size);
+
+		unlinkat(fdat,buf,0);
 
 		if (!(symlinkat(target,fdat,buf)))
 			lnk = buf;
@@ -92,8 +111,8 @@ int slbt_archive_import_mri(
 	char *	dst;
 	char *	src;
 	char *	fmt;
-	char	mridst [L_tmpnam];
-	char	mrisrc [L_tmpnam];
+	char	mridst [96];
+	char	mrisrc [96];
 	char	program[PATH_MAX];
 
 	/* fdcwd */
