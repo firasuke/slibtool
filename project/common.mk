@@ -11,6 +11,7 @@ API_SRCS = \
 	src/arbits/output/slbt_ar_output_members.c \
 	src/driver/slbt_amain.c \
 	src/driver/slbt_driver_ctx.c \
+	src/driver/slbt_host_params.c \
 	src/fallback/slbt_archive_import_mri.c \
 	src/helper/slbt_archive_import.c \
 	src/helper/slbt_copy_file.c \

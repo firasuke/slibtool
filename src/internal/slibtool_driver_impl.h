@@ -141,6 +141,12 @@ struct slbt_driver_ctx_impl {
 	struct slbt_error_info	erribuf[64];
 };
 
+struct slbt_driver_ctx_alloc {
+	struct argv_meta *		meta;
+	struct slbt_driver_ctx_impl	ctx;
+	uint64_t			guard;
+};
+
 struct slbt_exec_ctx_impl {
 	int			argc;
 	char *			args;
@@ -161,6 +167,31 @@ struct slbt_archive_ctx_impl {
 	struct slbt_archive_meta *	meta;
 	struct slbt_archive_ctx		actx;
 };
+
+
+int slbt_init_host_params(
+	const struct slbt_driver_ctx *	dctx,
+	const struct slbt_common_ctx *	cctx,
+	struct slbt_host_strs *		drvhost,
+	struct slbt_host_params *	host,
+	struct slbt_host_params *	cfgmeta,
+	const char *                    cfgmeta_ar,
+	const char *                    cfgmeta_ranlib);
+
+
+void slbt_free_host_params(struct slbt_host_strs * host);
+
+
+void slbt_init_flavor_settings(
+	struct slbt_common_ctx *	cctx,
+	const struct slbt_host_params * ahost,
+	struct slbt_flavor_settings *	psettings);
+
+
+int slbt_init_ldrpath(
+	struct slbt_common_ctx *  cctx,
+	struct slbt_host_params * host);
+
 
 static inline struct slbt_archive_ctx_impl * slbt_get_archive_ictx(const struct slbt_archive_ctx * actx)
 {
