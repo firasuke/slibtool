@@ -11,8 +11,6 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-#define ARGV_DRIVER
-
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_uninstall_impl.h"
@@ -37,15 +35,15 @@ static int slbt_uninstall_usage(
 
 	switch (noclr) {
 		case 0:
-			argv_usage(fdout,header,optv,arg);
+			slbt_argv_usage(fdout,header,optv,arg);
 			break;
 
 		default:
-			argv_usage_plain(fdout,header,optv,arg);
+			slbt_argv_usage_plain(fdout,header,optv,arg);
 			break;
 	}
 
-	argv_free(meta);
+	slbt_argv_free(meta);
 
 	return SLBT_USAGE;
 }
@@ -55,7 +53,7 @@ static int slbt_exec_uninstall_fail(
 	struct argv_meta *	meta,
 	int			ret)
 {
-	argv_free(meta);
+	slbt_argv_free(meta);
 	slbt_free_exec_ctx(actx);
 	return ret;
 }
@@ -297,7 +295,7 @@ int slbt_exec_uninstall(
 	fdout = slbt_driver_fdout(dctx);
 
 	/* missing arguments? */
-	argv_optv_init(slbt_uninstall_options,optv);
+	slbt_optv_init(slbt_uninstall_options,optv);
 
 	if (!iargv[1] && (dctx->cctx->drvflags & SLBT_DRIVER_VERBOSITY_USAGE))
 		return slbt_uninstall_usage(
@@ -307,7 +305,7 @@ int slbt_exec_uninstall(
 			dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER);
 
 	/* <uninstall> argv meta */
-	if (!(meta = argv_get(
+	if (!(meta = slbt_argv_get(
 			iargv,optv,
 			dctx->cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS
 				? ARGV_VERBOSITY_ERRORS
@@ -377,7 +375,7 @@ int slbt_exec_uninstall(
 					actx,meta,
 					SLBT_NESTED_ERROR(dctx));
 
-	argv_free(meta);
+	slbt_argv_free(meta);
 	slbt_free_exec_ctx(actx);
 
 	return 0;
