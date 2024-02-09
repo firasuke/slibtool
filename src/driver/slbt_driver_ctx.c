@@ -96,6 +96,41 @@ const char * slbt_program_name(const char * path)
 	return argv_program_name(path);
 }
 
+
+int slbt_optv_init(
+	const struct argv_option    options[],
+	const struct argv_option ** optv)
+{
+	return argv_optv_init(options,optv);
+}
+
+
+void slbt_argv_scan(
+	char **				argv,
+	const struct argv_option **	optv,
+	struct argv_ctx *		ctx,
+	struct argv_meta *		meta)
+{
+	return argv_scan(argv,optv,ctx,meta);
+}
+
+
+struct argv_meta * slbt_argv_get(
+	char **                         argv,
+	const struct argv_option **     optv,
+	int                             flags,
+	int                             fd)
+{
+	return argv_get(argv,optv,flags,fd);
+}
+
+
+void slbt_argv_free(struct argv_meta * meta)
+{
+	return argv_free(meta);
+}
+
+
 uint64_t slbt_argv_flags(uint64_t flags)
 {
 	uint32_t ret = 0;

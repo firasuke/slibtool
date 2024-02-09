@@ -172,7 +172,28 @@ struct slbt_archive_ctx_impl {
 const char * slbt_program_name(const char *);
 
 
+int slbt_optv_init(
+	const struct argv_option[],
+	const struct argv_option **);
+
+
 uint64_t slbt_argv_flags(uint64_t flags);
+
+
+void slbt_argv_scan(
+	char **				argv,
+	const struct argv_option **	optv,
+	struct argv_ctx *		ctx,
+	struct argv_meta *		meta);
+
+
+struct argv_meta * slbt_argv_get(
+	char **,
+	const struct argv_option **,
+	int flags,
+	int fd);
+
+void slbt_argv_free(struct argv_meta *);
 
 
 int slbt_driver_usage(

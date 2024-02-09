@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define ARGV_DRIVER
-
 #include <slibtool/slibtool.h>
 #include "slibtool_version.h"
 #include "slibtool_driver_impl.h"
@@ -66,13 +64,13 @@ int slbt_split_argv(
 						ARGV_MODE_SCAN,
 						0,0,0,0,0,0,0};
 
-	program = argv_program_name(argv[0]);
+	program = slbt_program_name(argv[0]);
 
 	/* missing arguments? */
 	if ((altmode = (flags & SLBT_DRIVER_MODE_AR))) {
-		argv_optv_init(slbt_ar_options,optv);
+		slbt_optv_init(slbt_ar_options,optv);
 	} else {
-		argv_optv_init(slbt_default_options,optv);
+		slbt_optv_init(slbt_default_options,optv);
 	}
 
 
@@ -83,12 +81,12 @@ int slbt_split_argv(
 			!!getenv("NO_COLOR"));
 
 	/* initial argv scan: ... --mode=xxx ... <compiler> ... */
-	argv_scan(argv,optv,&ctx,0);
+	slbt_argv_scan(argv,optv,&ctx,0);
 
 	/* invalid slibtool arguments? */
 	if (ctx.erridx && !ctx.unitidx && altmode) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
-			argv_get(
+			slbt_argv_get(
 				argv,optv,
 				slbt_argv_flags(flags),
 				fderr);
@@ -104,15 +102,15 @@ int slbt_split_argv(
 		compiler = argv[ctx.unitidx];
 		argv[ctx.unitidx] = 0;
 
-		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
+		meta = slbt_argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 		argv[ctx.unitidx] = compiler;
 	} else {
-		meta = argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
+		meta = slbt_argv_get(argv,optv,ARGV_VERBOSITY_NONE,fderr);
 	}
 
 	if (!meta) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
-			argv_get(
+			slbt_argv_get(
 				argv,optv,
 				slbt_argv_flags(flags),
 				fderr);
@@ -145,12 +143,12 @@ int slbt_split_argv(
 		aropt = mode;
 
 	/* release temporary argv meta context */
-	argv_free(meta);
+	slbt_argv_free(meta);
 
 	/* error not due to an altmode argument? */
 	if (!aropt && ctx.erridx && (ctx.erridx == ctx.unitidx)) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
-			argv_get(
+			slbt_argv_get(
 				argv,optv,
 				slbt_argv_flags(flags),
 				fderr);
