@@ -213,6 +213,9 @@ int slbt_init_host_params(
 void slbt_free_host_params(struct slbt_host_strs * host);
 
 
+int slbt_init_link_params(struct slbt_driver_ctx_impl * ctx);
+
+
 void slbt_init_flavor_settings(
 	struct slbt_common_ctx *	cctx,
 	const struct slbt_host_params * ahost,

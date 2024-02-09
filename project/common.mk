@@ -12,6 +12,7 @@ API_SRCS = \
 	src/driver/slbt_amain.c \
 	src/driver/slbt_driver_ctx.c \
 	src/driver/slbt_host_params.c \
+	src/driver/slbt_link_params.c \
 	src/driver/slbt_split_argv.c \
 	src/driver/slbt_version_info.c \
 	src/fallback/slbt_archive_import_mri.c \
