@@ -169,6 +169,29 @@ struct slbt_archive_ctx_impl {
 };
 
 
+uint64_t slbt_argv_flags(uint64_t flags);
+
+
+int slbt_driver_usage(
+	int				fdout,
+	const char *			program,
+	const char *			arg,
+	const struct argv_option **	optv,
+	struct argv_meta *		meta,
+	struct slbt_split_vector *	sargv,
+	struct slbt_obj_list *		objlistv,
+	int				noclr);
+
+
+int slbt_split_argv(
+	char **				argv,
+	uint64_t			flags,
+	struct slbt_split_vector *	sargv,
+	struct slbt_obj_list **		aobjlistv,
+	int				fderr,
+	int				fdcwd);
+
+
 int slbt_init_host_params(
 	const struct slbt_driver_ctx *	dctx,
 	const struct slbt_common_ctx *	cctx,
