@@ -196,6 +196,20 @@ struct argv_meta * slbt_argv_get(
 void slbt_argv_free(struct argv_meta *);
 
 
+void slbt_argv_usage(
+	int		fd,
+	const char *	header,
+	const struct	argv_option **,
+	const char *	mode);
+
+
+void slbt_argv_usage_plain(
+	int		fd,
+	const char *	header,
+	const struct	argv_option **,
+	const char *	mode);
+
+
 int slbt_driver_usage(
 	int				fdout,
 	const char *			program,

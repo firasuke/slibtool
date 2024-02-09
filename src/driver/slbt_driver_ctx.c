@@ -131,6 +131,26 @@ void slbt_argv_free(struct argv_meta * meta)
 }
 
 
+void slbt_argv_usage(
+	int		                fd,
+	const char *	                header,
+	const struct	argv_option **  optv,
+	const char *	                mode)
+{
+	return argv_usage(fd,header,optv,mode);
+}
+
+
+void slbt_argv_usage_plain(
+	int		                fd,
+	const char *	                header,
+	const struct	argv_option **  optv,
+	const char *	                mode)
+{
+	return argv_usage_plain(fd,header,optv,mode);
+}
+
+
 uint64_t slbt_argv_flags(uint64_t flags)
 {
 	uint32_t ret = 0;
