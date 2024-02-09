@@ -91,6 +91,11 @@ static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool f
 	slbt_dprintf(fderr,"%s\n\n",fcolor ? aclr_reset : "");
 }
 
+const char * slbt_program_name(const char * path)
+{
+	return argv_program_name(path);
+}
+
 uint64_t slbt_argv_flags(uint64_t flags)
 {
 	uint32_t ret = 0;
@@ -221,61 +226,6 @@ static int slbt_get_driver_ctx_fail(
 	return -1;
 }
 
-
-static int slbt_init_version_info(
-	struct slbt_driver_ctx_impl *	ictx,
-	struct slbt_version_info *	verinfo)
-{
-	int	current;
-	int	revision;
-	int	age;
-	int	colons;
-	int	fmtcnt;
-	const char * ch;
-
-	if (!verinfo->verinfo && !verinfo->vernumber)
-		return 0;
-
-	if (verinfo->vernumber) {
-		sscanf(verinfo->vernumber,"%d:%d:%d",
-			&verinfo->major,
-			&verinfo->minor,
-			&verinfo->revision);
-		return 0;
-	}
-
-	current = revision = age = 0;
-
-	for (colons=0, ch=verinfo->verinfo; *ch; ch++)
-		if (*ch == ':')
-			colons++;
-
-	fmtcnt = sscanf(verinfo->verinfo,"%d:%d:%d",
-		&current,&revision,&age);
-
-	if (!fmtcnt || (fmtcnt > 3) || (fmtcnt != colons + 1)) {
-		slbt_dprintf(ictx->fdctx.fderr,
-			"%s: error: invalid version info: "
-			"supported argument format is %%d[:%%d[:%%d]].\n",
-			argv_program_name(ictx->cctx.targv[0]));
-		return -1;
-	}
-
-	if (current < age) {
-		if (ictx->cctx.drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
-			slbt_dprintf(ictx->fdctx.fderr,
-				"%s: error: invalid version info: "
-				"<current> may not be smaller than <age>.\n",
-				argv_program_name(ictx->cctx.targv[0]));
-		return -1;
-	}
-
-	verinfo->major    = current - age;
-	verinfo->minor    = age;
-	verinfo->revision = revision;
-
-	return 0;
-}
 
 static int slbt_init_link_params(struct slbt_driver_ctx_impl * ctx)
 {

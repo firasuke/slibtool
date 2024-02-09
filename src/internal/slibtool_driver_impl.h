@@ -169,6 +169,9 @@ struct slbt_archive_ctx_impl {
 };
 
 
+const char * slbt_program_name(const char *);
+
+
 uint64_t slbt_argv_flags(uint64_t flags);
 
 
@@ -190,6 +193,11 @@ int slbt_split_argv(
 	struct slbt_obj_list **		aobjlistv,
 	int				fderr,
 	int				fdcwd);
+
+
+int slbt_init_version_info(
+	struct slbt_driver_ctx_impl *	ictx,
+	struct slbt_version_info *	verinfo);
 
 
 int slbt_init_host_params(
