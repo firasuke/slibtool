@@ -76,4 +76,9 @@ int slbt_exec_link_create_library(
 	const char *			dsofilename,
 	const char *			relfilename);
 
+int slbt_exec_link_create_executable(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	const char *			exefilename);
+
 #endif
