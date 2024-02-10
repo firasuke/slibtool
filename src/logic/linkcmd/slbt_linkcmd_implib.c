@@ -36,7 +36,7 @@ int slbt_exec_link_create_import_library(
 	if (dctx->cctx->drvflags & SLBT_DRIVER_IMPLIB_DSOMETA)
 		fmdso = 1;
 
-	else if (dctx->cctx->drvflags & SLBT_DRIVER_IMPLIB_DSOMETA)
+	else if (dctx->cctx->drvflags & SLBT_DRIVER_IMPLIB_IDATA)
 		fmdso = 0;
 
 	else if (!(strcmp(dctx->cctx->host.flavor,"midipix")))
