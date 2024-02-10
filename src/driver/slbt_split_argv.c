@@ -171,7 +171,7 @@ int slbt_split_argv(
 		return -1;
 	}
 
-	/* clone and normalize the argv vector (-l, --library) */
+	/* clone and normalize the argv vector */
 	for (argc=0,size=0,dargv=argv; *dargv; argc++,dargv++)
 		size += strlen(*dargv) + 1;
 
@@ -197,6 +197,16 @@ int slbt_split_argv(
 
 		} else if (!strcmp(argv[i],"--")) {
 			flast = true;
+			fcopy = true;
+
+		} else if (!strcmp(argv[i],"-I")) {
+			*dargv++ = dst;
+			*dst++ = '-';
+			*dst++ = 'I';
+			strcpy(dst,argv[++i]);
+			dst += strlen(dst)+1;
+
+		} else if (!strncmp(argv[i],"-I",2)) {
 			fcopy = true;
 
 		} else if (!strcmp(argv[i],"-l")) {
