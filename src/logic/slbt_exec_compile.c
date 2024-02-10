@@ -48,6 +48,7 @@ static int slbt_exec_compile_finalize_argument_vector(
 	char **		cap;
 	char **		src;
 	char **		dst;
+	char **		cmp;
 	char *		ccwrap;
 
 	/* vector size */
@@ -102,13 +103,38 @@ static int slbt_exec_compile_finalize_argument_vector(
 		base++;
 	}
 
-	/* join all other args */
+	/* join all other args, starting with de-duplicated -I arguments */
 	src = aargv;
 	cap = aarg;
 	dst = &base[1];
 
-	for (; src<cap; )
-		*dst++ = *src++;
+	for (; src<cap; ) {
+		if (((*src)[0] == '-') && ((*src)[1] == 'I')) {
+			cmp = &base[1];
+
+			for (; cmp && cmp<dst; ) {
+				if (!strcmp(*src,*cmp)) {
+					cmp = 0;
+				} else {
+					cmp++;
+				}
+			}
+
+			if (cmp)
+				*dst++ = *src;
+		}
+
+		src++;
+	}
+
+	src = aargv;
+
+	for (; src<cap; ) {
+		if (((*src)[0] != '-') || ((*src)[1] != 'I'))
+			*dst++ = *src;
+
+		src++;
+	}
 
 	/* properly null-terminate argv, accounting for redundant arguments */
 	*dst = 0;
