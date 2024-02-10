@@ -20,6 +20,7 @@
 #include "slibtool_spawn_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_snprintf_impl.h"
 #include "argv/argv.h"
 
 static int slbt_install_usage(
@@ -81,8 +82,8 @@ static int slbt_exec_install_init_dstdir(
 		last = dest;
 
 	/* dstdir: initial string */
-	if ((size_t)snprintf(dstdir,PATH_MAX,"%s",
-			last->arg) >= PATH_MAX)
+	if (slbt_snprintf(dstdir,PATH_MAX,
+			"%s",last->arg) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* dstdir might end with a slash */
@@ -124,8 +125,8 @@ static int slbt_exec_install_import_libraries(
 	char	rev    [128];
 
 	/* .libs/libfoo.so.x.y.z */
-	if ((size_t)snprintf(srcbuf,sizeof(srcbuf),"%s",
-			srcdso) >= sizeof(srcbuf))
+	if (slbt_snprintf(srcbuf,sizeof(srcbuf),
+			"%s",srcdso) <0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* (dso is under .libs) */
@@ -133,9 +134,11 @@ static int slbt_exec_install_import_libraries(
 		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
 
 	/* libfoo.so.x.y.z */
-	if ((size_t)snprintf(implib,sizeof(implib),"%s",
-			++slash) >= sizeof(implib)
-				    - strlen(dctx->cctx->settings.impsuffix))
+	const char * impsuffix = dctx->cctx->settings.impsuffix;
+
+	if (slbt_snprintf(implib,
+			sizeof(implib) - strlen(impsuffix),
+			"%s",++slash) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* guard against an infinitely long version */
@@ -204,8 +207,8 @@ static int slbt_exec_install_import_libraries(
 	strcpy(implib,slash);
 	strcpy(dot,dctx->cctx->asettings.impsuffix);
 
-	if ((size_t)snprintf(hostlnk,sizeof(hostlnk),"%s/%s",
-			dstdir,slash) >= sizeof(hostlnk))
+	if (slbt_snprintf(hostlnk,sizeof(hostlnk),
+			"%s/%s",dstdir,slash) <0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if (slbt_create_symlink(
@@ -242,13 +245,14 @@ static int slbt_exec_install_library_wrapper(
 		base = entry->arg;
 
 	/* /dstdir/libfoo.la */
-	if ((size_t)snprintf(instname,sizeof(instname),"%s/%s",
-			dstdir,base) >= sizeof(instname))
+	if (slbt_snprintf(instname,sizeof(instname),
+			"%s/%s",dstdir,base) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* libfoo.la.slibtool.install */
-	if ((size_t)snprintf(clainame,sizeof(clainame),"%s.slibtool.install",
-			entry->arg) >= sizeof(clainame))
+	if (slbt_snprintf(clainame,sizeof(clainame),
+			"%s.slibtool.install",
+			entry->arg) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* fdcwd */
@@ -356,9 +360,9 @@ static int slbt_exec_install_entry(
 	mark = &slnkname[base - entry->arg];
 	slen = sizeof(slnkname) - (mark - slnkname);
 
-	if ((size_t)snprintf(mark,slen,
+	if (slbt_snprintf(mark,slen,
 			".libs/%s.exe.wrapper",
-			base) >= slen)
+			base) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* fdcwd */
@@ -412,8 +416,8 @@ static int slbt_exec_install_entry(
 	strcpy(sobuf,dctx->cctx->settings.dsosuffix);
 	dsosuffix = sobuf;
 
-	if ((size_t)snprintf(slnkname,sizeof(slnkname),"%s.shrext",
-			srcfile) >= sizeof(slnkname))
+	if (slbt_snprintf(slnkname,sizeof(slnkname),
+			"%s.shrext",srcfile) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if (!fstatat(fdcwd,slnkname,&st,0)) {
@@ -514,7 +518,7 @@ static int slbt_exec_install_entry(
 		if (slbt_readlinkat(fdcwd,dlnkname,hosttag,sizeof(hosttag)))
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 	} else {
-		if ((size_t)snprintf(dot,slen,"%s.def.host",dsosuffix) >= slen)
+		if (slbt_snprintf(dot,slen,"%s.def.host",dsosuffix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
 		if (slbt_readlinkat(fdcwd,frelease ? dlnkname : slnkname,hosttag,sizeof(hosttag)))
@@ -573,8 +577,8 @@ static int slbt_exec_install_entry(
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
 
 		/* dstfile */
-		if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s/%s",
-				dstdir,base) >= sizeof(dstfile))
+		if (slbt_snprintf(dstfile,sizeof(dstfile),
+				"%s/%s",dstdir,base) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
 		/* single spawn, no symlinks */
@@ -603,8 +607,8 @@ static int slbt_exec_install_entry(
 
 	/* dstfile */
 	if (!dest)
-		if ((size_t)snprintf(dstfile,sizeof(dstfile),"%s/%s",
-				dstdir,target) >= sizeof(dstfile))
+		if (slbt_snprintf(dstfile,sizeof(dstfile),
+				"%s/%s",dstdir,target) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
 	/* spawn */
@@ -625,8 +629,8 @@ static int slbt_exec_install_entry(
 	}
 
 	/* destination symlink: dstdir/libfoo.so */
-	if ((size_t)snprintf(dlnkname,sizeof(dlnkname),"%s/%s",
-			dstdir,base) >= sizeof(dlnkname))
+	if (slbt_snprintf(dlnkname,sizeof(dlnkname),
+			"%s/%s",dstdir,base) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* create symlink: libfoo.so --> libfoo.so.x.y.z */
@@ -672,8 +676,8 @@ static int slbt_exec_install_entry(
 	}
 
 	/* destination symlink: dstdir/libfoo.so.x */
-	if ((size_t)snprintf(dlnkname,sizeof(dlnkname),"%s/%s",
-			dstdir,slnkname) >= sizeof(dlnkname))
+	if (slbt_snprintf(dlnkname,sizeof(dlnkname),
+			"%s/%s",dstdir,slnkname) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if (fpe) {

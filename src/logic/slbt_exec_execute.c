@@ -13,6 +13,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_spawn_impl.h"
 #include "slibtool_driver_impl.h"
+#include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
 int  slbt_exec_execute(
@@ -60,10 +61,9 @@ int  slbt_exec_execute(
 		sprintf(mark,".libs/%s",base);
 
 		/* wrapper */
-		if ((size_t)snprintf(wrapper,sizeof(wrapper),
+		if (slbt_snprintf(wrapper,sizeof(wrapper),
 					"%s.exe.wrapper",
-					exeref)
-				>= sizeof(wrapper)) {
+					exeref) < 0) {
 			slbt_free_exec_ctx(actx);
 			return SLBT_BUFFER_ERROR(dctx);
 		}

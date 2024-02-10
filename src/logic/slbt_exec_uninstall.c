@@ -15,6 +15,7 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_uninstall_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
 
@@ -170,8 +171,9 @@ static int slbt_exec_uninstall_entry(
 	char		path [PATH_MAX];
 	char		lpath[PATH_MAX];
 
-	if ((size_t)snprintf(path,PATH_MAX,"%s",
-			entry->arg) >= PATH_MAX-8)
+	if (slbt_snprintf(path,
+			PATH_MAX - 8,
+			"%s",entry->arg) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	*parg = (char *)entry->arg;

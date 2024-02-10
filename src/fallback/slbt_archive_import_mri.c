@@ -21,6 +21,7 @@
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
 #define PPRIX64 "%"PRIx64
@@ -46,8 +47,8 @@ static char * slbt_mri_argument(
 				mricwd,sizeof(mricwd)) < 0)
 			return 0;
 
-		if ((size_t)snprintf(dstbuf,sizeof(dstbuf),"%s/%s",
-				mricwd,arg) >= sizeof(dstbuf))
+		if (slbt_snprintf(dstbuf,sizeof(dstbuf),
+				"%s/%s",mricwd,arg) < 0)
 			return 0;
 
 		target = dstbuf;
@@ -123,9 +124,8 @@ int slbt_archive_import_mri(
 		return 0;
 
 	/* program */
-	if ((size_t)snprintf(program,sizeof(program),
-			"%s",dctx->cctx->host.ar)
-			>= sizeof(program))
+	if (slbt_snprintf(program,sizeof(program),
+			"%s",dctx->cctx->host.ar) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* fork */

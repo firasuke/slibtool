@@ -15,6 +15,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_spawn_impl.h"
+#include "slibtool_snprintf_impl.h"
 
 static void slbt_dump_machine_child(
 	char *	program,
@@ -61,8 +62,8 @@ int slbt_dump_machine(
 		return -1;
 	}
 
-	if ((size_t)snprintf(program,sizeof(program),"%s",
-			compiler) >= sizeof(program))
+	if (slbt_snprintf(program,sizeof(program),
+			"%s",compiler) < 0)
 		return -1;
 
 	/* fork */

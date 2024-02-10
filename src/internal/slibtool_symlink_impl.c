@@ -13,6 +13,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_snprintf_impl.h"
 
 #define SLBT_DEV_NULL_FLAGS	(SLBT_DRIVER_ALL_STATIC      \
 				| SLBT_DRIVER_DISABLE_SHARED \
@@ -70,13 +71,14 @@ int slbt_create_symlink(
 	dotdot = fwrapper ? "../" : "";
 
 	/* atarget */
-	if ((size_t)snprintf(atarget,sizeof(atarget),"%s%s",
-			dotdot,slash) >= sizeof(atarget))
+	if (slbt_snprintf(atarget,sizeof(atarget),
+			"%s%s",dotdot,slash) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* tmplnk */
-	if ((size_t)snprintf(tmplnk,sizeof(tmplnk),"%s.symlink.tmp",
-			lnkname) >= sizeof(tmplnk))
+	if (slbt_snprintf(tmplnk,sizeof(tmplnk),
+			"%s.symlink.tmp",
+			lnkname) <0)
 		return SLBT_BUFFER_ERROR(dctx);
 
 	/* placeholder? */

@@ -17,6 +17,7 @@ INTERNAL_HEADERS = \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mkdir_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_objlist_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_readlink_impl.h \
+	$(PROJECT_DIR)/src/internal/$(PACKAGE)_snprintf_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_spawn_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_symlink_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_uninstall_impl.h \
