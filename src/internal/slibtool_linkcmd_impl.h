@@ -69,4 +69,11 @@ int slbt_exec_link_create_archive(
 	const char *			arfilename,
 	bool				fpic);
 
+int slbt_exec_link_create_library(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	const char *			dsobasename,
+	const char *			dsofilename,
+	const char *			relfilename);
+
 #endif
