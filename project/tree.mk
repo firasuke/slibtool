@@ -9,4 +9,5 @@ tree.tag:
 		mkdir -p src/output
 		mkdir -p src/skin
 		mkdir -p src/arbits/output
+		mkdir -p src/logic/linkcmd
 		touch tree.tag

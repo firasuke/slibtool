@@ -12,6 +12,7 @@ INTERNAL_HEADERS = \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_errinfo_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_install_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_lconf_impl.h \
+	$(PROJECT_DIR)/src/internal/$(PACKAGE)_linkcmd_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mapfile_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_metafile_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mkdir_impl.h \

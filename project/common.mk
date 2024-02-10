@@ -28,6 +28,7 @@ API_SRCS = \
 	src/logic/slbt_exec_install.c \
 	src/logic/slbt_exec_link.c \
 	src/logic/slbt_exec_uninstall.c \
+	src/logic/linkcmd/slbt_linkcmd_deps.c \
 	src/output/slbt_output_config.c \
 	src/output/slbt_output_error.c \
 	src/output/slbt_output_exec.c \
