@@ -56,4 +56,11 @@ int slbt_exec_link_create_host_tag(
 	struct slbt_exec_ctx *		ectx,
 	char *				deffilename);
 
+int slbt_exec_link_create_import_library(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	char *				impfilename,
+	char *				deffilename,
+	char *				soname);
+
 #endif
