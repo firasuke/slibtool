@@ -103,7 +103,8 @@ static int slbt_exec_compile_finalize_argument_vector(
 		base++;
 	}
 
-	/* join all other args, starting with de-duplicated -I arguments */
+	/* join all other args, starting with de-duplicated -I arguments, */
+	/* and filter out all -f switches when compiling in --tag=RC mode */
 	src = aargv;
 	cap = aarg;
 	dst = &base[1];
@@ -130,7 +131,12 @@ static int slbt_exec_compile_finalize_argument_vector(
 	src = aargv;
 
 	for (; src<cap; ) {
-		if (((*src)[0] != '-') || ((*src)[1] != 'I'))
+		if ((dctx->cctx->tag == SLBT_TAG_RC)
+				&& ((*src)[0] == '-')
+				&& ((*src)[1] == 'f'))
+			(void)0;
+
+		else if (((*src)[0] != '-') || ((*src)[1] != 'I'))
 			*dst++ = *src;
 
 		src++;
