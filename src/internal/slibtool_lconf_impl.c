@@ -786,8 +786,10 @@ int slbt_get_lconf_flags(
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
-		if (val[0] && !(ctx->cctx.host.ar = strdup(val)))
+		if (val[0] && !(ctx->host.ar = strdup(val)))
 			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		ctx->cctx.host.ar = ctx->host.ar;
 	}
 
 
@@ -797,8 +799,10 @@ int slbt_get_lconf_flags(
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
-		if (val[0] && !(ctx->cctx.host.ranlib = strdup(val)))
+		if (val[0] && !(ctx->host.ranlib = strdup(val)))
 			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		ctx->cctx.host.ranlib = ctx->host.ranlib;
 	}
 
 
