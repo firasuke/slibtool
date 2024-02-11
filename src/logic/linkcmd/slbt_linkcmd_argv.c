@@ -296,7 +296,7 @@ int slbt_exec_link_adjust_argument_vector(
 	struct stat		st;
 	size_t			size;
 	size_t			dlen;
-	struct slbt_map_info *	mapinfo;
+	struct slbt_map_info *	mapinfo = 0;
 	bool			fwholearchive = false;
 	int			ret;
 
@@ -533,6 +533,11 @@ int slbt_exec_link_adjust_argument_vector(
 						return ret;
 				}
 			}
+		}
+
+		if (mapinfo) {
+			slbt_unmap_file(mapinfo);
+			mapinfo = 0;
 		}
 	}
 
