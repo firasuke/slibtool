@@ -678,7 +678,7 @@ int slbt_merge_archives(
 	ictx = slbt_get_archive_ictx(arctx);
 
 	if (slbt_get_archive_meta(dctx,arctx->map,&ictx->meta) < 0)
-		slbt_merge_archives_fail(
+		return slbt_merge_archives_fail(
 			arctx,0,0,
 			SLBT_NESTED_ERROR(dctx));
 
