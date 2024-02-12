@@ -307,6 +307,10 @@ int slbt_merge_archives(
 		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_FLOW_ERROR);
 	}
 
+	ssymstrs += 1;
+	ssymstrs |= 1;
+	ssymstrs ^= 1;
+
 	/* long-names member alignment */
 	snamestrs += 1;
 	snamestrs |= 1;
