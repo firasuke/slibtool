@@ -163,7 +163,7 @@ int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
+	if (!ctx.unitidx && !help && !info && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -323,7 +323,7 @@ int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || version || features || dumpmachine || altmode) {
+	} else if (help || version || features || info || dumpmachine || altmode) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
