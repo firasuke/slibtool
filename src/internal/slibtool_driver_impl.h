@@ -14,6 +14,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_dprintf_impl.h"
+#include "slibtool_mapfile_impl.h"
 #include "argv/argv.h"
 
 #define SLBT_OPTV_ELEMENTS 128
@@ -124,6 +125,7 @@ struct slbt_driver_ctx_impl {
 	struct slbt_host_strs	host;
 	struct slbt_host_strs	ahost;
 	struct slbt_fd_ctx	fdctx;
+	struct slbt_map_info    lconf;
 	struct slbt_obj_list *	objlistv;
 
 	const struct slbt_archive_ctx * arctx;

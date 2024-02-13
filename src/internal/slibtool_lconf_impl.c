@@ -807,7 +807,8 @@ int slbt_get_lconf_flags(
 
 
 	/* all done */
-	munmap(addr,st.st_size);
+	ctx->lconf.addr = addr;
+	ctx->lconf.size = st.st_size;
 
 	return 0;
 }

@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <spawn.h>
+#include <sys/mman.h>
 #include <sys/wait.h>
 
 #define ARGV_DRIVER
@@ -885,6 +886,11 @@ static void slbt_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 
 	if (ictx->ctx.libname)
 		free(ictx->ctx.libname);
+
+	if (ictx->ctx.lconf.addr)
+		munmap(
+			ictx->ctx.lconf.addr,
+			ictx->ctx.lconf.size);
 
 	for (objlistp=ictx->ctx.objlistv; objlistp->name; objlistp++) {
 		free(objlistp->objv);
