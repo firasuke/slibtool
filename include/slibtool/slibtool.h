@@ -399,6 +399,7 @@ slbt_api int  slbt_store_archive        (struct slbt_archive_ctx *,
 slbt_api int  slbt_main                 (char **, char **,
                                          const struct slbt_fd_ctx *);
 
+slbt_api int  slbt_output_config        (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_info          (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_machine       (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_features      (const struct slbt_driver_ctx *);

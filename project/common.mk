@@ -35,6 +35,7 @@ API_SRCS = \
 	src/logic/linkcmd/slbt_linkcmd_executable.c \
 	src/logic/linkcmd/slbt_linkcmd_host.c \
 	src/logic/linkcmd/slbt_linkcmd_implib.c \
+	src/output/slbt_output_config.c \
 	src/output/slbt_output_error.c \
 	src/output/slbt_output_exec.c \
 	src/output/slbt_output_fdcwd.c \
