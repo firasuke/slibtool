@@ -39,6 +39,9 @@ const struct argv_option slbt_default_options[] = {
 				"a universal playground game; "
 				"currently accepted tags are {%s}"},
 
+	{"config",		0,TAG_CONFIG,ARGV_OPTARG_NONE,0,0,0,
+				"print a compatible --config output"},
+
 	{"info",		0,TAG_INFO,ARGV_OPTARG_NONE,0,0,0,
 				"display detected (or cached) environment information"},
 

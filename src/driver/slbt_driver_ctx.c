@@ -493,6 +493,10 @@ int slbt_get_driver_ctx(
 					cctx.drvflags |= SLBT_DRIVER_INFO;
 					break;
 
+				case TAG_CONFIG:
+					cctx.drvflags |= SLBT_DRIVER_OUTPUT_CONFIG;
+					break;
+
 				case TAG_DUMPMACHINE:
 					cctx.drvflags |= SLBT_DRIVER_OUTPUT_MACHINE;
 					break;
@@ -772,6 +776,10 @@ int slbt_get_driver_ctx(
 		cctx.user   = cctx.output;
 		cctx.output = 0;
 	}
+
+	/* config mode */
+	if (cctx.drvflags & SLBT_DRIVER_OUTPUT_CONFIG)
+		cctx.mode = SLBT_MODE_CONFIG;
 
 	/* info mode */
 	if (cctx.drvflags & (SLBT_DRIVER_INFO | SLBT_DRIVER_FEATURES))

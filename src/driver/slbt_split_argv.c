@@ -52,6 +52,7 @@ int slbt_split_argv(
 	struct argv_entry *		help;
 	struct argv_entry *		version;
 	struct argv_entry *		info;
+	struct argv_entry *		config;
 	struct argv_entry *		finish;
 	struct argv_entry *		features;
 	struct argv_entry *		ccwrap;
@@ -117,8 +118,8 @@ int slbt_split_argv(
 		return -1;
 	}
 
-	/* missing all of --mode, --help, --version, --info, --dumpmachine, --features, and --finish? */
-	mode = help = version = info = finish = features = ccwrap = dumpmachine = aropt = 0;
+	/* missing all of --mode, --help, --version, --info, --config, --dumpmachine, --features, and --finish? */
+	mode = help = version = info = config = finish = features = ccwrap = dumpmachine = aropt = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
@@ -129,6 +130,8 @@ int slbt_split_argv(
 			version = entry;
 		else if (entry->tag == TAG_INFO)
 			info = entry;
+		else if (entry->tag == TAG_CONFIG)
+			config = entry;
 		else if (entry->tag == TAG_FINISH)
 			finish = entry;
 		else if (entry->tag == TAG_FEATURES)
@@ -155,7 +158,7 @@ int slbt_split_argv(
 		return -1;
 	}
 
-	if (!mode && !help && !version && !info && !finish && !features && !dumpmachine && !altmode) {
+	if (!mode && !help && !version && !info && !config && !finish && !features && !dumpmachine && !altmode) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -163,7 +166,7 @@ int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !info && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
+	if (!ctx.unitidx && !help && !info && !config && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
 				"%s: error: <compiler> is missing.\n",
@@ -323,7 +326,7 @@ int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || version || features || info || dumpmachine || altmode) {
+	} else if (help || version || features || info || config || dumpmachine || altmode) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
