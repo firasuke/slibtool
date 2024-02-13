@@ -806,6 +806,17 @@ int slbt_get_lconf_flags(
 	}
 
 
+	/* dlltool tool (optional) */
+	if (!ctx->cctx.host.dlltool) {
+		if (slbt_get_lconf_var(addr,cap,"DLLTOOL=",&val) >= 0) {
+			if (val[0] && !(ctx->host.dlltool = strdup(val)))
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+			ctx->cctx.host.dlltool = ctx->host.dlltool;
+		}
+	}
+
+
 	/* all done */
 	ctx->lconf.addr = addr;
 	ctx->lconf.size = st.st_size;

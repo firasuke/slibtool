@@ -137,7 +137,8 @@ int slbt_init_host_params(
 	struct slbt_host_params *	host,
 	struct slbt_host_params *	cfgmeta,
 	const char *                    cfgmeta_ar,
-	const char *                    cfgmeta_ranlib)
+	const char *                    cfgmeta_ranlib,
+	const char *                    cfgmeta_dlltool)
 {
 	int		fdcwd;
 	int		arprobe;
@@ -413,7 +414,7 @@ int slbt_init_host_params(
 
 	/* dlltool */
 	if (host->dlltool)
-		cfgmeta->dlltool = cfgexplicit;
+		cfgmeta->dlltool = cfgmeta_dlltool ? cfgmeta_dlltool : cfgexplicit;
 
 	else if (strcmp(host->flavor,"cygwin")
 			&& strcmp(host->flavor,"midipix")
@@ -622,7 +623,7 @@ int  slbt_set_alternate_host(
 			&ictx->ctx.ahost,
 			&ictx->ctx.cctx.ahost,
 			&ictx->ctx.cctx.acfgmeta,
-			0,0)) {
+			0,0,0)) {
 		slbt_free_host_params(&ictx->ctx.ahost);
 		return SLBT_CUSTOM_ERROR(ctx,SLBT_ERR_HOST_INIT);
 	}

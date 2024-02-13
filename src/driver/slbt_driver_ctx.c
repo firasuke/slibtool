@@ -340,6 +340,7 @@ int slbt_get_driver_ctx(
 	uint64_t			lflags;
 	const char *                    cfgmeta_ar;
 	const char *                    cfgmeta_ranlib;
+	const char *                    cfgmeta_dlltool;
 
 	if (flags & SLBT_DRIVER_MODE_AR)
 		argv_optv_init(slbt_ar_options,optv);
@@ -395,6 +396,7 @@ int slbt_get_driver_ctx(
 
 	cfgmeta_ar     = 0;
 	cfgmeta_ranlib = 0;
+	cfgmeta_dlltool = 0;
 
 	/* get options */
 	for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
@@ -602,6 +604,7 @@ int slbt_get_driver_ctx(
 
 				case TAG_DLLTOOL:
 					cctx.host.dlltool = entry->arg;
+					cfgmeta_dlltool   = cfgexplicit;
 					break;
 
 				case TAG_MDSO:
@@ -812,6 +815,9 @@ int slbt_get_driver_ctx(
 		if (ctx->cctx.host.ranlib && !cfgmeta_ranlib)
 			cfgmeta_ranlib = cfglconf;
 
+		if (ctx->cctx.host.dlltool && !cfgmeta_dlltool)
+			cfgmeta_dlltool = cfglconf;
+
 		if (cmdnoshared)
 			lflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
 
@@ -852,7 +858,8 @@ int slbt_get_driver_ctx(
 			&ctx->cctx.host,
 			&ctx->cctx.cfgmeta,
 			cfgmeta_ar,
-			cfgmeta_ranlib))
+			cfgmeta_ranlib,
+			cfgmeta_dlltool))
 		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
 	/* flavor settings */
