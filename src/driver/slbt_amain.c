@@ -59,8 +59,8 @@ static ssize_t slbt_version(struct slbt_driver_ctx * dctx, int fdout)
 
 static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 {
-	if (dctx->cctx->drvflags & SLBT_DRIVER_CONFIG)
-		slbt_output_config(dctx);
+	if (dctx->cctx->drvflags & SLBT_DRIVER_INFO)
+		slbt_output_info(dctx);
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_FEATURES)
 		slbt_output_features(dctx);

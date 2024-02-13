@@ -488,8 +488,8 @@ int slbt_get_driver_ctx(
 						cmdnoshared = entry;
 					break;
 
-				case TAG_CONFIG:
-					cctx.drvflags |= SLBT_DRIVER_CONFIG;
+				case TAG_INFO:
+					cctx.drvflags |= SLBT_DRIVER_INFO;
 					break;
 
 				case TAG_DUMPMACHINE:
@@ -773,7 +773,7 @@ int slbt_get_driver_ctx(
 	}
 
 	/* info mode */
-	if (cctx.drvflags & (SLBT_DRIVER_CONFIG | SLBT_DRIVER_FEATURES))
+	if (cctx.drvflags & (SLBT_DRIVER_INFO | SLBT_DRIVER_FEATURES))
 		cctx.mode = SLBT_MODE_INFO;
 
 	/* --tag */

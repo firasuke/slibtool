@@ -38,7 +38,7 @@ extern "C" {
 
 #define SLBT_DRIVER_VERSION		0x0010
 #define SLBT_DRIVER_DRY_RUN		0x0020
-#define SLBT_DRIVER_CONFIG		0x0040
+#define SLBT_DRIVER_INFO		0x0040
 #define SLBT_DRIVER_DEBUG		0x0080
 #define SLBT_DRIVER_FEATURES		0x0100
 #define SLBT_DRIVER_DEPS		0x0200
@@ -399,7 +399,7 @@ slbt_api int  slbt_store_archive        (struct slbt_archive_ctx *,
 slbt_api int  slbt_main                 (char **, char **,
                                          const struct slbt_fd_ctx *);
 
-slbt_api int  slbt_output_config        (const struct slbt_driver_ctx *);
+slbt_api int  slbt_output_info          (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_machine       (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_features      (const struct slbt_driver_ctx *);
 slbt_api int  slbt_output_fdcwd         (const struct slbt_driver_ctx *);
