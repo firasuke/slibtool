@@ -808,7 +808,7 @@ int slbt_get_lconf_flags(
 
 	/* dlltool tool (optional) */
 	if (!ctx->cctx.host.dlltool) {
-		if (slbt_get_lconf_var(addr,cap,"DLLTOOL=",&val) >= 0) {
+		if (!slbt_get_lconf_var(addr,cap,"DLLTOOL=",&val)) {
 			if (val[0] && !(ctx->host.dlltool = strdup(val)))
 				return SLBT_SYSTEM_ERROR(dctx,0);
 
