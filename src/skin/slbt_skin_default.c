@@ -42,6 +42,12 @@ const struct argv_option slbt_default_options[] = {
 	{"info",		0,TAG_INFO,ARGV_OPTARG_NONE,0,0,0,
 				"display detected (or cached) environment information"},
 
+	{"rosylee",		0,TAG_INFO,ARGV_OPTARG_NONE,0,0,0,
+				"synonym for --info"},
+
+	{"valerius",		0,TAG_INFO,ARGV_OPTARG_NONE,0,0,0,
+				"alternative for --rosylee"},
+
 	{"debug",		0,TAG_DEBUG,ARGV_OPTARG_NONE,0,0,0,
 				"display internal debug information"},
 
