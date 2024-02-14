@@ -780,6 +780,19 @@ int slbt_get_lconf_flags(
 	*flags = optshared | optstatic;
 
 
+	/* host */
+	if (!ctx->cctx.host.host) {
+		if (slbt_get_lconf_var(addr,cap,"host=",&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
+
+		if (val[0] && !(ctx->host.host = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		ctx->cctx.host.host = ctx->host.host;
+	}
+
+
 	/* ar tool */
 	if (!ctx->cctx.host.ar) {
 		if (slbt_get_lconf_var(addr,cap,"AR=",&val) < 0)

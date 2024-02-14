@@ -338,6 +338,7 @@ int slbt_get_driver_ctx(
 	const char *			program;
 	const char *			lconf;
 	uint64_t			lflags;
+	const char *                    cfgmeta_host;
 	const char *                    cfgmeta_ar;
 	const char *                    cfgmeta_as;
 	const char *                    cfgmeta_ranlib;
@@ -395,6 +396,7 @@ int slbt_get_driver_ctx(
 	cmdnostatic = 0;
 	cmdnoshared = 0;
 
+	cfgmeta_host   = 0;
 	cfgmeta_ar     = 0;
 	cfgmeta_as     = 0;
 	cfgmeta_ranlib = 0;
@@ -584,6 +586,7 @@ int slbt_get_driver_ctx(
 
 				case TAG_HOST:
 					cctx.host.host = entry->arg;
+					cfgmeta_host   = cfgexplicit;
 					break;
 
 				case TAG_FLAVOR:
@@ -816,6 +819,9 @@ int slbt_get_driver_ctx(
 		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags) < 0)
 			return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
+		if (ctx->cctx.host.host && !cfgmeta_host)
+			cfgmeta_host = cfglconf;
+
 		if (ctx->cctx.host.ar && !cfgmeta_ar)
 			cfgmeta_ar = cfglconf;
 
@@ -867,6 +873,7 @@ int slbt_get_driver_ctx(
 			&ctx->host,
 			&ctx->cctx.host,
 			&ctx->cctx.cfgmeta,
+			cfgmeta_host,
 			cfgmeta_ar,
 			cfgmeta_as,
 			cfgmeta_ranlib,

@@ -136,6 +136,7 @@ int slbt_init_host_params(
 	struct slbt_host_strs *		drvhost,
 	struct slbt_host_params *	host,
 	struct slbt_host_params *	cfgmeta,
+	const char *                    cfgmeta_host,
 	const char *                    cfgmeta_ar,
 	const char *                    cfgmeta_as,
 	const char *                    cfgmeta_ranlib,
@@ -185,7 +186,7 @@ int slbt_init_host_params(
 
 	/* host */
 	if (host->host) {
-		cfgmeta->host = cfgexplicit;
+		cfgmeta->host = cfgmeta_host ? cfgmeta_host : cfgexplicit;
 		fhost         = true;
 
 	} else if (cctx->target) {
@@ -645,7 +646,7 @@ int  slbt_set_alternate_host(
 			&ictx->ctx.ahost,
 			&ictx->ctx.cctx.ahost,
 			&ictx->ctx.cctx.acfgmeta,
-			0,0,0,0)) {
+			0,0,0,0,0)) {
 		slbt_free_host_params(&ictx->ctx.ahost);
 		return SLBT_CUSTOM_ERROR(ctx,SLBT_ERR_HOST_INIT);
 	}
