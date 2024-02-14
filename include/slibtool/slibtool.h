@@ -150,6 +150,7 @@ enum slbt_tag {
 	SLBT_TAG_CXX,
 	SLBT_TAG_FC,
 	SLBT_TAG_F77,
+	SLBT_TAG_ASM,
 	SLBT_TAG_NASM,
 	SLBT_TAG_RC,
 };
