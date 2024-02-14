@@ -105,7 +105,9 @@ int slbt_exec_link_create_library(
 
 	/* --no-undefined */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_NO_UNDEFINED)
-		*ectx->noundef = "-Wl,--no-undefined";
+		*ectx->noundef = !strcmp(dctx->cctx->host.host,"darwin")
+			? "-Wl,-undefined,error"
+			: "-Wl,--no-undefined";
 
 	/* -soname */
 	dot   = strrchr(dctx->cctx->output,'.');
