@@ -593,6 +593,10 @@ int slbt_get_driver_ctx(
 					cfgmeta_ar   = cfgexplicit;
 					break;
 
+				case TAG_AS:
+					cctx.host.as = entry->arg;
+					break;
+
 				case TAG_RANLIB:
 					cctx.host.ranlib = entry->arg;
 					cfgmeta_ranlib   = cfgexplicit;

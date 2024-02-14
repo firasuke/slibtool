@@ -45,6 +45,7 @@ enum app_tags {
 	TAG_HOST,
 	TAG_FLAVOR,
 	TAG_AR,
+	TAG_AS,
 	TAG_RANLIB,
 	TAG_WINDRES,
 	TAG_DLLTOOL,
@@ -106,6 +107,7 @@ struct slbt_host_strs {
 	char *		host;
 	char *		flavor;
 	char *		ar;
+	char *		as;
 	char *		ranlib;
 	char *		windres;
 	char *		dlltool;

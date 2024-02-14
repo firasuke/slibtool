@@ -113,6 +113,9 @@ const struct argv_option slbt_default_options[] = {
 	{"ar",			0,TAG_AR,ARGV_OPTARG_REQUIRED,0,0,"<ar>",
 				"explicitly specify the archiver to be used"},
 
+	{"as",			0,TAG_AS,ARGV_OPTARG_REQUIRED,0,0,"<as>",
+				"explicitly specify the assembler to be used (with dlltool)"},
+
 	{"ranlib",		0,TAG_RANLIB,ARGV_OPTARG_REQUIRED,0,0,"<ranlib>",
 				"explicitly specify the librarian to be used"},
 

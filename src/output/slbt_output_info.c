@@ -62,6 +62,9 @@ int slbt_output_info(const struct slbt_driver_ctx * dctx)
 	if ((len = strlen(cctx->host.ar)) > midwidth)
 		midwidth = len;
 
+	if ((len = strlen(cctx->host.as)) > midwidth)
+		midwidth = len;
+
 	if ((len = strlen(cctx->host.ranlib)) > midwidth)
 		midwidth = len;
 
@@ -96,6 +99,9 @@ int slbt_output_info(const struct slbt_driver_ctx * dctx)
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_info_line(fdout,"ar",cctx->host.ar,cctx->cfgmeta.ar,midwidth))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	if (slbt_output_info_line(fdout,"as",cctx->host.as,cctx->cfgmeta.as,midwidth))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (slbt_output_info_line(fdout,"ranlib",cctx->host.ranlib,cctx->cfgmeta.ranlib,midwidth))

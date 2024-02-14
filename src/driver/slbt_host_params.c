@@ -369,6 +369,24 @@ int slbt_init_host_params(
 		host->ar = drvhost->ar;
 	}
 
+	/* as */
+	if (host->as)
+		cfgmeta->as = cfgexplicit;
+	else {
+		if (!(drvhost->as = calloc(1,toollen)))
+			return -1;
+
+		if (fnative) {
+			strcpy(drvhost->as,"as");
+			cfgmeta->as = cfgnative;
+		} else {
+			sprintf(drvhost->as,"%s-as",host->host);
+			cfgmeta->as = cfghost;
+		}
+
+		host->as = drvhost->as;
+	}
+
 	/* ranlib */
 	if (host->ranlib)
 		cfgmeta->ranlib = cfgmeta_ranlib ? cfgmeta_ranlib : cfgexplicit;
@@ -479,6 +497,9 @@ void slbt_free_host_params(struct slbt_host_strs * host)
 
 	if (host->ar)
 		free(host->ar);
+
+	if (host->as)
+		free(host->as);
 
 	if (host->ranlib)
 		free(host->ranlib);
