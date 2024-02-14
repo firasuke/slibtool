@@ -105,7 +105,7 @@ int slbt_exec_link_create_library(
 
 	/* --no-undefined */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_NO_UNDEFINED)
-		*ectx->noundef = !strcmp(dctx->cctx->host.host,"darwin")
+		*ectx->noundef = !strcmp(dctx->cctx->host.flavor,"darwin")
 			? "-Wl,-undefined,error"
 			: "-Wl,--no-undefined";
 
@@ -117,7 +117,7 @@ int slbt_exec_link_create_library(
 
 	char wl_soname[24];
 
-	if (!strcmp(dctx->cctx->host.host,"darwin")) {
+	if (!strcmp(dctx->cctx->host.flavor,"darwin")) {
 		strcpy(wl_soname,"-Wl,-install_name");
 	} else {
 		strcpy(wl_soname,"-Wl,-soname");
