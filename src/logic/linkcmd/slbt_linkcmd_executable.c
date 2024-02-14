@@ -116,7 +116,9 @@ int slbt_exec_link_create_executable(
 
 	/* --no-undefined */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_NO_UNDEFINED)
-		*ectx->noundef = "-Wl,--no-undefined";
+		*ectx->noundef = !strcmp(dctx->cctx->host.host,"darwin")
+			? "-Wl,-undefined,error"
+			: "-Wl,--no-undefined";
 
 	/* executable wrapper: create */
 	if (slbt_snprintf(wrapper,sizeof(wrapper),
