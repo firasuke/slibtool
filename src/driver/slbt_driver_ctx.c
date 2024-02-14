@@ -339,6 +339,7 @@ int slbt_get_driver_ctx(
 	const char *			lconf;
 	uint64_t			lflags;
 	const char *                    cfgmeta_ar;
+	const char *                    cfgmeta_as;
 	const char *                    cfgmeta_ranlib;
 	const char *                    cfgmeta_dlltool;
 
@@ -395,6 +396,7 @@ int slbt_get_driver_ctx(
 	cmdnoshared = 0;
 
 	cfgmeta_ar     = 0;
+	cfgmeta_as     = 0;
 	cfgmeta_ranlib = 0;
 	cfgmeta_dlltool = 0;
 
@@ -595,6 +597,7 @@ int slbt_get_driver_ctx(
 
 				case TAG_AS:
 					cctx.host.as = entry->arg;
+					cfgmeta_as   = cfgexplicit;
 					break;
 
 				case TAG_RANLIB:
@@ -816,6 +819,9 @@ int slbt_get_driver_ctx(
 		if (ctx->cctx.host.ar && !cfgmeta_ar)
 			cfgmeta_ar = cfglconf;
 
+		if (ctx->cctx.host.as && !cfgmeta_as)
+			cfgmeta_as = cfglconf;
+
 		if (ctx->cctx.host.ranlib && !cfgmeta_ranlib)
 			cfgmeta_ranlib = cfglconf;
 
@@ -862,6 +868,7 @@ int slbt_get_driver_ctx(
 			&ctx->cctx.host,
 			&ctx->cctx.cfgmeta,
 			cfgmeta_ar,
+			cfgmeta_as,
 			cfgmeta_ranlib,
 			cfgmeta_dlltool))
 		return slbt_get_driver_ctx_fail(&ctx->ctx,0);

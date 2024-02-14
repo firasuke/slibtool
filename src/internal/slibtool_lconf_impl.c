@@ -806,6 +806,17 @@ int slbt_get_lconf_flags(
 	}
 
 
+	/* as tool (optional) */
+	if (!ctx->cctx.host.as) {
+		if (!slbt_get_lconf_var(addr,cap,"AS=",&val)) {
+			if (val[0] && !(ctx->host.as = strdup(val)))
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+			ctx->cctx.host.as = ctx->host.as;
+		}
+	}
+
+
 	/* dlltool tool (optional) */
 	if (!ctx->cctx.host.dlltool) {
 		if (!slbt_get_lconf_var(addr,cap,"DLLTOOL=",&val)) {

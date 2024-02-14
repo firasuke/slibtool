@@ -137,6 +137,7 @@ int slbt_init_host_params(
 	struct slbt_host_params *	host,
 	struct slbt_host_params *	cfgmeta,
 	const char *                    cfgmeta_ar,
+	const char *                    cfgmeta_as,
 	const char *                    cfgmeta_ranlib,
 	const char *                    cfgmeta_dlltool)
 {
@@ -371,7 +372,7 @@ int slbt_init_host_params(
 
 	/* as */
 	if (host->as)
-		cfgmeta->as = cfgexplicit;
+		cfgmeta->as = cfgmeta_as ? cfgmeta_as : cfgexplicit;
 	else {
 		if (!(drvhost->as = calloc(1,toollen)))
 			return -1;
@@ -644,7 +645,7 @@ int  slbt_set_alternate_host(
 			&ictx->ctx.ahost,
 			&ictx->ctx.cctx.ahost,
 			&ictx->ctx.cctx.acfgmeta,
-			0,0,0)) {
+			0,0,0,0)) {
 		slbt_free_host_params(&ictx->ctx.ahost);
 		return SLBT_CUSTOM_ERROR(ctx,SLBT_ERR_HOST_INIT);
 	}
