@@ -29,7 +29,7 @@ int slbt_exec_link_create_import_library(
 	char *				soname)
 {
 	int	fmdso;
-	char *	eargv[12];
+	char *	eargv[14];
 	char	program[PATH_MAX];
 	char    as[PATH_MAX];
 
@@ -91,11 +91,15 @@ int slbt_exec_link_create_import_library(
 					&& (host[4] == '-')) {
 				eargv[9]  = "-f";
 				eargv[10] = "--32";
-				eargv[11] = 0;
+				eargv[11] = "-m";
+				eargv[12] = "i386";
+				eargv[13] = 0;
 			} else {
 				eargv[9]  = "-f";
 				eargv[10] = "--64";
-				eargv[11] = 0;
+				eargv[11] = "-m";
+				eargv[12] = "i386:x86-64";
+				eargv[13] = 0;
 			}
 		}
 	}
