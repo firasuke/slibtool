@@ -29,8 +29,9 @@ int slbt_exec_link_create_import_library(
 	char *				soname)
 {
 	int	fmdso;
-	char *	eargv[8];
+	char *	eargv[12];
 	char	program[PATH_MAX];
+	char    as[PATH_MAX];
 
 	/* dlltool or mdso? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_IMPLIB_DSOMETA)
@@ -71,6 +72,32 @@ int slbt_exec_link_create_import_library(
 		eargv[5] = "-D";
 		eargv[6] = soname;
 		eargv[7] = 0;
+
+		if (dctx->cctx->host.as) {
+			if (slbt_snprintf(as,sizeof(as),
+					"%s",dctx->cctx->host.as) < 0)
+				return SLBT_BUFFER_ERROR(dctx);
+
+			eargv[7] = "-S";
+			eargv[8] = as;
+
+			const char * host = dctx->cctx->host.host;
+
+			if (host && (host[0] == 'i')
+					&& (host[1] >= '3')
+					&& (host[1] <= '6')
+					&& (host[2] == '8')
+					&& (host[3] == '6')
+					&& (host[4] == '-')) {
+				eargv[9]  = "-f";
+				eargv[10] = "--32";
+				eargv[11] = 0;
+			} else {
+				eargv[9]  = "-f";
+				eargv[10] = "--64";
+				eargv[11] = 0;
+			}
+		}
 	}
 
 	/* alternate argument vector */
