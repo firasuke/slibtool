@@ -115,6 +115,14 @@ int slbt_exec_link_create_library(
 			? dctx->cctx->output
 			: 0;
 
+	char wl_soname[24];
+
+	if (!strcmp(dctx->cctx->host.host,"darwin")) {
+		strcpy(wl_soname,"-Wl,-install_name");
+	} else {
+		strcpy(wl_soname,"-Wl,-soname");
+	}
+
 	if ((dctx->cctx->drvflags & SLBT_DRIVER_IMAGE_MACHO)) {
 		(void)0;
 
@@ -123,7 +131,7 @@ int slbt_exec_link_create_library(
 				"-Wl,%s",dctx->cctx->output) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
-		*ectx->soname  = "-Wl,-soname";
+		*ectx->soname  = wl_soname;
 		*ectx->lsoname = soname;
 
 	} else if (relfilename && dctx->cctx->verinfo.verinfo) {
@@ -137,7 +145,7 @@ int slbt_exec_link_create_library(
 					dctx->cctx->settings.osdfussix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
-		*ectx->soname  = "-Wl,-soname";
+		*ectx->soname  = wl_soname;
 		*ectx->lsoname = soname;
 
 	} else if (relfilename) {
@@ -149,7 +157,7 @@ int slbt_exec_link_create_library(
 					dctx->cctx->settings.dsosuffix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
-		*ectx->soname  = "-Wl,-soname";
+		*ectx->soname  = wl_soname;
 		*ectx->lsoname = soname;
 
 	} else if (dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION) {
@@ -160,7 +168,7 @@ int slbt_exec_link_create_library(
 					dctx->cctx->settings.dsosuffix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
-		*ectx->soname  = "-Wl,-soname";
+		*ectx->soname  = wl_soname;
 		*ectx->lsoname = soname;
 
 	} else {
@@ -173,7 +181,7 @@ int slbt_exec_link_create_library(
 					dctx->cctx->settings.osdfussix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
-		*ectx->soname  = "-Wl,-soname";
+		*ectx->soname  = wl_soname;
 		*ectx->lsoname = soname;
 	}
 
