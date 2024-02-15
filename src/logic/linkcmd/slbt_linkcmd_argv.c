@@ -378,15 +378,26 @@ int slbt_exec_link_adjust_argument_vector(
 			*aarg++ = *carg++;
 
 		} else if (!(strcmp(dot,".a"))) {
-			if (flibrary && !fwholearchive)
-				*aarg++ = "-Wl,--whole-archive";
+			if (flibrary && !fwholearchive) {
+				strcpy(lib,*carg);
+				dot = strrchr(lib,'.');
+				strcpy(dot,".lai");
+
+				if ((fd = openat(fdcwd,lib,O_RDONLY,0)) < 0)
+					*aarg++ = "-Wl,--whole-archive";
+			}
 
 			dpath = lib;
 			sprintf(lib,"%s.slibtool.deps",*carg);
 			*aarg++ = *carg++;
 
-			if (flibrary && !fwholearchive)
-				*aarg++ = "-Wl,--no-whole-archive";
+			if (flibrary && !fwholearchive) {
+				if (fd < 0) {
+					*aarg++ = "-Wl,--no-whole-archive";
+				} else {
+					close(fd);
+				}
+			}
 
 		} else if (strcmp(dot,dctx->cctx->settings.dsosuffix)) {
 			*aarg++ = *carg++;
