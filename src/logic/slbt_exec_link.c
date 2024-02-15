@@ -470,7 +470,7 @@ int slbt_exec_link(
 		SLBT_NESTED_ERROR(dctx);
 
 	/* .lai wrapper symlink */
-	if (ret == 0)
+	if ((ret == 0) && dctx->cctx->rpath)
 		if ((ret = slbt_create_symlink(
 				dctx,ectx,
 				output,
