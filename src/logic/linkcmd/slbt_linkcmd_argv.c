@@ -647,7 +647,7 @@ int slbt_exec_link_finalize_argument_vector(
 
 		/* local archive input argument? */
 		} else if (dot && !strcmp(dot,arsuffix)) {
-			*oarg++ = *parg++;
+			*aarg++ = *parg++;
 
 		/* -l argument? */
 		} else if ((parg[0][0] == '-') && (parg[0][1] == 'l')) {
