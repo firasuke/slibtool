@@ -317,6 +317,64 @@ static int slbt_driver_fail_incompatible_args(
 	return slbt_get_driver_ctx_fail(0,meta);
 }
 
+
+static int slbt_driver_parse_tool_argv(const char * tool, char *** tool_argv)
+{
+	int             argc;
+	char **         argv;
+	const char *    ch;
+	const char *    mark;
+
+	if (!(ch = tool))
+		return 0;
+
+	argc = 1;
+
+	for (; *ch == ' '; )
+		ch++;
+
+	for (; *ch; ) {
+		if (*ch++ == ' ') {
+			argc++;
+
+			for (; (*ch == ' '); )
+				ch++;
+		}
+	}
+
+	if (argc == 1)
+		return 0;
+
+	if (!(*tool_argv = calloc(++argc,sizeof(char *))))
+		return -1;
+
+	for (ch=tool; (*ch == ' '); ch++)
+		(void)0;
+
+	argv = *tool_argv;
+	mark = ch;
+
+	for (; *ch; ) {
+		if (*ch == ' ') {
+			if (!(*argv++ = strndup(mark,ch-mark)))
+				return -1;
+
+			for (; (*ch == ' '); )
+				ch++;
+
+			mark = ch;
+		} else {
+			ch++;
+		}
+	}
+
+	if (!(*argv++ = strndup(mark,ch-mark)))
+		return -1;
+
+	return 0;
+}
+
+
 int slbt_get_driver_ctx(
 	char **				argv,
 	char **				envp,
@@ -881,6 +939,13 @@ int slbt_get_driver_ctx(
 			cfgmeta_as,
 			cfgmeta_ranlib,
 			cfgmeta_dlltool))
+		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
+
+	/* host tool arguments */
+	if (slbt_driver_parse_tool_argv(ctx->cctx.host.ar,&ctx->host.ar_argv) < 0)
+		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
+
+	if (slbt_driver_parse_tool_argv(ctx->cctx.host.ranlib,&ctx->host.ranlib_argv) < 0)
 		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
 	/* flavor settings */

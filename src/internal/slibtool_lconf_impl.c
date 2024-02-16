@@ -799,7 +799,7 @@ int slbt_get_lconf_flags(
 
 	/* ar tool */
 	if (!ctx->cctx.host.ar) {
-		if (slbt_get_lconf_var(addr,cap,"AR=",0,&val) < 0)
+		if (slbt_get_lconf_var(addr,cap,"AR=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -812,7 +812,7 @@ int slbt_get_lconf_flags(
 
 	/* ranlib tool */
 	if (!ctx->cctx.host.ranlib) {
-		if (slbt_get_lconf_var(addr,cap,"RANLIB=",0,&val) < 0)
+		if (slbt_get_lconf_var(addr,cap,"RANLIB=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
