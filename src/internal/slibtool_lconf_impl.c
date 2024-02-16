@@ -621,6 +621,7 @@ static int slbt_get_lconf_var(
 	void *          addr,
 	const char *    cap,
 	const char *    var,
+	const char      space,
 	char            (*val)[PATH_MAX])
 {
 	const char *    mark;
@@ -697,6 +698,9 @@ static int slbt_get_lconf_var(
 		else if ((*mark == '.') || (*mark == '_'))
 			(void)0;
 
+		else if (*mark == space)
+			(void)0;
+
 		else
 			return -1;
 	}
@@ -749,7 +753,7 @@ int slbt_get_lconf_flags(
 	optstatic = 0;
 
 	/* shared libraries option */
-	if (slbt_get_lconf_var(addr,cap,"build_libtool_libs=",&val) < 0)
+	if (slbt_get_lconf_var(addr,cap,"build_libtool_libs=",0,&val) < 0)
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -762,7 +766,7 @@ int slbt_get_lconf_flags(
 
 
 	/* static libraries option */
-	if (slbt_get_lconf_var(addr,cap,"build_old_libs=",&val) < 0)
+	if (slbt_get_lconf_var(addr,cap,"build_old_libs=",0,&val) < 0)
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -782,7 +786,7 @@ int slbt_get_lconf_flags(
 
 	/* host */
 	if (!ctx->cctx.host.host) {
-		if (slbt_get_lconf_var(addr,cap,"host=",&val) < 0)
+		if (slbt_get_lconf_var(addr,cap,"host=",0,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -795,7 +799,7 @@ int slbt_get_lconf_flags(
 
 	/* ar tool */
 	if (!ctx->cctx.host.ar) {
-		if (slbt_get_lconf_var(addr,cap,"AR=",&val) < 0)
+		if (slbt_get_lconf_var(addr,cap,"AR=",0,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -808,7 +812,7 @@ int slbt_get_lconf_flags(
 
 	/* ranlib tool */
 	if (!ctx->cctx.host.ranlib) {
-		if (slbt_get_lconf_var(addr,cap,"RANLIB=",&val) < 0)
+		if (slbt_get_lconf_var(addr,cap,"RANLIB=",0,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -821,7 +825,7 @@ int slbt_get_lconf_flags(
 
 	/* as tool (optional) */
 	if (!ctx->cctx.host.as) {
-		if (!slbt_get_lconf_var(addr,cap,"AS=",&val)) {
+		if (!slbt_get_lconf_var(addr,cap,"AS=",0,&val)) {
 			if (val[0] && !(ctx->host.as = strdup(val)))
 				return SLBT_SYSTEM_ERROR(dctx,0);
 
@@ -832,7 +836,7 @@ int slbt_get_lconf_flags(
 
 	/* dlltool tool (optional) */
 	if (!ctx->cctx.host.dlltool) {
-		if (!slbt_get_lconf_var(addr,cap,"DLLTOOL=",&val)) {
+		if (!slbt_get_lconf_var(addr,cap,"DLLTOOL=",0,&val)) {
 			if (val[0] && !(ctx->host.dlltool = strdup(val)))
 				return SLBT_SYSTEM_ERROR(dctx,0);
 
