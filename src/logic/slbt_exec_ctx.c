@@ -48,9 +48,24 @@ static char * slbt_source_file(char ** argv)
 }
 
 
+static int slbt_exec_ctx_tool_argc(char ** argv)
+{
+	char ** parg;
+
+	if (!(parg = argv))
+		return 0;
+
+	for (; *parg; )
+		parg++;
+
+	return parg - argv + 1;
+}
+
+
 static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	const struct slbt_driver_ctx *	dctx)
 {
+	struct slbt_driver_ctx_impl *   ctx;
 	struct slbt_exec_ctx_impl *	ictx;
 	size_t				size;
 	size_t				vsize;
@@ -62,6 +77,17 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 
 	argc = 0;
 	csrc = 0;
+
+	/* internal driver context for host-specific tool arguments */
+	ctx = slbt_get_driver_ictx(dctx);
+
+	/* tool-specific argv: to simplify matters, be additive */
+	argc += slbt_exec_ctx_tool_argc(ctx->host.ar_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.as_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.ranlib_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.windres_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.dlltool_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.mdso_argv);
 
 	/* clerical [worst-case] buffer size (guard, .libs, version) */
 	size  = strlen(".lo") + 1;
