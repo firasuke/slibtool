@@ -29,7 +29,9 @@ int slbt_exec_link_create_import_library(
 	char *				soname)
 {
 	int	fmdso;
-	char *	eargv[14];
+	char ** argv;
+	char ** parg;
+	char ** aarg;
 	char	program[PATH_MAX];
 	char    as[PATH_MAX];
 
@@ -46,40 +48,71 @@ int slbt_exec_link_create_import_library(
 	else
 		fmdso = 0;
 
-	/* eargv */
-	if (fmdso) {
-		if (slbt_snprintf(program,sizeof(program),
-				"%s",dctx->cctx->host.mdso) < 0)
-			return SLBT_BUFFER_ERROR(dctx);
+	/* alternate argument vector */
+	ectx->argv    = ectx->altv;
+	ectx->program = program;
 
-		eargv[0] = program;
-		eargv[1] = "-i";
-		eargv[2] = impfilename;
-		eargv[3] = "-n";
-		eargv[4] = soname;
-		eargv[5] = deffilename;
-		eargv[6] = 0;
+	/* tool-specific argument vector */
+	argv = (fmdso)
+		? (slbt_get_driver_ictx(dctx))->host.mdso_argv
+		: (slbt_get_driver_ictx(dctx))->host.dlltool_argv;
+
+	/* tool-specific argv */
+	aarg = ectx->altv;
+
+	if ((parg = argv)) {
+		ectx->program = argv[0];
+
+		for (; *parg; )
+			*aarg++ = *parg++;
 	} else {
-		if (slbt_snprintf(program,sizeof(program),
-				"%s",dctx->cctx->host.dlltool) < 0)
-			return SLBT_BUFFER_ERROR(dctx);
+		*aarg++ = program;
+	}
 
-		eargv[0] = program;
-		eargv[1] = "-l";
-		eargv[2] = impfilename;
-		eargv[3] = "-d";
-		eargv[4] = deffilename;
-		eargv[5] = "-D";
-		eargv[6] = soname;
-		eargv[7] = 0;
-
-		if (dctx->cctx->host.as) {
-			if (slbt_snprintf(as,sizeof(as),
-					"%s",dctx->cctx->host.as) < 0)
+	/* altv */
+	if (fmdso) {
+		if (!argv)
+			if (slbt_snprintf(program,sizeof(program),
+					"%s",dctx->cctx->host.mdso) < 0)
 				return SLBT_BUFFER_ERROR(dctx);
 
-			eargv[7] = "-S";
-			eargv[8] = as;
+		*aarg++ = "-i";
+		*aarg++ = impfilename;
+		*aarg++ = "-n";
+		*aarg++ = soname;
+		*aarg++ = deffilename;
+		*aarg   = 0;
+	} else {
+		if (!argv)
+			if (slbt_snprintf(program,sizeof(program),
+					"%s",dctx->cctx->host.dlltool) < 0)
+				return SLBT_BUFFER_ERROR(dctx);
+
+		*aarg++ = "-l";
+		*aarg++ = impfilename;
+		*aarg++ = "-d";
+		*aarg++ = deffilename;
+		*aarg++ = "-D";
+		*aarg++ = soname;
+		*aarg = 0;
+
+		if (dctx->cctx->host.as) {
+			if ((argv = (slbt_get_driver_ictx(dctx))->host.as_argv)) {
+				*aarg++ = "-S";
+				*aarg++ = argv[0];
+
+				for (parg=&argv[1]; *parg; parg++) {
+					*aarg++ = "-f";
+					*aarg++ = *parg;
+				}
+			} else {
+				if (slbt_snprintf(as,sizeof(as),
+						"%s",dctx->cctx->host.as) < 0)
+					return SLBT_BUFFER_ERROR(dctx);
+
+				*aarg++ = "-S";
+				*aarg++ = as;
+			}
 
 			const char * host = dctx->cctx->host.host;
 
@@ -89,24 +122,20 @@ int slbt_exec_link_create_import_library(
 					&& (host[2] == '8')
 					&& (host[3] == '6')
 					&& (host[4] == '-')) {
-				eargv[9]  = "-f";
-				eargv[10] = "--32";
-				eargv[11] = "-m";
-				eargv[12] = "i386";
-				eargv[13] = 0;
+				*aarg++  = "-f";
+				*aarg++ = "--32";
+				*aarg++ = "-m";
+				*aarg++ = "i386";
+				*aarg++ = 0;
 			} else {
-				eargv[9]  = "-f";
-				eargv[10] = "--64";
-				eargv[11] = "-m";
-				eargv[12] = "i386:x86-64";
-				eargv[13] = 0;
+				*aarg++ = "-f";
+				*aarg++ = "--64";
+				*aarg++ = "-m";
+				*aarg++ = "i386:x86-64";
+				*aarg   = 0;
 			}
 		}
 	}
-
-	/* alternate argument vector */
-	ectx->argv    = eargv;
-	ectx->program = program;
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
