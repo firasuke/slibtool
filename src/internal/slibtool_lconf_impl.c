@@ -825,12 +825,15 @@ int slbt_get_lconf_flags(
 
 	/* as tool (optional) */
 	if (!ctx->cctx.host.as) {
-		if (!slbt_get_lconf_var(addr,cap,"AS=",0,&val)) {
-			if (val[0] && !(ctx->host.as = strdup(val)))
-				return SLBT_SYSTEM_ERROR(dctx,0);
+		if (slbt_get_lconf_var(addr,cap,"AS=",0x20,&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
 
-			ctx->cctx.host.as = ctx->host.as;
-		}
+		if (val[0] && !(ctx->host.as = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+
+		ctx->cctx.host.as = ctx->host.as;
 	}
 
 
