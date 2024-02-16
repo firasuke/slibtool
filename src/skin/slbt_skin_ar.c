@@ -14,6 +14,22 @@ const struct argv_option slbt_ar_options[] = {
 			"verify that each %s is a valid archive; "
 			"supported variants are BSD, SysV, and PE/COFF"},
 
+	{"Wmerge",	0,TAG_AR_MERGE,ARGV_OPTARG_NONE,
+			ARGV_OPTION_HYBRID_ONLY,
+			"[ARCHIVE-FILE]",0,
+			"merge one or more archive files; "
+			"the name of the new archive, which may be the same "
+			"as one of the input archives, shall be specified "
+			"via the -Woutput switch; order of archive members "
+			"shall be retained, and symbol maps shall be "
+			"merged as well as normalized."},
+
+	{"Woutput",	0,TAG_AR_OUTPUT,ARGV_OPTARG_REQUIRED,
+			ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
+			0,0,
+			"specify the name of the archive to be created "
+			"(or replaced) as a result of a -Wmerge operation."},
+
 	{"Wprint",	0,TAG_AR_PRINT,ARGV_OPTARG_OPTIONAL,
 			ARGV_OPTION_HYBRID_EQUAL|ARGV_OPTION_HYBRID_COMMA,
 			"members",0,

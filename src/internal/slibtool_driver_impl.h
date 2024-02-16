@@ -92,6 +92,8 @@ enum app_tags {
 	TAG_AR_PRETTY,
 	TAG_AR_POSIX,
 	TAG_AR_YAML,
+	TAG_AR_MERGE,
+	TAG_AR_OUTPUT,
 	TAG_AR_VERBOSE,
 };
 

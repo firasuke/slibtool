@@ -11,7 +11,8 @@
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
 
-#define SLBT_DRIVER_MODE_AR_ACTIONS     (SLBT_DRIVER_MODE_AR_CHECK)
+#define SLBT_DRIVER_MODE_AR_ACTIONS     (SLBT_DRIVER_MODE_AR_CHECK \
+	                                 | SLBT_DRIVER_MODE_AR_MERGE)
 
 #define SLBT_DRIVER_MODE_AR_OUTPUTS     (SLBT_OUTPUT_ARCHIVE_MEMBERS  \
 	                                 | SLBT_OUTPUT_ARCHIVE_HEADERS \
@@ -77,6 +78,7 @@ static int slbt_exec_ar_perform_archive_actions(
 	struct slbt_archive_ctx **      arctxv)
 {
 	struct slbt_archive_ctx **      arctxp;
+	struct slbt_archive_ctx *       arctx;
 
 	for (arctxp=arctxv; *arctxp; arctxp++) {
 		if (dctx->cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS)
@@ -86,6 +88,15 @@ static int slbt_exec_ar_perform_archive_actions(
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MEMBERS)
 			if (slbt_ar_output_members((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+	}
+
+	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
+		if (slbt_merge_archives(arctxv,&arctx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		/* (defer mode to umask) */
+		if (slbt_store_archive(arctx,dctx->cctx->output,0666) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 	}
 
 	return 0;
@@ -183,6 +194,14 @@ int slbt_exec_ar(
 					ictx->cctx.drvflags |= SLBT_DRIVER_MODE_AR_CHECK;
 					break;
 
+				case TAG_AR_MERGE:
+					ictx->cctx.drvflags |= SLBT_DRIVER_MODE_AR_MERGE;
+					break;
+
+				case TAG_AR_OUTPUT:
+					ictx->cctx.output = entry->arg;
+					break;
+
 				case TAG_AR_PRINT:
 					if (!entry->arg)
 						ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MEMBERS;
@@ -259,6 +278,37 @@ int slbt_exec_ar(
 				dctx,
 				SLBT_ERR_AR_NO_ACTION_SPECIFIED));
 	}
+
+	/* -Wmerge without -Woutput? */
+	if ((cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) && !cctx->output) {
+		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			slbt_dprintf(fderr,
+				"%s: archive merging: output must be specified.\n",
+				dctx->program);
+
+		return slbt_exec_ar_fail(
+			actx,meta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_OUTPUT_NOT_SPECIFIED));
+	}
+
+
+	/* -Woutput without -Wmerge? */
+	if (cctx->output && !(cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE)) {
+		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
+			slbt_dprintf(fderr,
+				"%s: output may only be specified "
+				"when merging one or more archives.\n",
+				dctx->program);
+
+		return slbt_exec_ar_fail(
+			actx,meta,
+			SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_AR_OUTPUT_NOT_APPLICABLE));
+	}
+
 
 	/* at least one unit must be specified */
 	if (!nunits) {
