@@ -698,7 +698,7 @@ static int slbt_get_lconf_var(
 		else if ((*mark == '.') || (*mark == '_'))
 			(void)0;
 
-		else if (*mark == space)
+		else if ((*mark == ':') || (*mark == space))
 			(void)0;
 
 		else
