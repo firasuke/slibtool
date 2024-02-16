@@ -76,6 +76,7 @@ int slbt_exec_link_create_archive(
 	bool				fpic)
 {
 	int		fdcwd;
+	char **         argv;
 	char ** 	aarg;
 	char ** 	parg;
 	char		program[PATH_MAX];
@@ -101,18 +102,30 @@ int slbt_exec_link_create_archive(
 			"%s",arfilename) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
-	/* ar alternate argument vector */
-	if (slbt_snprintf(program,sizeof(program),
-			"%s",dctx->cctx->host.ar) < 0)
-		return SLBT_BUFFER_ERROR(dctx);
+	/* tool-specific argument vector */
+	argv = (slbt_get_driver_ictx(dctx))->host.ar_argv;
 
+	/* ar alternate argument vector */
+	if (!argv)
+		if (slbt_snprintf(program,sizeof(program),
+				"%s",dctx->cctx->host.ar) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
 
 	/* fdcwd */
 	fdcwd   = slbt_driver_fdcwd(dctx);
 
 	/* input argument adjustment */
 	aarg    = ectx->altv;
-	*aarg++ = program;
+
+	if ((parg = argv)) {
+		ectx->program = argv[0];
+
+		for (; *parg; )
+			*aarg++ = *parg++;
+	} else {
+		*aarg++ = program;
+	}
+
 	*aarg++ = "-crs";
 	*aarg++ = output;
 
