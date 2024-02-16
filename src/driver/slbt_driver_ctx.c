@@ -951,6 +951,12 @@ int slbt_get_driver_ctx(
 	if (slbt_driver_parse_tool_argv(ctx->cctx.host.as,&ctx->host.as_argv) < 0)
 		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
 
+	if (slbt_driver_parse_tool_argv(ctx->cctx.host.dlltool,&ctx->host.dlltool_argv) < 0)
+		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
+
+	if (slbt_driver_parse_tool_argv(ctx->cctx.host.mdso,&ctx->host.mdso_argv) < 0)
+		return slbt_get_driver_ctx_fail(&ctx->ctx,0);
+
 	/* flavor settings */
 	slbt_init_flavor_settings(
 		&ctx->cctx,0,

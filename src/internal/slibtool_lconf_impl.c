@@ -839,12 +839,14 @@ int slbt_get_lconf_flags(
 
 	/* dlltool tool (optional) */
 	if (!ctx->cctx.host.dlltool) {
-		if (!slbt_get_lconf_var(addr,cap,"DLLTOOL=",0,&val)) {
-			if (val[0] && !(ctx->host.dlltool = strdup(val)))
-				return SLBT_SYSTEM_ERROR(dctx,0);
+		if (slbt_get_lconf_var(addr,cap,"DLLTOOL=",0x20,&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
 
-			ctx->cctx.host.dlltool = ctx->host.dlltool;
-		}
+		if (val[0] && !(ctx->host.dlltool = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		ctx->cctx.host.dlltool = ctx->host.dlltool;
 	}
 
 
