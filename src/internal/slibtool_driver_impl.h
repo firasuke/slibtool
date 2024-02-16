@@ -112,6 +112,12 @@ struct slbt_host_strs {
 	char *		windres;
 	char *		dlltool;
 	char *		mdso;
+	char **		ar_argv;
+	char **		as_argv;
+	char **		ranlib_argv;
+	char **		windres_argv;
+	char **		dlltool_argv;
+	char **		mdso_argv;
 };
 
 struct slbt_obj_list {

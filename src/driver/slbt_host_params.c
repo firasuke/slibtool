@@ -485,6 +485,18 @@ int slbt_init_host_params(
 	return 0;
 }
 
+static void slbt_free_host_tool_argv(char ** argv)
+{
+	char ** parg;
+
+	if (!argv)
+		return;
+
+	for (parg=argv; *parg; parg++)
+		free(*parg);
+
+	free(argv);
+}
 
 void slbt_free_host_params(struct slbt_host_strs * host)
 {
@@ -514,6 +526,13 @@ void slbt_free_host_params(struct slbt_host_strs * host)
 
 	if (host->mdso)
 		free(host->mdso);
+
+	slbt_free_host_tool_argv(host->ar_argv);
+	slbt_free_host_tool_argv(host->as_argv);
+	slbt_free_host_tool_argv(host->ranlib_argv);
+	slbt_free_host_tool_argv(host->windres_argv);
+	slbt_free_host_tool_argv(host->dlltool_argv);
+	slbt_free_host_tool_argv(host->mdso_argv);
 
 	memset(host,0,sizeof(*host));
 }
