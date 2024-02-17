@@ -18,15 +18,12 @@
 static int slbt_ar_output_mapfile_impl(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
-	const struct slbt_fd_ctx *      fdctx)
+	int                             fdout)
 {
-	int             fdout;
 	const char *    regex;
 	const char **   symv;
 	regex_t         regctx;
 	regmatch_t      pmatch[2] = {0};
-
-	fdout = fdctx->fdout;
 
 	if (slbt_dprintf(fdout,"{\n" "\t" "global:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -51,11 +48,16 @@ static int slbt_ar_output_mapfile_impl(
 	return 0;
 }
 
-int slbt_ar_output_mapfile(const struct slbt_archive_meta * meta)
+
+static int slbt_create_mapfile_impl(
+	const struct slbt_archive_meta *  meta,
+	const char *                      path,
+	mode_t                            mode)
 {
 	struct slbt_archive_meta_impl * mctx;
 	const struct slbt_driver_ctx *  dctx;
 	struct slbt_fd_ctx              fdctx;
+	int                             fdout;
 
 	mctx = slbt_archive_meta_ictx(meta);
 	dctx = (slbt_archive_meta_ictx(meta))->dctx;
@@ -66,6 +68,31 @@ int slbt_ar_output_mapfile(const struct slbt_archive_meta * meta)
 	if (!meta->a_memberv)
 		return 0;
 
+	if (path) {
+		if ((fdout = openat(
+				fdctx.fdcwd,path,
+				O_WRONLY|O_CREAT|O_TRUNC,
+				mode)) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,0);
+	} else {
+		fdout = fdctx.fdout;
+	}
+
 	return slbt_ar_output_mapfile_impl(
-		dctx,mctx,&fdctx);
+		dctx,mctx,fdout);
+}
+
+
+int slbt_ar_output_mapfile(const struct slbt_archive_meta * meta)
+{
+	return slbt_create_mapfile_impl(meta,0,0);
+}
+
+
+int slbt_create_mapfile(
+	const struct slbt_archive_meta *  meta,
+	const char *                      path,
+	mode_t                            mode)
+{
+	return slbt_create_mapfile_impl(meta,path,mode);
 }

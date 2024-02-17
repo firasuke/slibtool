@@ -402,6 +402,8 @@ slbt_api int  slbt_merge_archives       (struct slbt_archive_ctx * const [],
 slbt_api int  slbt_store_archive        (struct slbt_archive_ctx *,
                                          const char *, mode_t);
 
+slbt_api int  slbt_create_mapfile       (const struct slbt_archive_meta *, const char *, mode_t);
+
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
                                          const struct slbt_fd_ctx *);
