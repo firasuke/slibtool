@@ -51,6 +51,9 @@ static int slbt_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, int
 		if (meta->symstrv)
 			free(meta->symstrv);
 
+		if (meta->mapstrv)
+			free(meta->mapstrv);
+
 		free(meta);
 	}
 

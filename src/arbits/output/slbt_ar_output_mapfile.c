@@ -20,13 +20,21 @@ static int slbt_ar_output_mapfile_impl(
 	struct slbt_archive_meta_impl * mctx,
 	int                             fdout)
 {
+	bool            fsort;
 	const char *    regex;
 	const char **   symv;
+	const char **   symstrv;
 	regex_t         regctx;
 	regmatch_t      pmatch[2] = {0};
 
+	fsort = true;
+
 	if (slbt_dprintf(fdout,"{\n" "\t" "global:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	if (fsort && !mctx->mapstrv)
+		if (slbt_update_mapstrv(dctx,mctx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 
 	if ((regex = dctx->cctx->regex))
 		if (regcomp(&regctx,regex,REG_NEWLINE))
@@ -34,7 +42,9 @@ static int slbt_ar_output_mapfile_impl(
 				dctx,
 				SLBT_ERR_FLOW_ERROR);
 
-	for (symv=mctx->symstrv; *symv; symv++)
+	symstrv = fsort ? mctx->mapstrv : mctx->symstrv;
+
+	for (symv=symstrv; *symv; symv++)
 		if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
 			if (slbt_dprintf(fdout,"\t\t%s;\n",*symv) < 0)
 				return SLBT_SYSTEM_ERROR(dctx,0);

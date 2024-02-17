@@ -25,12 +25,19 @@ static int slbt_ar_output_symbols_posix(
 	const struct slbt_fd_ctx *      fdctx)
 {
 	int             fdout;
+	bool            fsort;
 	const char *    regex;
 	const char **   symv;
+	const char **   symstrv;
 	regex_t         regctx;
 	regmatch_t      pmatch[2] = {0};
 
 	fdout = fdctx->fdout;
+	fsort = true;
+
+	if (fsort && !mctx->mapstrv)
+		if (slbt_update_mapstrv(dctx,mctx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 
 	if ((regex = dctx->cctx->regex))
 		if (regcomp(&regctx,regex,REG_NEWLINE))
@@ -38,7 +45,9 @@ static int slbt_ar_output_symbols_posix(
 				dctx,
 				SLBT_ERR_FLOW_ERROR);
 
-	for (symv=mctx->symstrv; *symv; symv++)
+	symstrv = fsort ? mctx->mapstrv : mctx->symstrv;
+
+	for (symv=symstrv; *symv; symv++)
 		if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
 			if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
 				return SLBT_SYSTEM_ERROR(dctx,0);

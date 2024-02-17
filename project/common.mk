@@ -1,5 +1,6 @@
 API_SRCS = \
 	src/arbits/slbt_archive_ctx.c \
+	src/arbits/slbt_archive_mapstrv.c \
 	src/arbits/slbt_archive_merge.c \
 	src/arbits/slbt_archive_meta.c \
 	src/arbits/slbt_archive_store.c \
