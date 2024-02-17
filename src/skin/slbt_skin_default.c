@@ -212,13 +212,13 @@ const struct argv_option slbt_default_options[] = {
 				"allow symbols in the output file to be resolved via dlsym() "
 				"[currently a no-op]"},
 
-	{"export-symbols",	0,TAG_EXPSYM_FILE,ARGV_OPTARG_REQUIRED,
+	{"export-symbols",	0,TAG_EXPSYMS_FILE,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<symfile>",
 				"only export the symbols that are listed in %s "
 				"[currently a no-op]"},
 
-	{"export-symbols-regex",0,TAG_EXPSYM_REGEX,ARGV_OPTARG_REQUIRED,
+	{"export-symbols-regex",0,TAG_EXPSYMS_REGEX,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<regex>",
 				"only export symbols mathing the regex expression %s "

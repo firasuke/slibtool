@@ -713,11 +713,11 @@ int slbt_get_driver_ctx(
 					cctx.drvflags |= SLBT_DRIVER_EXPORT_DYNAMIC;
 					break;
 
-				case TAG_EXPSYM_FILE:
+				case TAG_EXPSYMS_FILE:
 					cctx.symfile = entry->arg;
 					break;
 
-				case TAG_EXPSYM_REGEX:
+				case TAG_EXPSYMS_REGEX:
 					cctx.regex = entry->arg;
 					break;
 
