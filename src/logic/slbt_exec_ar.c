@@ -103,6 +103,10 @@ static int slbt_exec_ar_perform_archive_actions(
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_SYMBOLS)
 			if (slbt_ar_output_symbols((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+
+		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE)
+			if (slbt_ar_output_mapfile((*arctxp)->meta) < 0)
+				return SLBT_NESTED_ERROR(dctx);
 	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
@@ -235,6 +239,10 @@ int slbt_exec_ar(
 
 					break;
 
+				case TAG_AR_MAPFILE:
+					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MAPFILE;
+					break;
+
 				case TAG_AR_REGEX:
 					ictx->cctx.regex = entry->arg;
 					break;
@@ -283,6 +291,9 @@ int slbt_exec_ar(
 
 	/* at least one action must be specified */
 	if (cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS) {
+		(void)0;
+
+	} else if (cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE) {
 		(void)0;
 
 	} else if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {

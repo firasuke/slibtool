@@ -36,6 +36,14 @@ const struct argv_option slbt_ar_options[] = {
 			"print out information pertaining to each archive file "
 			"and its various internal elements"},
 
+	{"Wmapfile",	0,TAG_AR_MAPFILE,ARGV_OPTARG_NONE,
+			ARGV_OPTION_HYBRID_ONLY,
+			0,0,
+			"print out a map file (aka symbol file, aka version script); "
+			"including either all armap symbols (if no regex filter was "
+			"specified), or otherwise only the symbols that match the "
+			"specified regex filter."},
+
 	{"Wregex",	0,TAG_AR_REGEX,ARGV_OPTARG_REQUIRED,
 			ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 			0,"<regexp>",
