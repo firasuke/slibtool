@@ -15,17 +15,32 @@
 	                         | SLBT_PRETTY_POSIX    \
 	                         | SLBT_PRETTY_HEXDATA)
 
+static int slbt_ar_output_arname_impl(
+	const struct slbt_driver_ctx *  dctx,
+	const struct slbt_archive_ctx * actx,
+	const struct slbt_fd_ctx *      fdctx,
+	const char *                    fmt)
+{
+	const char * path;
+	const char   mema[] = "<memory_object>";
+
+	path = actx->path && *actx->path ? *actx->path : mema;
+
+	if (slbt_dprintf(fdctx->fdout,fmt,path) < 0)
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	return 0;
+}
 
 static int slbt_ar_output_arname_posix(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * actx,
 	const struct slbt_fd_ctx *      fdctx)
 {
-	(void)dctx;
-	(void)actx;
-	(void)fdctx;
-
-	/* posix ar(1) does not print the <archive> file-name */
+	if (slbt_ar_output_arname_impl(
+			dctx,actx,fdctx,
+			"%s:\n") < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	return 0;
 }
@@ -35,18 +50,12 @@ static int slbt_ar_output_arname_yaml(
 	const struct slbt_archive_ctx * actx,
 	const struct slbt_fd_ctx *      fdctx)
 {
-	const char * path;
-	const char   mema[] = "<memory_object>";
-
-	path = actx->path && *actx->path ? *actx->path : mema;
-
-	if (slbt_dprintf(
-			fdctx->fdout,
+	if (slbt_ar_output_arname_impl(
+			dctx,actx,fdctx,
 			"Archive:\n"
 			"  - Meta:\n"
-			"    - [ name: %s ]\n\n",
-			path) < 0)
-		return SLBT_SYSTEM_ERROR(dctx,0);
+			"    - [ name: %s ]\n\n") < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	return 0;
 }

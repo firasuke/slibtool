@@ -79,10 +79,21 @@ static int slbt_exec_ar_perform_archive_actions(
 {
 	struct slbt_archive_ctx **      arctxp;
 	struct slbt_archive_ctx *       arctx;
+	bool                            farname;
+
+	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {
+		case SLBT_PRETTY_POSIX:
+			farname = (arctxv[0] && arctxv[1]);
+			break;
+
+		default:
+			farname = true;
+			break;
+	}
 
 	for (arctxp=arctxv; *arctxp; arctxp++) {
 		if (dctx->cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS)
-			if (slbt_ar_output_arname(*arctxp) < 0)
+			if (farname && (slbt_ar_output_arname(*arctxp) < 0))
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MEMBERS)
