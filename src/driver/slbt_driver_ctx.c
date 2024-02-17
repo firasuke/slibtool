@@ -714,7 +714,7 @@ int slbt_get_driver_ctx(
 					break;
 
 				case TAG_EXPSYMS_FILE:
-					cctx.symfile = entry->arg;
+					cctx.expsyms = entry->arg;
 					break;
 
 				case TAG_EXPSYMS_REGEX:

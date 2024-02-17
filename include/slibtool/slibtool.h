@@ -301,7 +301,7 @@ struct slbt_common_ctx {
 	const char *			rpath;
 	const char *			sysroot;
 	const char *			release;
-	const char *			symfile;
+	const char *			expsyms;
 	const char *			regex;
 	const char *			user;
 };
