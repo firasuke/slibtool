@@ -311,6 +311,9 @@ int slbt_merge_archives(
 	ssymstrs |= 1;
 	ssymstrs ^= 1;
 
+	/* (debugging) */
+	(void)nmembers;
+
 	/* long-names member alignment */
 	snamestrs += 1;
 	snamestrs |= 1;
