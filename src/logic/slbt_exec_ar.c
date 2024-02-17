@@ -99,6 +99,10 @@ static int slbt_exec_ar_perform_archive_actions(
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MEMBERS)
 			if (slbt_ar_output_members((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+
+		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_SYMBOLS)
+			if (slbt_ar_output_symbols((*arctxp)->meta) < 0)
+				return SLBT_NESTED_ERROR(dctx);
 	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
