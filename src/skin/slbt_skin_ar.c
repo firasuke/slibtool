@@ -36,6 +36,11 @@ const struct argv_option slbt_ar_options[] = {
 			"print out information pertaining to each archive file "
 			"and its various internal elements"},
 
+	{"Wregex",	0,TAG_AR_REGEX,ARGV_OPTARG_REQUIRED,
+			ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
+			0,"<regexp>",
+			"filter armap symbols using the specified %s."},
+
 	{"Wpretty",	0,TAG_AR_PRETTY,ARGV_OPTARG_REQUIRED,
 			ARGV_OPTION_HYBRID_EQUAL,
 			"posix|yaml|hexdata",0,

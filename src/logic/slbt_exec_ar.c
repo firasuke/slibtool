@@ -235,6 +235,10 @@ int slbt_exec_ar(
 
 					break;
 
+				case TAG_AR_REGEX:
+					ictx->cctx.regex = entry->arg;
+					break;
+
 				case TAG_AR_PRETTY:
 					if (!strcmp(entry->arg,"yaml")) {
 						ictx->cctx.fmtflags &= ~(uint64_t)SLBT_PRETTY_FLAGS;

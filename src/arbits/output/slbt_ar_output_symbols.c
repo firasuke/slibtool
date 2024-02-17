@@ -6,6 +6,7 @@
 
 #include <time.h>
 #include <locale.h>
+#include <regex.h>
 #include <inttypes.h>
 #include <slibtool/slibtool.h>
 #include <slibtool/slibtool_output.h>
@@ -24,13 +25,26 @@ static int slbt_ar_output_symbols_posix(
 	const struct slbt_fd_ctx *      fdctx)
 {
 	int             fdout;
+	const char *    regex;
 	const char **   symv;
+	regex_t         regctx;
+	regmatch_t      pmatch[2] = {0};
 
 	fdout = fdctx->fdout;
 
+	if ((regex = dctx->cctx->regex))
+		if (regcomp(&regctx,regex,REG_NEWLINE))
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_FLOW_ERROR);
+
 	for (symv=mctx->symstrv; *symv; symv++)
-		if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
-			return SLBT_SYSTEM_ERROR(dctx,0);
+		if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
+			if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+	if (regex)
+		regfree(&regctx);
 
 	return 0;
 }
