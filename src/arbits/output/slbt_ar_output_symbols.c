@@ -30,7 +30,7 @@ static int slbt_ar_output_symbols_posix(
 	const char **   symv;
 	const char **   symstrv;
 	regex_t         regctx;
-	regmatch_t      pmatch[2] = {0};
+	regmatch_t      pmatch[2] = {{0,0},{0,0}};
 
 	fdout = fdctx->fdout;
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
