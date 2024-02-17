@@ -243,6 +243,10 @@ int slbt_exec_ar(
 					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MAPFILE;
 					break;
 
+				case TAG_AR_NOSORT:
+					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_NOSORT;
+					break;
+
 				case TAG_AR_REGEX:
 					ictx->cctx.regex = entry->arg;
 					break;

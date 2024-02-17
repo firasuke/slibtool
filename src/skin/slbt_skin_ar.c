@@ -50,6 +50,12 @@ const struct argv_option slbt_ar_options[] = {
 			0,"<regexp>",
 			"filter armap symbols using the specified %s."},
 
+	{"Wnosort",	0,TAG_AR_NOSORT,ARGV_OPTARG_NONE,
+			ARGV_OPTION_HYBRID_ONLY,
+			0,0,
+			"do not sort the symbol list; "
+			"affect switches are -Wprint=symbols and -Wmapfile."},
+
 	{"Wpretty",	0,TAG_AR_PRETTY,ARGV_OPTARG_REQUIRED,
 			ARGV_OPTION_HYBRID_EQUAL,
 			"posix|yaml|hexdata",0,

@@ -27,7 +27,7 @@ static int slbt_ar_output_mapfile_impl(
 	regex_t         regctx;
 	regmatch_t      pmatch[2] = {0};
 
-	fsort = true;
+	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
 
 	if (slbt_dprintf(fdout,"{\n" "\t" "global:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);

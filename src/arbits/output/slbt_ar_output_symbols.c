@@ -33,7 +33,7 @@ static int slbt_ar_output_symbols_posix(
 	regmatch_t      pmatch[2] = {0};
 
 	fdout = fdctx->fdout;
-	fsort = true;
+	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
 
 	if (fsort && !mctx->mapstrv)
 		if (slbt_update_mapstrv(dctx,mctx) < 0)
