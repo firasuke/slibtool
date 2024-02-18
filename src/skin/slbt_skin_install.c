@@ -1,7 +1,8 @@
 #include "slibtool_install_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "argv/argv.h"
 
-const struct argv_option slbt_install_options[] = {
+const slbt_hidden struct argv_option slbt_install_options[] = {
 	{"help",	'h',TAG_INSTALL_HELP,ARGV_OPTARG_NONE,0,0,0,
 			"display install mode help"},
 

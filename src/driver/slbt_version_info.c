@@ -14,10 +14,11 @@
 #include "slibtool_version.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "argv/argv.h"
 
 
-int slbt_init_version_info(
+slbt_hidden int slbt_init_version_info(
 	struct slbt_driver_ctx_impl *	ictx,
 	struct slbt_version_info *	verinfo)
 {

@@ -15,6 +15,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_mapfile_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "argv/argv.h"
 
 #define SLBT_OPTV_ELEMENTS 128

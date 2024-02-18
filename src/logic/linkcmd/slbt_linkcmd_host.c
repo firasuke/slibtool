@@ -19,8 +19,9 @@
 #include "slibtool_metafile_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_exec_link_create_host_tag(
+slbt_hidden int slbt_exec_link_create_host_tag(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				deffilename)

@@ -14,12 +14,13 @@
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
 #include "slibtool_snprintf_impl.h"
+#include "slibtool_visibility_impl.h"
 
 #define SLBT_DEV_NULL_FLAGS	(SLBT_DRIVER_ALL_STATIC      \
 				| SLBT_DRIVER_DISABLE_SHARED \
 				| SLBT_DRIVER_DISABLE_STATIC)
 
-int slbt_create_symlink(
+slbt_hidden int slbt_create_symlink(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	const char *			target,
@@ -130,7 +131,7 @@ int slbt_create_symlink(
 		: 0;
 }
 
-int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath)
+slbt_hidden int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath)
 {
 	size_t		len;
 	char		slink [PATH_MAX];

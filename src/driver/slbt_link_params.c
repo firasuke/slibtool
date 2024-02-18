@@ -14,9 +14,10 @@
 #include "slibtool_version.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 
 
-int slbt_init_link_params(struct slbt_driver_ctx_impl * ctx)
+slbt_hidden int slbt_init_link_params(struct slbt_driver_ctx_impl * ctx)
 {
 	const char * program;
 	const char * libname;

@@ -1,7 +1,8 @@
 #include "slibtool_driver_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "argv/argv.h"
 
-const struct argv_option slbt_ar_options[] = {
+const slbt_hidden struct argv_option slbt_ar_options[] = {
 	{"version",	0,TAG_AR_VERSION,ARGV_OPTARG_NONE,0,0,0,
 			"show version information"},
 

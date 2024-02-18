@@ -4,6 +4,7 @@ CFLAGS_APP_ATTR		+= -DSLBT_APP
 
 CFLAGS_MACHINE		:= -DSLBT_MACHINE=\"$(CC_HOST)\"
 CFLAGS_CONFIG		+= $(CFLAGS_MACHINE)
+CFLAGS_CONFIG		+= $(CFLAGS_ATTR_VISIBILITY_HIDDEN)
 
 src/driver/slbt_driver_ctx.o:	version.tag
 src/driver/slbt_driver_ctx.lo:	version.tag

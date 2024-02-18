@@ -18,6 +18,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_visibility_impl.h"
 
 enum slbt_lconf_opt {
 	SLBT_LCONF_OPT_UNKNOWN,
@@ -708,7 +709,7 @@ static int slbt_get_lconf_var(
 	return 0;
 }
 
-int slbt_get_lconf_flags(
+slbt_hidden int slbt_get_lconf_flags(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf,
 	uint64_t *			flags)

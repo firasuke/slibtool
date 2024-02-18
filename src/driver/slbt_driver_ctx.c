@@ -92,13 +92,13 @@ static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool f
 	slbt_dprintf(fderr,"%s\n\n",fcolor ? aclr_reset : "");
 }
 
-const char * slbt_program_name(const char * path)
+slbt_hidden const char * slbt_program_name(const char * path)
 {
 	return argv_program_name(path);
 }
 
 
-int slbt_optv_init(
+slbt_hidden int slbt_optv_init(
 	const struct argv_option    options[],
 	const struct argv_option ** optv)
 {
@@ -106,7 +106,7 @@ int slbt_optv_init(
 }
 
 
-void slbt_argv_scan(
+slbt_hidden void slbt_argv_scan(
 	char **				argv,
 	const struct argv_option **	optv,
 	struct argv_ctx *		ctx,
@@ -116,7 +116,7 @@ void slbt_argv_scan(
 }
 
 
-struct argv_meta * slbt_argv_get(
+slbt_hidden struct argv_meta * slbt_argv_get(
 	char **                         argv,
 	const struct argv_option **     optv,
 	int                             flags,
@@ -126,13 +126,13 @@ struct argv_meta * slbt_argv_get(
 }
 
 
-void slbt_argv_free(struct argv_meta * meta)
+slbt_hidden void slbt_argv_free(struct argv_meta * meta)
 {
 	return argv_free(meta);
 }
 
 
-void slbt_argv_usage(
+slbt_hidden void slbt_argv_usage(
 	int		                fd,
 	const char *	                header,
 	const struct	argv_option **  optv,
@@ -142,7 +142,7 @@ void slbt_argv_usage(
 }
 
 
-void slbt_argv_usage_plain(
+slbt_hidden void slbt_argv_usage_plain(
 	int		                fd,
 	const char *	                header,
 	const struct	argv_option **  optv,
@@ -152,7 +152,7 @@ void slbt_argv_usage_plain(
 }
 
 
-uint64_t slbt_argv_flags(uint64_t flags)
+slbt_hidden uint64_t slbt_argv_flags(uint64_t flags)
 {
 	uint32_t ret = 0;
 
@@ -195,7 +195,7 @@ static int slbt_free_argv_buffer(
 	return -1;
 }
 
-int slbt_driver_usage(
+slbt_hidden int slbt_driver_usage(
 	int				fdout,
 	const char *			program,
 	const char *			arg,

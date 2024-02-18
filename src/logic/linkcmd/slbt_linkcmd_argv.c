@@ -21,6 +21,7 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_visibility_impl.h"
 
 
 static int slbt_linkcmd_exit(
@@ -97,7 +98,7 @@ static int slbt_emit_fdwrap_amend_dl_path(
 }
 
 
-bool slbt_adjust_object_argument(
+slbt_hidden bool slbt_adjust_object_argument(
 	char *		arg,
 	bool		fpic,
 	bool		fany,
@@ -164,7 +165,7 @@ bool slbt_adjust_object_argument(
 }
 
 
-bool slbt_adjust_wrapper_argument(
+slbt_hidden bool slbt_adjust_wrapper_argument(
 	char *		arg,
 	bool		fpic)
 {
@@ -200,7 +201,7 @@ bool slbt_adjust_wrapper_argument(
 }
 
 
-int slbt_adjust_linker_argument(
+slbt_hidden int slbt_adjust_linker_argument(
 	const struct slbt_driver_ctx *	dctx,
 	char *				arg,
 	char **				xarg,
@@ -269,7 +270,7 @@ int slbt_adjust_linker_argument(
 }
 
 
-int slbt_exec_link_adjust_argument_vector(
+slbt_hidden int slbt_exec_link_adjust_argument_vector(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	struct slbt_deps_meta *		depsmeta,
@@ -559,7 +560,7 @@ int slbt_exec_link_adjust_argument_vector(
 }
 
 
-int slbt_exec_link_finalize_argument_vector(
+slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx)
 {

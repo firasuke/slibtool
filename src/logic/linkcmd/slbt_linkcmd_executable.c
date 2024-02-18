@@ -20,6 +20,7 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_spawn_impl.h"
+#include "slibtool_visibility_impl.h"
 
 static int slbt_linkcmd_exit(
 	struct slbt_deps_meta *	depsmeta,
@@ -66,7 +67,7 @@ static void slbt_emit_fdwrap_dl_path_fixup(
 	strncat(dpfixup,"/",dpfixup_size-1);
 }
 
-int slbt_exec_link_create_executable(
+slbt_hidden int slbt_exec_link_create_executable(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	const char *			exefilename)

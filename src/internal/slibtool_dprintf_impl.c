@@ -11,8 +11,9 @@
 #include <errno.h>
 
 #include "slibtool_dprintf_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_dprintf(int fd, const char * fmt, ...)
+slbt_hidden int slbt_dprintf(int fd, const char * fmt, ...)
 {
 	int	ret;
 	int	cnt;

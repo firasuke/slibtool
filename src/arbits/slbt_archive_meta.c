@@ -15,6 +15,7 @@
 #include "slibtool_ar_impl.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 
 /* transient header info vector */
 struct ar_header_info {
@@ -279,7 +280,7 @@ static int slbt_ar_parse_primary_armap(
 	return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_FLOW_ERROR);
 }
 
-struct ar_meta_member_info * slbt_archive_member_from_offset(
+slbt_hidden struct ar_meta_member_info * slbt_archive_member_from_offset(
 	struct slbt_archive_meta_impl * meta,
 	off_t                           offset)
 {

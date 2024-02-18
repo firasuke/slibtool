@@ -16,6 +16,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "slibtool_ar_impl.h"
 
 
@@ -130,7 +131,7 @@ static void slbt_spawn_ar(char ** argv, int * ecode)
 }
 
 
-int slbt_init_host_params(
+slbt_hidden int slbt_init_host_params(
 	const struct slbt_driver_ctx *	dctx,
 	const struct slbt_common_ctx *	cctx,
 	struct slbt_host_strs *		drvhost,
@@ -498,7 +499,7 @@ static void slbt_free_host_tool_argv(char ** argv)
 	free(argv);
 }
 
-void slbt_free_host_params(struct slbt_host_strs * host)
+slbt_hidden void slbt_free_host_params(struct slbt_host_strs * host)
 {
 	if (host->machine)
 		free(host->machine);
@@ -538,7 +539,7 @@ void slbt_free_host_params(struct slbt_host_strs * host)
 }
 
 
-void slbt_init_flavor_settings(
+slbt_hidden void slbt_init_flavor_settings(
 	struct slbt_common_ctx *	cctx,
 	const struct slbt_host_params * ahost,
 	struct slbt_flavor_settings *	psettings)
@@ -575,7 +576,7 @@ void slbt_init_flavor_settings(
 }
 
 
-int slbt_init_ldrpath(
+slbt_hidden int slbt_init_ldrpath(
 	struct slbt_common_ctx *  cctx,
 	struct slbt_host_params * host)
 {

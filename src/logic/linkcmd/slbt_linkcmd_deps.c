@@ -18,8 +18,9 @@
 #include "slibtool_mapfile_impl.h"
 #include "slibtool_metafile_impl.h"
 #include "slibtool_snprintf_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_get_deps_meta(
+slbt_hidden int slbt_get_deps_meta(
 	const struct slbt_driver_ctx *	dctx,
 	char *				libfilename,
 	int				fexternal,
@@ -86,7 +87,7 @@ int slbt_get_deps_meta(
 }
 
 
-int slbt_exec_link_create_dep_file(
+slbt_hidden int slbt_exec_link_create_dep_file(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char **				altv,

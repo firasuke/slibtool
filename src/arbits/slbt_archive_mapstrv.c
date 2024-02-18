@@ -9,6 +9,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "slibtool_ar_impl.h"
 
 static int slbt_strcmp(const void * a, const void * b)
@@ -16,7 +17,7 @@ static int slbt_strcmp(const void * a, const void * b)
 	return strcmp(*(const char **)a,*(const char **)b);
 }
 
-int slbt_update_mapstrv(
+slbt_hidden int slbt_update_mapstrv(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx)
 {

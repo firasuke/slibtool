@@ -1,7 +1,8 @@
 #include "slibtool_uninstall_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "argv/argv.h"
 
-const struct argv_option slbt_uninstall_options[] = {
+const slbt_hidden struct argv_option slbt_uninstall_options[] = {
 	{"help",	'h',TAG_UNINSTALL_HELP,ARGV_OPTARG_NONE,0,0,0,
 			"display uninstall mode help"},
 

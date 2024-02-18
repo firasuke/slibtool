@@ -15,12 +15,13 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 #include "slibtool_ar_impl.h"
 #include "argv/argv.h"
 
 static char * slbt_default_cargv[] = {"cc",0};
 
-int slbt_split_argv(
+slbt_hidden int slbt_split_argv(
 	char **				argv,
 	uint64_t			flags,
 	struct slbt_split_vector *	sargv,

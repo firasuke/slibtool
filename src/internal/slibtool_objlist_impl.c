@@ -17,8 +17,9 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_mapfile_impl.h"
 #include "slibtool_objlist_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_objlist_read(
+slbt_hidden int slbt_objlist_read(
 	int                     fdcwd,
 	struct slbt_obj_list *  objlist)
 {

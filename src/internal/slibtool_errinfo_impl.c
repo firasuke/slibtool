@@ -7,8 +7,9 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_record_error(
+slbt_hidden int slbt_record_error(
 	const struct slbt_driver_ctx *	dctx,
 	int				esyscode,
 	int				elibcode,

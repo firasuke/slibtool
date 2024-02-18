@@ -20,8 +20,9 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_spawn_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_exec_link_create_import_library(
+slbt_hidden int slbt_exec_link_create_import_library(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				impfilename,

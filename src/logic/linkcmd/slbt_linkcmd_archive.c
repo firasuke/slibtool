@@ -20,6 +20,7 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_spawn_impl.h"
+#include "slibtool_visibility_impl.h"
 
 static int slbt_exec_link_create_noop_symlink(
 	const struct slbt_driver_ctx *	dctx,
@@ -69,7 +70,7 @@ static int slbt_exec_link_remove_file(
 	return SLBT_SYSTEM_ERROR(dctx,0);
 }
 
-int slbt_exec_link_create_archive(
+slbt_hidden int slbt_exec_link_create_archive(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	const char *			arfilename,

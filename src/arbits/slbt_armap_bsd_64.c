@@ -14,8 +14,9 @@
 #include "slibtool_ar_impl.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 
-int slbt_ar_parse_primary_armap_bsd_64(
+slbt_hidden int slbt_ar_parse_primary_armap_bsd_64(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * m)
 {

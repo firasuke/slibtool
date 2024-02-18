@@ -11,6 +11,7 @@
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_metafile_impl.h"
+#include "slibtool_visibility_impl.h"
 
 static int  slbt_create_default_object_wrapper(
 	const struct slbt_driver_ctx *	dctx,
@@ -101,7 +102,7 @@ static int  slbt_create_compatible_object_wrapper(
 	return (ret < 0) ? SLBT_SYSTEM_ERROR(dctx,0) : 0;
 }
 
-int  slbt_create_object_wrapper(
+slbt_hidden int slbt_create_object_wrapper(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx)
 {

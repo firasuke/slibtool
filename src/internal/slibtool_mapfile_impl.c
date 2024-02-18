@@ -15,6 +15,7 @@
 
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_mapfile_impl.h"
+#include "slibtool_visibility_impl.h"
 
 static void slbt_munmap(void * addr, size_t size)
 {
@@ -23,7 +24,7 @@ static void slbt_munmap(void * addr, size_t size)
 	}
 }
 
-struct slbt_map_info * slbt_map_file(
+slbt_hidden struct slbt_map_info * slbt_map_file(
 	int		fdat,
 	const char *	path,
 	uint32_t	flags)
@@ -82,13 +83,13 @@ struct slbt_map_info * slbt_map_file(
 	return mapinfo;
 }
 
-void slbt_unmap_file(struct slbt_map_info * mapinfo)
+slbt_hidden void slbt_unmap_file(struct slbt_map_info * mapinfo)
 {
 	slbt_munmap(mapinfo->addr,mapinfo->size);
 	free(mapinfo);
 }
 
-int  slbt_mapped_readline(
+slbt_hidden int slbt_mapped_readline(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_map_info *		mapinfo,
 	char *				buf,

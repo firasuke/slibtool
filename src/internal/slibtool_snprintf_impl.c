@@ -11,6 +11,7 @@
 #include <errno.h>
 
 #include "slibtool_snprintf_impl.h"
+#include "slibtool_visibility_impl.h"
 
 
 /*****************************************************************/
@@ -23,7 +24,7 @@
 /**********************************************************/
 
 
-int slbt_snprintf(char * buf, size_t buflen, const char * fmt, ...)
+slbt_hidden int slbt_snprintf(char * buf, size_t buflen, const char * fmt, ...)
 {
 	va_list	ap;
 	size_t  nbytes;
