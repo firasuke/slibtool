@@ -842,6 +842,18 @@ int slbt_get_archive_meta(
 			if (m->memberv[idx]->ar_member_data == arlongnames)
 				m->armeta.a_arref_longnames = m->memberv[idx];
 
+	/* common binary format (information only) */
+	for (idx=0,nmembers=0; idx<nentries; idx++) {
+		if (m->memberv[idx]->ar_member_attr == AR_MEMBER_ATTR_OBJECT) {
+			if (m->ofmtattr && (m->ofmtattr != m->memberv[idx]->ar_object_attr)) {
+				m->ofmtattr = 0;
+				idx = nentries;
+			} else if (!m->ofmtattr) {
+				m->ofmtattr = m->memberv[idx]->ar_object_attr;
+			}
+		}
+	}
+
 	/* member vector */
 	m->armeta.a_memberv = m->memberv;
 
