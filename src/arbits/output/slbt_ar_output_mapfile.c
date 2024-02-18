@@ -21,6 +21,7 @@ static int slbt_ar_output_mapfile_impl(
 	int                             fdout)
 {
 	bool            fsort;
+	bool            fcoff;
 	const char *    regex;
 	const char **   symv;
 	const char **   symstrv;
@@ -28,6 +29,7 @@ static int slbt_ar_output_mapfile_impl(
 	regmatch_t      pmatch[2] = {{0,0},{0,0}};
 
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
+	fcoff = (mctx->ofmtattr == AR_OBJECT_ATTR_COFF);
 
 	if (slbt_dprintf(fdout,"{\n" "\t" "global:\n") < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -45,9 +47,10 @@ static int slbt_ar_output_mapfile_impl(
 	symstrv = fsort ? mctx->mapstrv : mctx->symstrv;
 
 	for (symv=symstrv; *symv; symv++)
-		if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
-			if (slbt_dprintf(fdout,"\t\t%s;\n",*symv) < 0)
-				return SLBT_SYSTEM_ERROR(dctx,0);
+		if (!fcoff || strncmp(*symv,"__imp_",6))
+			if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
+				if (slbt_dprintf(fdout,"\t\t%s;\n",*symv) < 0)
+					return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (regex)
 		regfree(&regctx);

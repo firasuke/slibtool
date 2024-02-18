@@ -26,6 +26,7 @@ static int slbt_ar_output_symbols_posix(
 {
 	int             fdout;
 	bool            fsort;
+	bool            fcoff;
 	const char *    regex;
 	const char **   symv;
 	const char **   symstrv;
@@ -34,6 +35,7 @@ static int slbt_ar_output_symbols_posix(
 
 	fdout = fdctx->fdout;
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
+	fcoff = (mctx->ofmtattr == AR_OBJECT_ATTR_COFF);
 
 	if (fsort && !mctx->mapstrv)
 		if (slbt_update_mapstrv(dctx,mctx) < 0)
@@ -48,9 +50,10 @@ static int slbt_ar_output_symbols_posix(
 	symstrv = fsort ? mctx->mapstrv : mctx->symstrv;
 
 	for (symv=symstrv; *symv; symv++)
-		if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
-			if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
-				return SLBT_SYSTEM_ERROR(dctx,0);
+		if (!fcoff || strncmp(*symv,"__imp_",6))
+			if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
+				if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
+					return SLBT_SYSTEM_ERROR(dctx,0);
 
 	if (regex)
 		regfree(&regctx);
