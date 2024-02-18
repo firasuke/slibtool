@@ -112,7 +112,7 @@ slbt_hidden void slbt_argv_scan(
 	struct argv_ctx *		ctx,
 	struct argv_meta *		meta)
 {
-	return argv_scan(argv,optv,ctx,meta);
+	argv_scan(argv,optv,ctx,meta);
 }
 
 
@@ -128,7 +128,7 @@ slbt_hidden struct argv_meta * slbt_argv_get(
 
 slbt_hidden void slbt_argv_free(struct argv_meta * meta)
 {
-	return argv_free(meta);
+	argv_free(meta);
 }
 
 
@@ -138,7 +138,7 @@ slbt_hidden void slbt_argv_usage(
 	const struct	argv_option **  optv,
 	const char *	                mode)
 {
-	return argv_usage(fd,header,optv,mode);
+	argv_usage(fd,header,optv,mode);
 }
 
 
@@ -148,7 +148,7 @@ slbt_hidden void slbt_argv_usage_plain(
 	const struct	argv_option **  optv,
 	const char *	                mode)
 {
-	return argv_usage_plain(fd,header,optv,mode);
+	argv_usage_plain(fd,header,optv,mode);
 }
 
 
