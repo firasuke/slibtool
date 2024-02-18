@@ -18,7 +18,6 @@ API_SRCS = \
 	src/driver/slbt_link_params.c \
 	src/driver/slbt_split_argv.c \
 	src/driver/slbt_version_info.c \
-	src/fallback/slbt_archive_import_mri.c \
 	src/helper/slbt_archive_import.c \
 	src/helper/slbt_copy_file.c \
 	src/helper/slbt_dump_machine.c \
@@ -49,6 +48,9 @@ API_SRCS = \
 	src/skin/slbt_skin_default.c \
 	src/skin/slbt_skin_install.c \
 	src/skin/slbt_skin_uninstall.c \
+
+FALLBACK_SRCS = \
+	src/fallback/slbt_archive_import_mri.c \
 
 INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_dprintf_impl.c \
