@@ -14,10 +14,10 @@ API_SRCS = \
 	src/arbits/output/slbt_ar_output_symbols.c \
 	src/driver/slbt_amain.c \
 	src/driver/slbt_driver_ctx.c \
-	src/driver/slbt_host_params.c \
 	src/driver/slbt_link_params.c \
 	src/driver/slbt_split_argv.c \
 	src/driver/slbt_version_info.c \
+	src/host/slbt_host_params.c \
 	src/util/slbt_archive_import.c \
 	src/util/slbt_copy_file.c \
 	src/util/slbt_dump_machine.c \
