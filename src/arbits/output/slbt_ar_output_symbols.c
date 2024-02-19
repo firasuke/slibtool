@@ -19,7 +19,7 @@
 	                         | SLBT_PRETTY_POSIX    \
 	                         | SLBT_PRETTY_HEXDATA)
 
-static int slbt_ar_output_symbols_posix(
+static int slbt_au_output_symbols_posix(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
 	const struct slbt_fd_ctx *      fdctx)
@@ -61,7 +61,7 @@ static int slbt_ar_output_symbols_posix(
 	return 0;
 }
 
-static int slbt_ar_output_symbols_yaml(
+static int slbt_au_output_symbols_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
 	const struct slbt_fd_ctx *      fdctx)
@@ -73,7 +73,7 @@ static int slbt_ar_output_symbols_yaml(
 	return 0;
 }
 
-int slbt_ar_output_symbols(const struct slbt_archive_meta * meta)
+int slbt_au_output_symbols(const struct slbt_archive_meta * meta)
 {
 	struct slbt_archive_meta_impl * mctx;
 	const struct slbt_driver_ctx *  dctx;
@@ -90,15 +90,15 @@ int slbt_ar_output_symbols(const struct slbt_archive_meta * meta)
 
 	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {
 		case SLBT_PRETTY_YAML:
-			return slbt_ar_output_symbols_yaml(
+			return slbt_au_output_symbols_yaml(
 				dctx,mctx,&fdctx);
 
 		case SLBT_PRETTY_POSIX:
-			return slbt_ar_output_symbols_posix(
+			return slbt_au_output_symbols_posix(
 				dctx,mctx,&fdctx);
 
 		default:
-			return slbt_ar_output_symbols_yaml(
+			return slbt_au_output_symbols_yaml(
 				dctx,mctx,&fdctx);
 	}
 }

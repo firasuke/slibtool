@@ -31,7 +31,7 @@ const char slbt_ar_perm_strs[8][4] = {
 	{'r','w','x','\0'}
 };
 
-static unsigned slbt_ar_output_decimal_len_from_val(size_t val, unsigned min)
+static unsigned slbt_au_output_decimal_len_from_val(size_t val, unsigned min)
 {
 	unsigned ret;
 
@@ -41,7 +41,7 @@ static unsigned slbt_ar_output_decimal_len_from_val(size_t val, unsigned min)
 	return (ret > min) ? ret : min;
 }
 
-static int slbt_ar_output_one_member_posix(
+static int slbt_au_output_one_member_posix(
 	int                             fdout,
 	struct ar_meta_member_info *    memberp)
 {
@@ -50,7 +50,7 @@ static int slbt_ar_output_one_member_posix(
 		memberp->ar_file_header.ar_member_name);
 }
 
-static int slbt_ar_output_one_member_posix_verbose(
+static int slbt_au_output_one_member_posix_verbose(
 	int                             fdout,
 	struct ar_meta_member_info *    memberp,
 	const char *                    fmtstr,
@@ -86,7 +86,7 @@ static int slbt_ar_output_one_member_posix_verbose(
 		memberp->ar_file_header.ar_member_name);
 }
 
-static int slbt_ar_output_members_posix(
+static int slbt_au_output_members_posix(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_meta * meta,
 	const struct slbt_fd_ctx *       fdctx)
@@ -116,9 +116,9 @@ static int slbt_ar_output_members_posix(
 			if ((testval = memberp[0]->ar_file_header.ar_gid) > gidlen)
 				gidlen = testval;
 
-		sizelen = slbt_ar_output_decimal_len_from_val(sizelen,6);
-		uidlen  = slbt_ar_output_decimal_len_from_val(uidlen,1);
-		gidlen  = slbt_ar_output_decimal_len_from_val(gidlen,1);
+		sizelen = slbt_au_output_decimal_len_from_val(sizelen,6);
+		uidlen  = slbt_au_output_decimal_len_from_val(uidlen,1);
+		gidlen  = slbt_au_output_decimal_len_from_val(gidlen,1);
 		arloc   = newlocale(LC_ALL,setlocale(LC_ALL,0),0);
 
 		sprintf(
@@ -143,11 +143,11 @@ static int slbt_ar_output_members_posix(
 
 			default:
 				if (arloc) {
-					if (slbt_ar_output_one_member_posix_verbose(
+					if (slbt_au_output_one_member_posix_verbose(
 							fdout,*memberp,fmtstr,arloc) < 0)
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				} else {
-					if (slbt_ar_output_one_member_posix(
+					if (slbt_au_output_one_member_posix(
 							fdout,*memberp) < 0)
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				}
@@ -160,7 +160,7 @@ static int slbt_ar_output_members_posix(
 	return 0;
 }
 
-static int slbt_ar_output_one_member_yaml(
+static int slbt_au_output_one_member_yaml(
 	int                             fdout,
 	struct ar_meta_member_info *    memberp)
 {
@@ -170,7 +170,7 @@ static int slbt_ar_output_one_member_yaml(
 		memberp->ar_file_header.ar_member_name);
 }
 
-static int slbt_ar_output_one_member_yaml_verbose(
+static int slbt_au_output_one_member_yaml_verbose(
 	int                             fdout,
 	struct ar_meta_member_info *    memberp,
 	locale_t                        arlocale)
@@ -204,7 +204,7 @@ static int slbt_ar_output_one_member_yaml_verbose(
 		memberp->ar_file_header.ar_file_mode);
 }
 
-static int slbt_ar_output_members_yaml(
+static int slbt_au_output_members_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_meta * meta,
 	const struct slbt_fd_ctx *       fdctx)
@@ -232,11 +232,11 @@ static int slbt_ar_output_members_yaml(
 
 			default:
 				if (arloc) {
-					if (slbt_ar_output_one_member_yaml_verbose(
+					if (slbt_au_output_one_member_yaml_verbose(
 							fdout,*memberp,arloc) < 0)
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				} else {
-					if (slbt_ar_output_one_member_yaml(
+					if (slbt_au_output_one_member_yaml(
 							fdout,*memberp) < 0)
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				}
@@ -249,7 +249,7 @@ static int slbt_ar_output_members_yaml(
 	return 0;
 }
 
-int slbt_ar_output_members(const struct slbt_archive_meta * meta)
+int slbt_au_output_members(const struct slbt_archive_meta * meta)
 {
 	const struct slbt_driver_ctx *  dctx;
 	struct slbt_fd_ctx              fdctx;
@@ -264,15 +264,15 @@ int slbt_ar_output_members(const struct slbt_archive_meta * meta)
 
 	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {
 		case SLBT_PRETTY_YAML:
-			return slbt_ar_output_members_yaml(
+			return slbt_au_output_members_yaml(
 				dctx,meta,&fdctx);
 
 		case SLBT_PRETTY_POSIX:
-			return slbt_ar_output_members_posix(
+			return slbt_au_output_members_posix(
 				dctx,meta,&fdctx);
 
 		default:
-			return slbt_ar_output_members_yaml(
+			return slbt_au_output_members_yaml(
 				dctx,meta,&fdctx);
 	}
 }

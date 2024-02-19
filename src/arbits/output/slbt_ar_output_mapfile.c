@@ -15,7 +15,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_ar_impl.h"
 
-static int slbt_ar_output_mapfile_impl(
+static int slbt_au_output_mapfile_impl(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
 	int                             fdout)
@@ -91,12 +91,12 @@ static int slbt_create_mapfile_impl(
 		fdout = fdctx.fdout;
 	}
 
-	return slbt_ar_output_mapfile_impl(
+	return slbt_au_output_mapfile_impl(
 		dctx,mctx,fdout);
 }
 
 
-int slbt_ar_output_mapfile(const struct slbt_archive_meta * meta)
+int slbt_au_output_mapfile(const struct slbt_archive_meta * meta)
 {
 	return slbt_create_mapfile_impl(meta,0,0);
 }

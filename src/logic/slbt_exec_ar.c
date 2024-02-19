@@ -93,19 +93,19 @@ static int slbt_exec_ar_perform_archive_actions(
 
 	for (arctxp=arctxv; *arctxp; arctxp++) {
 		if (dctx->cctx->fmtflags & SLBT_DRIVER_MODE_AR_OUTPUTS)
-			if (farname && (slbt_ar_output_arname(*arctxp) < 0))
+			if (farname && (slbt_au_output_arname(*arctxp) < 0))
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MEMBERS)
-			if (slbt_ar_output_members((*arctxp)->meta) < 0)
+			if (slbt_au_output_members((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_SYMBOLS)
-			if (slbt_ar_output_symbols((*arctxp)->meta) < 0)
+			if (slbt_au_output_symbols((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE)
-			if (slbt_ar_output_mapfile((*arctxp)->meta) < 0)
+			if (slbt_au_output_mapfile((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
 	}
 

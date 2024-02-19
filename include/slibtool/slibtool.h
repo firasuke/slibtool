@@ -423,10 +423,10 @@ slbt_api int  slbt_output_error_record  (const struct slbt_driver_ctx *, const s
 slbt_api int  slbt_output_error_vector  (const struct slbt_driver_ctx *);
 
 /* archiver utility api */
-slbt_api int  slbt_ar_output_arname     (const struct slbt_archive_ctx *);
-slbt_api int  slbt_ar_output_members    (const struct slbt_archive_meta *);
-slbt_api int  slbt_ar_output_symbols    (const struct slbt_archive_meta *);
-slbt_api int  slbt_ar_output_mapfile    (const struct slbt_archive_meta *);
+slbt_api int  slbt_au_output_arname     (const struct slbt_archive_ctx *);
+slbt_api int  slbt_au_output_members    (const struct slbt_archive_meta *);
+slbt_api int  slbt_au_output_symbols    (const struct slbt_archive_meta *);
+slbt_api int  slbt_au_output_mapfile    (const struct slbt_archive_meta *);
 
 /* package info */
 slbt_api const struct slbt_source_version * slbt_source_version(void);

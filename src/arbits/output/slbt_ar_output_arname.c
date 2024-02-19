@@ -15,7 +15,7 @@
 	                         | SLBT_PRETTY_POSIX    \
 	                         | SLBT_PRETTY_HEXDATA)
 
-static int slbt_ar_output_arname_impl(
+static int slbt_au_output_arname_impl(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * actx,
 	const struct slbt_fd_ctx *      fdctx,
@@ -32,12 +32,12 @@ static int slbt_ar_output_arname_impl(
 	return 0;
 }
 
-static int slbt_ar_output_arname_posix(
+static int slbt_au_output_arname_posix(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * actx,
 	const struct slbt_fd_ctx *      fdctx)
 {
-	if (slbt_ar_output_arname_impl(
+	if (slbt_au_output_arname_impl(
 			dctx,actx,fdctx,
 			"%s:\n") < 0)
 		return SLBT_NESTED_ERROR(dctx);
@@ -45,12 +45,12 @@ static int slbt_ar_output_arname_posix(
 	return 0;
 }
 
-static int slbt_ar_output_arname_yaml(
+static int slbt_au_output_arname_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * actx,
 	const struct slbt_fd_ctx *      fdctx)
 {
-	if (slbt_ar_output_arname_impl(
+	if (slbt_au_output_arname_impl(
 			dctx,actx,fdctx,
 			"Archive:\n"
 			"  - Meta:\n"
@@ -60,7 +60,7 @@ static int slbt_ar_output_arname_yaml(
 	return 0;
 }
 
-int slbt_ar_output_arname(const struct slbt_archive_ctx * actx)
+int slbt_au_output_arname(const struct slbt_archive_ctx * actx)
 {
 	const struct slbt_driver_ctx *  dctx;
 	struct slbt_fd_ctx              fdctx;
@@ -72,15 +72,15 @@ int slbt_ar_output_arname(const struct slbt_archive_ctx * actx)
 
 	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {
 		case SLBT_PRETTY_YAML:
-			return slbt_ar_output_arname_yaml(
+			return slbt_au_output_arname_yaml(
 				dctx,actx,&fdctx);
 
 		case SLBT_PRETTY_POSIX:
-			return slbt_ar_output_arname_posix(
+			return slbt_au_output_arname_posix(
 				dctx,actx,&fdctx);
 
 		default:
-			return slbt_ar_output_arname_yaml(
+			return slbt_au_output_arname_yaml(
 				dctx,actx,&fdctx);
 	}
 }
