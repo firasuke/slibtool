@@ -29,22 +29,22 @@ static int slbt_archive_import_impl(
 
 	(void)ectx;
 
-	if (slbt_get_archive_ctx(dctx,dstarchive,&arctxv[0]) < 0)
+	if (slbt_ar_get_archive_ctx(dctx,dstarchive,&arctxv[0]) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
-	if (slbt_get_archive_ctx(dctx,srcarchive,&arctxv[1]) < 0) {
-		slbt_free_archive_ctx(arctxv[0]);
+	if (slbt_ar_get_archive_ctx(dctx,srcarchive,&arctxv[1]) < 0) {
+		slbt_ar_free_archive_ctx(arctxv[0]);
 		return SLBT_NESTED_ERROR(dctx);
 	}
 
-	ret = slbt_merge_archives(arctxv,&arctx);
+	ret = slbt_ar_merge_archives(arctxv,&arctx);
 
-	slbt_free_archive_ctx(arctxv[0]);
-	slbt_free_archive_ctx(arctxv[1]);
+	slbt_ar_free_archive_ctx(arctxv[0]);
+	slbt_ar_free_archive_ctx(arctxv[1]);
 
 	if (ret == 0) {
-		ret = slbt_store_archive(arctx,dstarchive,0644);
-		slbt_free_archive_ctx(arctx);
+		ret = slbt_ar_store_archive(arctx,dstarchive,0644);
+		slbt_ar_free_archive_ctx(arctx);
 	}
 
 	return (ret < 0) ? SLBT_NESTED_ERROR(dctx) : 0;

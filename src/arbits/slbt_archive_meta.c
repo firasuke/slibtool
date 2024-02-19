@@ -25,7 +25,7 @@ struct ar_header_info {
 
 static const char ar_signature[] = AR_SIGNATURE;
 
-static int slbt_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, int ret)
+static int slbt_ar_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, int ret)
 {
 	if (meta) {
 		if (meta->armaps.armap_symrefs_32)
@@ -306,7 +306,7 @@ slbt_hidden struct ar_meta_member_info * slbt_archive_member_from_offset(
 	return (offsetv[l] == offset) ? meta->memberv[l] : 0;
 }
 
-int slbt_get_archive_meta(
+int slbt_ar_get_archive_meta(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_raw_archive * archive,
 	struct slbt_archive_meta **     meta)
@@ -389,7 +389,7 @@ int slbt_get_archive_meta(
 	if (cap < &mark[sizeof(*arhdr)])
 		for (ch=mark; ch<cap; ch++)
 			if (*ch)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_HEADER));
@@ -403,7 +403,7 @@ int slbt_get_archive_meta(
 				arhdr->ar_file_size,
 				sizeof(arhdr->ar_file_size),
 				&filesize)) < 0)
-			return slbt_free_archive_meta_impl(
+			return slbt_ar_free_archive_meta_impl(
 				m,SLBT_CUSTOM_ERROR(
 					dctx,
 					SLBT_ERR_AR_INVALID_HEADER));
@@ -417,7 +417,7 @@ int slbt_get_archive_meta(
 		if ((arhdr->ar_file_id[0] == '/') && (arhdr->ar_file_id[1] == '/')) {
 			for (ch=&arhdr->ar_file_id[2]; ch<fldcap; ch++)
 				if (*ch != AR_DEC_PADDING)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_HEADER));
@@ -426,7 +426,7 @@ int slbt_get_archive_meta(
 					arhdr->ar_file_size,
 					sizeof(arhdr->ar_file_size),
 					&namelen) < 0)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_HEADER));
@@ -434,7 +434,7 @@ int slbt_get_archive_meta(
 
 			/* duplicate long names member? */
 			if (arlongnames)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_DUPLICATE_LONG_NAMES));
@@ -453,7 +453,7 @@ int slbt_get_archive_meta(
 		} else if (!strncmp(arhdr->ar_file_id,"/SYM64/",7)) {
 			for (ch=&arhdr->ar_file_id[7]; ch<fldcap; ch++)
 				if (*ch != AR_DEC_PADDING)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_HEADER));
@@ -467,7 +467,7 @@ int slbt_get_archive_meta(
 					&arhdr->ar_file_id[1],
 					sizeof(arhdr->ar_file_id)-1,
 					&nameoff) < 0)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_HEADER));
@@ -488,7 +488,7 @@ int slbt_get_archive_meta(
 					&arhdr->ar_file_id[3],
 					sizeof(arhdr->ar_file_id)-3,
 					&namelen) < 0)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_HEADER));
@@ -513,7 +513,7 @@ int slbt_get_archive_meta(
 
 			for (; ch<fldcap; )
 				if (*ch++ != AR_DEC_PADDING)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_HEADER));
@@ -522,7 +522,7 @@ int slbt_get_archive_meta(
 
 		/* truncated data? */
 		if (cap < &mark[filesize])
-			return slbt_free_archive_meta_impl(
+			return slbt_ar_free_archive_meta_impl(
 				m,SLBT_CUSTOM_ERROR(
 					dctx,
 					SLBT_ERR_AR_TRUNCATED_DATA));
@@ -538,7 +538,7 @@ int slbt_get_archive_meta(
 		if (cap < &mark[sizeof(*arhdr)])
 			for (; mark<cap; )
 				if (*mark++)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_HEADER));
@@ -549,7 +549,7 @@ int slbt_get_archive_meta(
 				? (nelements << 4) : (nelements << 1);
 
 			if (!(hdrinfov_next = calloc(nelements,sizeof(*hdrinfov))))
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_TRUNCATED_DATA));
@@ -573,19 +573,19 @@ int slbt_get_archive_meta(
 
 	/* allocate name strings, member vector */
 	if (!(m->namestrs = calloc(1,stblsize)))
-		return slbt_free_archive_meta_impl(
+		return slbt_ar_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
 	if (!(m->offsetv = calloc(nentries+1,sizeof(*m->offsetv))))
-		return slbt_free_archive_meta_impl(
+		return slbt_ar_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
 	if (!(m->memberv = calloc(nentries+1,sizeof(*m->memberv))))
-		return slbt_free_archive_meta_impl(
+		return slbt_ar_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
 	if (!(m->members = calloc(nentries,sizeof(*m->members))))
-		return slbt_free_archive_meta_impl(
+		return slbt_ar_free_archive_meta_impl(
 			m,SLBT_SYSTEM_ERROR(dctx,0));
 
 	/* archive signature reference */
@@ -736,12 +736,12 @@ int slbt_get_archive_meta(
 		/* armap member must be the first */
 		if ((memberp->ar_member_attr == AR_MEMBER_ATTR_ARMAP) && (idx > 0)) {
 			if (m->members[0].ar_member_attr == AR_MEMBER_ATTR_ARMAP)
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_DUPLICATE_ARMAP_MEMBER));
 
-			return slbt_free_archive_meta_impl(
+			return slbt_ar_free_archive_meta_impl(
 				m,SLBT_CUSTOM_ERROR(
 					dctx,
 					SLBT_ERR_AR_MISPLACED_ARMAP_MEMBER));
@@ -753,7 +753,7 @@ int slbt_get_archive_meta(
 
 	/* primary armap (first linker member) */
 	if (slbt_ar_parse_primary_armap(dctx,m) < 0)
-		return slbt_free_archive_meta_impl(
+		return slbt_ar_free_archive_meta_impl(
 			m,SLBT_NESTED_ERROR(dctx));
 
 	for (idx=0,ch=m->symstrs; idx<m->armaps.armap_nsyms; idx++) {
@@ -770,7 +770,7 @@ int slbt_get_archive_meta(
 				symrefs_32[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
 
 			if (!slbt_archive_member_from_offset(m,symrefs_32[idx].ar_member_offset))
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
@@ -779,7 +779,7 @@ int slbt_get_archive_meta(
 				ch = &m->symstrs[symrefs_32[idx].ar_name_offset];
 
 				if ((ch > m->symstrv[m->armaps.armap_nsyms - 1]) || *--ch)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_ARMAP_NAME_OFFSET));
@@ -796,7 +796,7 @@ int slbt_get_archive_meta(
 				symrefs_64[idx].ar_name_offset = m->symstrv[idx] - m->symstrv[0];
 
 			if (!slbt_archive_member_from_offset(m,symrefs_64[idx].ar_member_offset))
-				return slbt_free_archive_meta_impl(
+				return slbt_ar_free_archive_meta_impl(
 					m,SLBT_CUSTOM_ERROR(
 						dctx,
 						SLBT_ERR_AR_INVALID_ARMAP_MEMBER_OFFSET));
@@ -805,7 +805,7 @@ int slbt_get_archive_meta(
 				ch = &m->symstrs[symrefs_64[idx].ar_name_offset];
 
 				if ((ch > m->symstrv[m->armaps.armap_nsyms - 1]) || *--ch)
-					return slbt_free_archive_meta_impl(
+					return slbt_ar_free_archive_meta_impl(
 						m,SLBT_CUSTOM_ERROR(
 							dctx,
 							SLBT_ERR_AR_INVALID_ARMAP_NAME_OFFSET));
@@ -868,12 +868,12 @@ int slbt_get_archive_meta(
 	return 0;
 }
 
-void slbt_free_archive_meta(struct slbt_archive_meta * meta)
+void slbt_ar_free_archive_meta(struct slbt_archive_meta * meta)
 {
 	struct slbt_archive_meta_impl * m;
 
 	if (meta) {
 		m = slbt_archive_meta_ictx(meta);
-		slbt_free_archive_meta_impl(m,0);
+		slbt_ar_free_archive_meta_impl(m,0);
 	}
 }

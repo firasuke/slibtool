@@ -27,12 +27,12 @@
 /* interfaces. In the case of archives, that means  */
 /* passing dctx->fdctx->fdcwd as the _fdat_ param,  */
 /* where dctx is the driver context which was used  */
-/* with slbt_get_archive_ctx().                     */
+/* with slbt_ar_get_archive_ctx().                     */
 /************************************************** */
 
 #define PPRIX64 "%"PRIx64
 
-int slbt_store_archive(
+int slbt_ar_store_archive(
 	struct slbt_archive_ctx * arctx,
 	const char *              path,
 	mode_t                    mode)

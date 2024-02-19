@@ -112,7 +112,7 @@ static off_t slbt_armap_write_le_64(unsigned char * mark, uint64_t val)
 }
 
 
-static int slbt_merge_archives_fail(
+static int slbt_ar_merge_archives_fail(
 	struct slbt_archive_ctx *   arctx,
 	struct armap_buffer_32 *    bsdmap32,
 	struct armap_buffer_64 *    bsdmap64,
@@ -125,13 +125,13 @@ static int slbt_merge_archives_fail(
 		free(bsdmap64);
 
 	if (arctx)
-		slbt_free_archive_ctx(arctx);
+		slbt_ar_free_archive_ctx(arctx);
 
 	return ret;
 }
 
 
-int slbt_merge_archives(
+int slbt_ar_merge_archives(
 	struct slbt_archive_ctx * const arctxv[],
 	struct slbt_archive_ctx **      arctxm)
 {
@@ -360,7 +360,7 @@ int slbt_merge_archives(
 				: 0;
 
 		if (nwritten < 0)
-			return slbt_merge_archives_fail(
+			return slbt_ar_merge_archives_fail(
 				arctx,0,0,
 				SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -372,7 +372,7 @@ int slbt_merge_archives(
 			sarname + sarmap + ssymstrs);
 
 		if (nwritten < 0)
-			return slbt_merge_archives_fail(
+			return slbt_ar_merge_archives_fail(
 				arctx,0,0,
 				SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -402,7 +402,7 @@ int slbt_merge_archives(
 				: 0;
 
 		if (nwritten < 0)
-			return slbt_merge_archives_fail(
+			return slbt_ar_merge_archives_fail(
 				arctx,0,0,
 				SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -414,7 +414,7 @@ int slbt_merge_archives(
 			snamestrs);
 
 		if (nwritten < 0)
-			return slbt_merge_archives_fail(
+			return slbt_ar_merge_archives_fail(
 				arctx,0,0,
 				SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -471,7 +471,7 @@ int slbt_merge_archives(
 
 		if (armap_write_uint32) {
 			if (!(bsdmap32 = calloc(2*nsymrefs,sizeof(struct armap_buffer_32))))
-				return slbt_merge_archives_fail(
+				return slbt_ar_merge_archives_fail(
 					arctx,0,0,
 					SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -479,7 +479,7 @@ int slbt_merge_archives(
 
 		} else {
 			if (!(bsdmap64 = calloc(2*nsymrefs,sizeof(struct armap_buffer_64))))
-				return slbt_merge_archives_fail(
+				return slbt_ar_merge_archives_fail(
 					arctx,0,0,
 					SLBT_SYSTEM_ERROR(dctx,0));
 
@@ -684,8 +684,8 @@ int slbt_merge_archives(
 	struct slbt_archive_ctx_impl * ictx;
 	ictx = slbt_get_archive_ictx(arctx);
 
-	if (slbt_get_archive_meta(dctx,arctx->map,&ictx->meta) < 0)
-		return slbt_merge_archives_fail(
+	if (slbt_ar_get_archive_meta(dctx,arctx->map,&ictx->meta) < 0)
+		return slbt_ar_merge_archives_fail(
 			arctx,0,0,
 			SLBT_NESTED_ERROR(dctx));
 

@@ -47,10 +47,10 @@ static int slbt_unmap_raw_archive(struct slbt_raw_archive * map)
 	return slbt_unmap_input(&mapinfo);
 }
 
-static int slbt_free_archive_ctx_impl(struct slbt_archive_ctx_impl * ctx, int ret)
+static int slbt_ar_free_archive_ctx_impl(struct slbt_archive_ctx_impl * ctx, int ret)
 {
 	if (ctx) {
-		slbt_free_archive_meta(ctx->meta);
+		slbt_ar_free_archive_meta(ctx->meta);
 		slbt_unmap_raw_archive(&ctx->map);
 		free(ctx);
 	}
@@ -58,7 +58,7 @@ static int slbt_free_archive_ctx_impl(struct slbt_archive_ctx_impl * ctx, int re
 	return ret;
 }
 
-int slbt_get_archive_ctx(
+int slbt_ar_get_archive_ctx(
 	const struct slbt_driver_ctx *	dctx,
 	const char *			path,
 	struct slbt_archive_ctx **		pctx)
@@ -77,11 +77,11 @@ int slbt_get_archive_ctx(
 		: PROT_READ;
 
 	if (slbt_map_raw_archive(dctx,-1,path,prot,&ctx->map))
-		return slbt_free_archive_ctx_impl(ctx,
+		return slbt_ar_free_archive_ctx_impl(ctx,
 			SLBT_NESTED_ERROR(dctx));
 
-	if (slbt_get_archive_meta(dctx,&ctx->map,&ctx->meta))
-		return slbt_free_archive_ctx_impl(ctx,
+	if (slbt_ar_get_archive_meta(dctx,&ctx->map,&ctx->meta))
+		return slbt_ar_free_archive_ctx_impl(ctx,
 			SLBT_NESTED_ERROR(dctx));
 
 	ctx->dctx       = dctx;
@@ -94,7 +94,7 @@ int slbt_get_archive_ctx(
 	return 0;
 }
 
-void slbt_free_archive_ctx(struct slbt_archive_ctx * ctx)
+void slbt_ar_free_archive_ctx(struct slbt_archive_ctx * ctx)
 {
 	struct slbt_archive_ctx_impl *	ictx;
 	uintptr_t			addr;
@@ -102,6 +102,6 @@ void slbt_free_archive_ctx(struct slbt_archive_ctx * ctx)
 	if (ctx) {
 		addr = (uintptr_t)ctx - offsetof(struct slbt_archive_ctx_impl,actx);
 		ictx = (struct slbt_archive_ctx_impl *)addr;
-		slbt_free_archive_ctx_impl(ictx,0);
+		slbt_ar_free_archive_ctx_impl(ictx,0);
 	}
 }

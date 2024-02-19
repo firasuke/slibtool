@@ -110,11 +110,11 @@ static int slbt_exec_ar_perform_archive_actions(
 	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
-		if (slbt_merge_archives(arctxv,&arctx) < 0)
+		if (slbt_ar_merge_archives(arctxv,&arctx) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 
 		/* (defer mode to umask) */
-		if (slbt_store_archive(arctx,dctx->cctx->output,0666) < 0)
+		if (slbt_ar_store_archive(arctx,dctx->cctx->output,0666) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
@@ -380,9 +380,9 @@ int slbt_exec_ar(
 
 	/* archive context vector initialization */
 	for (unitp=unitv,arctxp=arctxv; *unitp; unitp++,arctxp++) {
-		if (slbt_get_archive_ctx(dctx,*unitp,arctxp) < 0) {
+		if (slbt_ar_get_archive_ctx(dctx,*unitp,arctxp) < 0) {
 			for (arctxp=arctxv; *arctxp; arctxp++)
-				slbt_free_archive_ctx(*arctxp);
+				slbt_ar_free_archive_ctx(*arctxp);
 
 			free(unitv);
 			free(arctxv);
@@ -398,7 +398,7 @@ int slbt_exec_ar(
 
 	/* all done */
 	for (arctxp=arctxv; *arctxp; arctxp++)
-		slbt_free_archive_ctx(*arctxp);
+		slbt_ar_free_archive_ctx(*arctxp);
 
 	free(unitv);
 	free(arctxv);

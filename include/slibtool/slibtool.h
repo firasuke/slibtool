@@ -385,24 +385,24 @@ slbt_api int  slbt_dump_machine         (const char * compiler, char * machine, 
 slbt_api int  slbt_realpath             (int, const char *, int, char *, size_t);
 
 /* archiver api */
-slbt_api int  slbt_get_archive_ctx      (const struct slbt_driver_ctx *, const char * path,
+slbt_api int  slbt_ar_get_archive_ctx   (const struct slbt_driver_ctx *, const char * path,
                                          struct slbt_archive_ctx **);
 
-slbt_api void slbt_free_archive_ctx     (struct slbt_archive_ctx *);
+slbt_api void slbt_ar_free_archive_ctx  (struct slbt_archive_ctx *);
 
-slbt_api int  slbt_get_archive_meta     (const struct slbt_driver_ctx *,
+slbt_api int  slbt_ar_get_archive_meta  (const struct slbt_driver_ctx *,
                                          const struct slbt_raw_archive *,
                                          struct slbt_archive_meta **);
 
-slbt_api void slbt_free_archive_meta    (struct slbt_archive_meta *);
+slbt_api void slbt_ar_free_archive_meta (struct slbt_archive_meta *);
 
-slbt_api int  slbt_merge_archives       (struct slbt_archive_ctx * const [],
+slbt_api int  slbt_ar_merge_archives    (struct slbt_archive_ctx * const [],
                                          struct slbt_archive_ctx **);
 
-slbt_api int  slbt_store_archive        (struct slbt_archive_ctx *,
+slbt_api int  slbt_ar_store_archive     (struct slbt_archive_ctx *,
                                          const char *, mode_t);
 
-slbt_api int  slbt_create_mapfile       (const struct slbt_archive_meta *, const char *, mode_t);
+slbt_api int  slbt_ar_create_mapfile    (const struct slbt_archive_meta *, const char *, mode_t);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,

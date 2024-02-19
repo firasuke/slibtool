@@ -62,7 +62,7 @@ static int slbt_au_output_mapfile_impl(
 }
 
 
-static int slbt_create_mapfile_impl(
+static int slbt_ar_create_mapfile_impl(
 	const struct slbt_archive_meta *  meta,
 	const char *                      path,
 	mode_t                            mode)
@@ -98,14 +98,14 @@ static int slbt_create_mapfile_impl(
 
 int slbt_au_output_mapfile(const struct slbt_archive_meta * meta)
 {
-	return slbt_create_mapfile_impl(meta,0,0);
+	return slbt_ar_create_mapfile_impl(meta,0,0);
 }
 
 
-int slbt_create_mapfile(
+int slbt_ar_create_mapfile(
 	const struct slbt_archive_meta *  meta,
 	const char *                      path,
 	mode_t                            mode)
 {
-	return slbt_create_mapfile_impl(meta,path,mode);
+	return slbt_ar_create_mapfile_impl(meta,path,mode);
 }
