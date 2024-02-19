@@ -355,13 +355,11 @@ slbt_api void slbt_free_driver_ctx      (struct slbt_driver_ctx *);
 slbt_api int  slbt_get_driver_fdctx     (const struct slbt_driver_ctx *, struct slbt_fd_ctx *);
 slbt_api int  slbt_set_driver_fdctx     (struct slbt_driver_ctx *, const struct slbt_fd_ctx *);
 
-/* execution context api */
-slbt_api int  slbt_get_exec_ctx         (const struct slbt_driver_ctx *, struct slbt_exec_ctx **);
-slbt_api void slbt_free_exec_ctx        (struct slbt_exec_ctx *);
-slbt_api void slbt_reset_argvector      (struct slbt_exec_ctx *);
-slbt_api void slbt_reset_arguments      (struct slbt_exec_ctx *);
-slbt_api void slbt_reset_placeholders   (struct slbt_exec_ctx *);
-slbt_api void slbt_disable_placeholders (struct slbt_exec_ctx *);
+/* command execution context api */
+slbt_api int  slbt_ectx_get_exec_ctx    (const struct slbt_driver_ctx *, struct slbt_exec_ctx **);
+slbt_api void slbt_ectx_free_exec_ctx   (struct slbt_exec_ctx *);
+slbt_api void slbt_ectx_reset_argvector (struct slbt_exec_ctx *);
+slbt_api void slbt_ectx_reset_arguments (struct slbt_exec_ctx *);
 
 /* core api */
 slbt_api int  slbt_exec_compile         (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);

@@ -56,7 +56,7 @@ static int slbt_ar_usage(
 	}
 
 	if (ectx)
-		slbt_free_exec_ctx(ectx);
+		slbt_ectx_free_exec_ctx(ectx);
 
 	slbt_argv_free(meta);
 
@@ -69,7 +69,7 @@ static int slbt_exec_ar_fail(
 	int			ret)
 {
 	slbt_argv_free(meta);
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 	return ret;
 }
 
@@ -145,13 +145,13 @@ int slbt_exec_ar(
 	/* context */
 	if (ectx)
 		actx = 0;
-	else if ((ret = slbt_get_exec_ctx(dctx,&ectx)))
+	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
 		return ret;
 	else
 		actx = ectx;
 
 	/* initial state, ar mode skin */
-	slbt_reset_arguments(ectx);
+	slbt_ectx_reset_arguments(ectx);
 	slbt_disable_placeholders(ectx);
 
 	ictx  = slbt_get_driver_ictx(dctx);
@@ -289,7 +289,7 @@ int slbt_exec_ar(
 	/* defer --version printing to slbt_main() as needed */
 	if (cctx->drvflags & SLBT_DRIVER_VERSION) {
 		slbt_argv_free(meta);
-		slbt_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(actx);
 		return SLBT_OK;
 	}
 
@@ -404,7 +404,7 @@ int slbt_exec_ar(
 	free(arctxv);
 
 	slbt_argv_free(meta);
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 
 	return ret;
 }

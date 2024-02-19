@@ -55,7 +55,7 @@ static int slbt_exec_uninstall_fail(
 	int			ret)
 {
 	slbt_argv_free(meta);
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 	return ret;
 }
 
@@ -285,13 +285,13 @@ int slbt_exec_uninstall(
 	/* context */
 	if (ectx)
 		actx = 0;
-	else if ((ret = slbt_get_exec_ctx(dctx,&ectx)))
+	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
 		return ret;
 	else
 		actx = ectx;
 
 	/* initial state, uninstall mode skin */
-	slbt_reset_arguments(ectx);
+	slbt_ectx_reset_arguments(ectx);
 	slbt_disable_placeholders(ectx);
 	iargv = ectx->cargv;
 	fdout = slbt_driver_fdout(dctx);
@@ -378,7 +378,7 @@ int slbt_exec_uninstall(
 					SLBT_NESTED_ERROR(dctx));
 
 	slbt_argv_free(meta);
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 
 	return 0;
 }

@@ -168,7 +168,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 }
 
 
-int  slbt_get_exec_ctx(
+int  slbt_ectx_get_exec_ctx(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx **		ectx)
 {
@@ -524,7 +524,7 @@ int  slbt_get_exec_ctx(
 }
 
 
-static int slbt_free_exec_ctx_impl(
+static int slbt_ectx_free_exec_ctx_impl(
 	struct slbt_exec_ctx_impl *	ictx,
 	int				status)
 {
@@ -539,7 +539,7 @@ static int slbt_free_exec_ctx_impl(
 }
 
 
-void slbt_free_exec_ctx(struct slbt_exec_ctx * ctx)
+void slbt_ectx_free_exec_ctx(struct slbt_exec_ctx * ctx)
 {
 	struct slbt_exec_ctx_impl *	ictx;
 	uintptr_t			addr;
@@ -547,12 +547,12 @@ void slbt_free_exec_ctx(struct slbt_exec_ctx * ctx)
 	if (ctx) {
 		addr = (uintptr_t)ctx - offsetof(struct slbt_exec_ctx_impl,ctx);
 		ictx = (struct slbt_exec_ctx_impl *)addr;
-		slbt_free_exec_ctx_impl(ictx,0);
+		slbt_ectx_free_exec_ctx_impl(ictx,0);
 	}
 }
 
 
-void slbt_reset_arguments(struct slbt_exec_ctx * ectx)
+void slbt_ectx_reset_arguments(struct slbt_exec_ctx * ectx)
 {
 	struct slbt_exec_ctx_impl *	ictx;
 	uintptr_t			addr;
@@ -563,7 +563,7 @@ void slbt_reset_arguments(struct slbt_exec_ctx * ectx)
 }
 
 
-void slbt_reset_argvector(struct slbt_exec_ctx * ectx)
+void slbt_ectx_reset_argvector(struct slbt_exec_ctx * ectx)
 {
 	struct slbt_exec_ctx_impl *	ictx;
 	uintptr_t			addr;
@@ -586,7 +586,7 @@ void slbt_reset_argvector(struct slbt_exec_ctx * ectx)
 }
 
 
-void slbt_reset_placeholders(struct slbt_exec_ctx * ectx)
+slbt_hidden void slbt_reset_placeholders(struct slbt_exec_ctx * ectx)
 {
 	*ectx->dpic = "-USLIBTOOL_PLACEHOLDER_DPIC";
 	*ectx->fpic = "-USLIBTOOL_PLACEHOLDER_FPIC";
@@ -610,7 +610,7 @@ void slbt_reset_placeholders(struct slbt_exec_ctx * ectx)
 	*ectx->sentinel= 0;
 }
 
-void slbt_disable_placeholders(struct slbt_exec_ctx * ectx)
+slbt_hidden void slbt_disable_placeholders(struct slbt_exec_ctx * ectx)
 {
 	*ectx->dpic = 0;
 	*ectx->fpic = 0;

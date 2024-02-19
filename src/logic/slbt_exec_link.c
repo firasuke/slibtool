@@ -153,7 +153,7 @@ int slbt_exec_link(
 	/* context */
 	if (ectx)
 		actx = 0;
-	else if ((ret = slbt_get_exec_ctx(dctx,&ectx)))
+	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
 		return SLBT_NESTED_ERROR(dctx);
 	else
 		actx = ectx;
@@ -170,7 +170,7 @@ int slbt_exec_link(
 				dctx->cctx->verinfo.minor,
 				dctx->cctx->verinfo.revision,
 				dctx->cctx->settings.osdfussix) < 0) {
-		slbt_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(actx);
 		return SLBT_BUFFER_ERROR(dctx);
 	}
 
@@ -203,14 +203,14 @@ int slbt_exec_link(
 	/* .libs directory */
 	if (slbt_mkdir(dctx,ectx->ldirname)) {
 		ret = SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
-		slbt_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(actx);
 		return ret;
 	}
 
 	/* non-pic libfoo.a */
 	if (dot && !strcmp(dot,".a"))
 		if (slbt_exec_link_create_archive(dctx,ectx,output,false)) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
@@ -246,7 +246,7 @@ int slbt_exec_link(
 				dctx,ectx,
 				ectx->arfilename,
 				fpic)) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
@@ -305,11 +305,11 @@ int slbt_exec_link(
 						ectx->dsobasename,
 						ectx->dsofilename,
 						ectx->relfilename)) {
-					slbt_free_exec_ctx(actx);
+					slbt_ectx_free_exec_ctx(actx);
 					return SLBT_NESTED_ERROR(dctx);
 				}
 
-				slbt_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(actx);
 				return 0;
 			}
 		}
@@ -371,7 +371,7 @@ int slbt_exec_link(
 				ectx->dsobasename,
 				ectx->dsofilename,
 				ectx->relfilename)) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
@@ -380,7 +380,7 @@ int slbt_exec_link(
 			if (slbt_exec_link_create_library_symlink(
 					dctx,ectx,
 					true)) {
-				slbt_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(actx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 
@@ -388,7 +388,7 @@ int slbt_exec_link(
 			if (slbt_exec_link_create_library_symlink(
 					dctx,ectx,
 					false)) {
-				slbt_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(actx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		} else if (ectx->relfilename) {
@@ -396,7 +396,7 @@ int slbt_exec_link(
 			if (slbt_exec_link_create_library_symlink(
 					dctx,ectx,
 					false)) {
-				slbt_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(actx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		}
@@ -442,14 +442,14 @@ int slbt_exec_link(
 		if (slbt_exec_link_create_executable(
 				dctx,ectx,
 				ectx->exefilename)) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 	}
 
 	/* no wrapper? */
 	if (!dot || strcmp(dot,".la")) {
-		slbt_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(actx);
 		return 0;
 	}
 
@@ -457,7 +457,7 @@ int slbt_exec_link(
 	if (slbt_create_library_wrapper(
 			dctx,ectx,
 			arname,soname,soxyz,solnk)) {
-		slbt_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(actx);
 		return SLBT_NESTED_ERROR(dctx);
 	}
 
@@ -479,7 +479,7 @@ int slbt_exec_link(
 			SLBT_NESTED_ERROR(dctx);
 
 	/* all done */
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 
 	return ret;
 }

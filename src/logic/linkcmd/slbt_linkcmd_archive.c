@@ -90,7 +90,7 @@ slbt_hidden int slbt_exec_link_create_archive(
 				dctx,ectx,arfilename);
 
 	/* initial state */
-	slbt_reset_arguments(ectx);
+	slbt_ectx_reset_arguments(ectx);
 
 	/* placeholders */
 	slbt_reset_placeholders(ectx);

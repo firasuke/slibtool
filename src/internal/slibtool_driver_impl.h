@@ -282,6 +282,11 @@ int slbt_init_ldrpath(
 	struct slbt_host_params * host);
 
 
+void slbt_reset_placeholders   (struct slbt_exec_ctx *);
+
+void slbt_disable_placeholders (struct slbt_exec_ctx *);
+
+
 static inline struct slbt_archive_ctx_impl * slbt_get_archive_ictx(const struct slbt_archive_ctx * actx)
 {
 	uintptr_t addr;

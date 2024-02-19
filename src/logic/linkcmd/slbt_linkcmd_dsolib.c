@@ -74,7 +74,7 @@ slbt_hidden int slbt_exec_link_create_library(
 	struct slbt_deps_meta   depsmeta = {0,0,0,0};
 
 	/* initial state */
-	slbt_reset_arguments(ectx);
+	slbt_ectx_reset_arguments(ectx);
 
 	/* placeholders */
 	slbt_reset_placeholders(ectx);

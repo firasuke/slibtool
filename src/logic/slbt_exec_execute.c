@@ -38,7 +38,7 @@ int  slbt_exec_execute(
 	/* context */
 	if (ectx)
 		slbt_disable_placeholders(ectx);
-	else if ((ret = slbt_get_exec_ctx(dctx,&ectx)))
+	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
 		return ret;
 	else {
 		actx = ectx;
@@ -64,7 +64,7 @@ int  slbt_exec_execute(
 		if (slbt_snprintf(wrapper,sizeof(wrapper),
 					"%s.exe.wrapper",
 					exeref) < 0) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_BUFFER_ERROR(dctx);
 		}
 
@@ -91,12 +91,12 @@ int  slbt_exec_execute(
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
 		if (slbt_output_execute(dctx,ectx)) {
-			slbt_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
 	execvp(ectx->cargv[0],ectx->argv);
 
-	slbt_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(actx);
 	return SLBT_SYSTEM_ERROR(dctx,0);
 }
