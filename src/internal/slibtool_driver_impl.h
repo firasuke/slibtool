@@ -334,42 +334,42 @@ static inline char ** slbt_driver_envp(const struct slbt_driver_ctx * dctx)
 static inline int slbt_driver_fdin(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fdin;
 }
 
 static inline int slbt_driver_fdout(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fdout;
 }
 
 static inline int slbt_driver_fderr(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fderr;
 }
 
 static inline int slbt_driver_fdlog(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fdlog;
 }
 
 static inline int slbt_driver_fdcwd(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fdcwd;
 }
 
 static inline int slbt_driver_fddst(const struct slbt_driver_ctx * dctx)
 {
 	struct slbt_fd_ctx fdctx;
-	slbt_get_driver_fdctx(dctx,&fdctx);
+	slbt_lib_get_driver_fdctx(dctx,&fdctx);
 	return fdctx.fddst;
 }
 

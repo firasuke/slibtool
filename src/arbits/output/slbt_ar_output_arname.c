@@ -67,7 +67,7 @@ int slbt_au_output_arname(const struct slbt_archive_ctx * actx)
 
 	dctx = (slbt_get_archive_ictx(actx))->dctx;
 
-	if (slbt_get_driver_fdctx(dctx,&fdctx) < 0)
+	if (slbt_lib_get_driver_fdctx(dctx,&fdctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {

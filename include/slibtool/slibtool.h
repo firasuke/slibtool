@@ -346,14 +346,14 @@ slbt_api int  slbt_map_input            (const struct slbt_driver_ctx *,
 slbt_api int  slbt_unmap_input          (struct slbt_input *);
 
 /* driver api */
-slbt_api int  slbt_get_driver_ctx       (char ** argv, char ** envp, uint64_t flags,
+slbt_api int  slbt_lib_get_driver_ctx   (char ** argv, char ** envp, uint64_t flags,
                                          const struct slbt_fd_ctx *,
                                          struct slbt_driver_ctx **);
 
-slbt_api void slbt_free_driver_ctx      (struct slbt_driver_ctx *);
+slbt_api void slbt_lib_free_driver_ctx  (struct slbt_driver_ctx *);
 
-slbt_api int  slbt_get_driver_fdctx     (const struct slbt_driver_ctx *, struct slbt_fd_ctx *);
-slbt_api int  slbt_set_driver_fdctx     (struct slbt_driver_ctx *, const struct slbt_fd_ctx *);
+slbt_api int  slbt_lib_get_driver_fdctx (const struct slbt_driver_ctx *, struct slbt_fd_ctx *);
+slbt_api int  slbt_lib_set_driver_fdctx (struct slbt_driver_ctx *, const struct slbt_fd_ctx *);
 
 /* command execution context api */
 slbt_api int  slbt_ectx_get_exec_ctx    (const struct slbt_driver_ctx *, struct slbt_exec_ctx **);

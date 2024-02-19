@@ -82,7 +82,7 @@ int slbt_au_output_symbols(const struct slbt_archive_meta * meta)
 	mctx = slbt_archive_meta_ictx(meta);
 	dctx = (slbt_archive_meta_ictx(meta))->dctx;
 
-	if (slbt_get_driver_fdctx(dctx,&fdctx) < 0)
+	if (slbt_lib_get_driver_fdctx(dctx,&fdctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	if (!meta->a_memberv)

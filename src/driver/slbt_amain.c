@@ -90,7 +90,7 @@ static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 static int slbt_exit(struct slbt_driver_ctx * dctx, int ret)
 {
 	slbt_output_error_vector(dctx);
-	slbt_free_driver_ctx(dctx);
+	slbt_lib_free_driver_ctx(dctx);
 	return ret;
 }
 
@@ -169,7 +169,7 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
                           | SLBT_DRIVER_LEGABITS);
 
 	/* driver context */
-	if ((ret = slbt_get_driver_ctx(argv,envp,flags|noclr,fdctx,&dctx)))
+	if ((ret = slbt_lib_get_driver_ctx(argv,envp,flags|noclr,fdctx,&dctx)))
 		return (ret == SLBT_USAGE)
 			? !argv || !argv[0] || !argv[1] || !argv[2]
 			: SLBT_ERROR;
