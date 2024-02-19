@@ -387,7 +387,7 @@ static int slbt_lconf_trace_result_plain(
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_util_realpath(fdat,lconf,0,path,sizeof(path)))
+	cpath = !(slbt_util_real_path(fdat,lconf,0,path,sizeof(path)))
 		? path : lconf;
 
 	switch (err) {
@@ -435,7 +435,7 @@ static int slbt_lconf_trace_result_annotated(
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_util_realpath(fdat,lconf,0,path,sizeof(path)))
+	cpath = !(slbt_util_real_path(fdat,lconf,0,path,sizeof(path)))
 		? path : lconf;
 
 	switch (err) {

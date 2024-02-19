@@ -380,7 +380,7 @@ slbt_api int  slbt_util_import_archive  (const struct slbt_driver_ctx *, struct 
 slbt_api int  slbt_util_copy_file       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
                                          char * src, char * dst);
 slbt_api int  slbt_util_dump_machine    (const char * compiler, char * machine, size_t bufsize);
-slbt_api int  slbt_util_realpath        (int, const char *, int, char *, size_t);
+slbt_api int  slbt_util_real_path       (int, const char *, int, char *, size_t);
 
 /* archiver api */
 slbt_api int  slbt_ar_get_archive_ctx   (const struct slbt_driver_ctx *, const char * path,

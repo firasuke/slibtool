@@ -136,7 +136,7 @@ slbt_hidden int slbt_exec_link_create_executable(
 	verinfo = slbt_api_source_version();
 
 	/* cwd, DL_PATH fixup */
-	if (slbt_util_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
+	if (slbt_util_real_path(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	slbt_emit_fdwrap_dl_path_fixup(

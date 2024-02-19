@@ -30,7 +30,7 @@
 extern long syscall(int, ...);
 #endif
 
-int slbt_util_realpath(
+int slbt_util_real_path(
 	int             fdat,
 	const char *    path,
 	int             options,
