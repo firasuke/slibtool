@@ -18,6 +18,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_realpath_impl.h"
 #include "slibtool_visibility_impl.h"
 
 enum slbt_lconf_opt {
@@ -387,7 +388,7 @@ static int slbt_lconf_trace_result_plain(
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_util_real_path(fdat,lconf,0,path,sizeof(path)))
+	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
 		? path : lconf;
 
 	switch (err) {
@@ -435,7 +436,7 @@ static int slbt_lconf_trace_result_annotated(
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_util_real_path(fdat,lconf,0,path,sizeof(path)))
+	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
 		? path : lconf;
 
 	switch (err) {

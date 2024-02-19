@@ -13,6 +13,7 @@
 
 #include "slibtool_driver_impl.h"
 #include "slibtool_dprintf_impl.h"
+#include "slibtool_realpath_impl.h"
 
 static const char aclr_reset[]   = "\x1b[0m";
 static const char aclr_bold[]    = "\x1b[1m";
@@ -36,7 +37,7 @@ static int slbt_output_fdcwd_plain(const struct slbt_driver_ctx * dctx)
 		sprintf(scwd,"%d",fdcwd);
 	}
 
-	if (slbt_util_real_path(fdcwd,".",0,path,sizeof(path)) < 0) {
+	if (slbt_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
 		ferror = 1;
 		memset(path,0,sizeof(path));
 		strerror_r(errno,path,sizeof(path));
@@ -72,7 +73,7 @@ static int slbt_output_fdcwd_annotated(const struct slbt_driver_ctx * dctx)
 		sprintf(scwd,"%d",fdcwd);
 	}
 
-	if (slbt_util_real_path(fdcwd,".",0,path,sizeof(path)) < 0) {
+	if (slbt_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
 		ferror = 1;
 		memset(path,0,sizeof(path));
 		strerror_r(errno,path,sizeof(path));

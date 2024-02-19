@@ -17,6 +17,7 @@
 #include "slibtool_linkcmd_impl.h"
 #include "slibtool_mapfile_impl.h"
 #include "slibtool_metafile_impl.h"
+#include "slibtool_realpath_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_spawn_impl.h"
@@ -243,7 +244,7 @@ slbt_hidden int slbt_exec_link_create_library(
 	}
 
 	/* cwd */
-	if (slbt_util_real_path(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
+	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */

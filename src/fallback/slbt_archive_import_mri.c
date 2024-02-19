@@ -42,7 +42,7 @@ static char * slbt_mri_argument(
 	if (arg[0] == '/') {
 		target = arg;
 	} else {
-		if (slbt_util_real_path(
+		if (slbt_realpath(
 				fdat,".",O_DIRECTORY,
 				mricwd,sizeof(mricwd)) < 0)
 			return 0;
