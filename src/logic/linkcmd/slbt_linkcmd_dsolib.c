@@ -243,7 +243,7 @@ slbt_hidden int slbt_exec_link_create_library(
 	}
 
 	/* cwd */
-	if (slbt_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
+	if (slbt_util_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	/* .libs/libfoo.so --> -L.libs -lfoo */

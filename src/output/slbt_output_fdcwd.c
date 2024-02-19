@@ -36,7 +36,7 @@ static int slbt_output_fdcwd_plain(const struct slbt_driver_ctx * dctx)
 		sprintf(scwd,"%d",fdcwd);
 	}
 
-	if (slbt_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
+	if (slbt_util_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
 		ferror = 1;
 		memset(path,0,sizeof(path));
 		strerror_r(errno,path,sizeof(path));
@@ -72,7 +72,7 @@ static int slbt_output_fdcwd_annotated(const struct slbt_driver_ctx * dctx)
 		sprintf(scwd,"%d",fdcwd);
 	}
 
-	if (slbt_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
+	if (slbt_util_realpath(fdcwd,".",0,path,sizeof(path)) < 0) {
 		ferror = 1;
 		memset(path,0,sizeof(path));
 		strerror_r(errno,path,sizeof(path));

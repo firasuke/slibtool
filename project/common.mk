@@ -18,11 +18,11 @@ API_SRCS = \
 	src/driver/slbt_link_params.c \
 	src/driver/slbt_split_argv.c \
 	src/driver/slbt_version_info.c \
-	src/helper/slbt_archive_import.c \
-	src/helper/slbt_copy_file.c \
-	src/helper/slbt_dump_machine.c \
-	src/helper/slbt_map_input.c \
-	src/helper/slbt_realpath.c \
+	src/util/slbt_archive_import.c \
+	src/util/slbt_copy_file.c \
+	src/util/slbt_dump_machine.c \
+	src/util/slbt_map_input.c \
+	src/util/slbt_realpath.c \
 	src/logic/slbt_exec_ar.c \
 	src/logic/slbt_exec_compile.c \
 	src/logic/slbt_exec_ctx.c \

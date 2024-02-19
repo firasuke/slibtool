@@ -10,14 +10,14 @@
 #include "slibtool_errinfo_impl.h"
 
 /* legacy fallback, no longer in use */
-extern int slbt_archive_import_mri(
+extern int slbt_util_import_archive_mri(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				dstarchive,
 	char *				srcarchive);
 
 /* use slibtool's in-memory archive merging facility */
-static int slbt_archive_import_impl(
+static int slbt_util_import_archive_impl(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				dstarchive,
@@ -51,7 +51,7 @@ static int slbt_archive_import_impl(
 }
 
 
-int slbt_archive_import(
+int slbt_util_import_archive(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				dstarchive,
@@ -62,7 +62,7 @@ int slbt_archive_import(
 			srcarchive))
 		return 0;
 
-	return slbt_archive_import_impl(
+	return slbt_util_import_archive_impl(
 		dctx,ectx,
 		dstarchive,
 		srcarchive);

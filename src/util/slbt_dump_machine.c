@@ -17,7 +17,7 @@
 #include "slibtool_spawn_impl.h"
 #include "slibtool_snprintf_impl.h"
 
-static void slbt_dump_machine_child(
+static void slbt_util_dump_machine_child(
 	char *	program,
 	int	fd[2])
 {
@@ -43,7 +43,7 @@ static void slbt_dump_machine_child(
 	_exit(EXIT_FAILURE);
 }
 
-int slbt_dump_machine(
+int slbt_util_dump_machine(
 	const char *	compiler,
 	char *		machine,
 	size_t		buflen)
@@ -78,7 +78,7 @@ int slbt_dump_machine(
 
 	/* child */
 	if (pid == 0)
-		slbt_dump_machine_child(
+		slbt_util_dump_machine_child(
 			program,
 			fd);
 

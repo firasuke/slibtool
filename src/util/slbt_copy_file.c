@@ -10,7 +10,7 @@
 #include "slibtool_symlink_impl.h"
 #include "slibtool_errinfo_impl.h"
 
-int slbt_copy_file(
+int slbt_util_copy_file(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				src,

@@ -209,7 +209,7 @@ slbt_hidden int slbt_init_host_params(
 		host->host    = drvhost->machine;
 		cfgmeta->host = cfgnmachine;
 
-	} else if (slbt_dump_machine(cctx->cargv[0],buf,sizeof(buf)) < 0) {
+	} else if (slbt_util_dump_machine(cctx->cargv[0],buf,sizeof(buf)) < 0) {
 		if (dctx)
 			slbt_dprintf(
 				slbt_driver_fderr(dctx),

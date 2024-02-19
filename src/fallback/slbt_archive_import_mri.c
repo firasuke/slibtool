@@ -42,7 +42,7 @@ static char * slbt_mri_argument(
 	if (arg[0] == '/') {
 		target = arg;
 	} else {
-		if (slbt_realpath(
+		if (slbt_util_realpath(
 				fdat,".",O_DIRECTORY,
 				mricwd,sizeof(mricwd)) < 0)
 			return 0;
@@ -81,7 +81,7 @@ static char * slbt_mri_argument(
 	return lnk;
 }
 
-static void slbt_archive_import_child(
+static void slbt_util_import_archive_child(
 	char *	program,
 	int	fd[2])
 {
@@ -99,7 +99,7 @@ static void slbt_archive_import_child(
 	_exit(EXIT_FAILURE);
 }
 
-int slbt_archive_import_mri(
+int slbt_util_import_archive_mri(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	char *				dstarchive,
@@ -140,7 +140,7 @@ int slbt_archive_import_mri(
 
 	/* child */
 	if (pid == 0)
-		slbt_archive_import_child(
+		slbt_util_import_archive_child(
 			program,
 			fd);
 
