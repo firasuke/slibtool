@@ -353,6 +353,7 @@ slbt_api int  slbt_lib_get_driver_ctx   (char ** argv, char ** envp, uint64_t fl
 slbt_api void slbt_lib_free_driver_ctx  (struct slbt_driver_ctx *);
 
 slbt_api int  slbt_lib_get_driver_fdctx (const struct slbt_driver_ctx *, struct slbt_fd_ctx *);
+
 slbt_api int  slbt_lib_set_driver_fdctx (struct slbt_driver_ctx *, const struct slbt_fd_ctx *);
 
 /* command execution context api */
@@ -369,7 +370,9 @@ slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *, struct 
 slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 
+/* host and flavor interfaces */
 slbt_api int  slbt_host_set_althost     (const struct slbt_driver_ctx *, const char * host, const char * flavor);
+
 slbt_api void slbt_host_reset_althost   (const struct slbt_driver_ctx *);
 
 slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_settings **);
@@ -377,9 +380,12 @@ slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_
 /* utility helper interfaces */
 slbt_api int  slbt_util_import_archive  (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
                                          char * dstarchive, char * srcarchive);
+
 slbt_api int  slbt_util_copy_file       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
                                          char * src, char * dst);
+
 slbt_api int  slbt_util_dump_machine    (const char * compiler, char * machine, size_t bufsize);
+
 slbt_api int  slbt_util_real_path       (int, const char *, int, char *, size_t);
 
 /* archiver api */
