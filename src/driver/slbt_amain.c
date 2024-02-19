@@ -41,7 +41,7 @@ static ssize_t slbt_version(struct slbt_driver_ctx * dctx, int fdout)
 	const char * const * verclr;
 	bool gitver;
 
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 	verclr  = isatty(fdout) ? slbt_ver_color : slbt_ver_plain;
 	gitver  = strcmp(verinfo->commit,"unknown");
 

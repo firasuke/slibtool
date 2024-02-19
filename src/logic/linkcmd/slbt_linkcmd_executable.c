@@ -133,7 +133,7 @@ slbt_hidden int slbt_exec_link_create_executable(
 	slbt_exec_set_fdwrapper(ectx,fdwrap);
 
 	/* executable wrapper: header */
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 
 	/* cwd, DL_PATH fixup */
 	if (slbt_util_realpath(fdcwd,".",O_DIRECTORY,cwd,sizeof(cwd)))

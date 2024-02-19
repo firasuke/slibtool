@@ -28,7 +28,7 @@ static int  slbt_create_default_object_wrapper(
 			0644)) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,ectx->ltobjname);
 
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 
 	ret = slbt_dprintf(fdout,
 		"# libtool compatible object wrapper\n"
@@ -69,7 +69,7 @@ static int  slbt_create_compatible_object_wrapper(
 			0644)) < 0)
 		return SLBT_SYSTEM_ERROR(dctx, ectx->ltobjname);
 
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 
 	ret = slbt_dprintf(fdout,
 		"# %s - a libtool object file\n"

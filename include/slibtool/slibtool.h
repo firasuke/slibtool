@@ -427,7 +427,7 @@ slbt_api int  slbt_au_output_symbols    (const struct slbt_archive_meta *);
 slbt_api int  slbt_au_output_mapfile    (const struct slbt_archive_meta *);
 
 /* package info */
-slbt_api const struct slbt_source_version * slbt_source_version(void);
+slbt_api const struct slbt_source_version * slbt_api_source_version(void);
 
 #ifdef __cplusplus
 }

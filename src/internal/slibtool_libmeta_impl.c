@@ -55,7 +55,7 @@ static int  slbt_create_default_library_wrapper(
 
 	fnover  = !!(dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION);
 	fvernum = !!(dctx->cctx->verinfo.vernumber);
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 
 	/* wrapper header */
 	header = "libtool compatible library wrapper\n";
@@ -174,7 +174,7 @@ static int  slbt_create_compatible_library_wrapper(
 
 	fnover  = !!(dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION);
 	fvernum = !!(dctx->cctx->verinfo.vernumber);
-	verinfo = slbt_source_version();
+	verinfo = slbt_api_source_version();
 
 	/* wrapper content */
 	ret = slbt_dprintf(fdout,

@@ -1035,7 +1035,7 @@ void slbt_lib_free_driver_ctx(struct slbt_driver_ctx * ctx)
 }
 
 
-const struct slbt_source_version * slbt_source_version(void)
+const struct slbt_source_version * slbt_api_source_version(void)
 {
 	return &slbt_src_version;
 }
