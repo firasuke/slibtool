@@ -4,6 +4,7 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <slibtool/slibtool.h>
 #include "slibtool_realpath_impl.h"
 
 int slbt_util_real_path(
