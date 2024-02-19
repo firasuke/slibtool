@@ -16,7 +16,7 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
 
-int slbt_map_input(
+int slbt_fs_map_input(
 	const struct slbt_driver_ctx *	dctx,
 	int				fd,
 	const char *			path,
@@ -61,7 +61,7 @@ int slbt_map_input(
 		: 0;
 }
 
-int slbt_unmap_input(struct slbt_input * map)
+int slbt_fs_unmap_input(struct slbt_input * map)
 {
 	return map->size ? munmap(map->addr,map->size) : 0;
 }

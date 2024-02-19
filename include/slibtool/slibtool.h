@@ -339,11 +339,11 @@ struct slbt_archive_ctx {
 };
 
 /* raw input api */
-slbt_api int  slbt_map_input            (const struct slbt_driver_ctx *,
+slbt_api int  slbt_fs_map_input         (const struct slbt_driver_ctx *,
                                          int, const char *, int,
                                          struct slbt_input *);
 
-slbt_api int  slbt_unmap_input          (struct slbt_input *);
+slbt_api int  slbt_fs_unmap_input       (struct slbt_input *);
 
 /* driver api */
 slbt_api int  slbt_lib_get_driver_ctx   (char ** argv, char ** envp, uint64_t flags,

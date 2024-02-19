@@ -23,7 +23,7 @@ static int slbt_map_raw_archive(
 {
 	struct slbt_input mapinfo = {0,0};
 
-	if (slbt_map_input(dctx,fd,path,prot,&mapinfo) < 0)
+	if (slbt_fs_map_input(dctx,fd,path,prot,&mapinfo) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	if (mapinfo.size == 0)
@@ -44,7 +44,7 @@ static int slbt_unmap_raw_archive(struct slbt_raw_archive * map)
 	mapinfo.addr = map->map_addr;
 	mapinfo.size = map->map_size;
 
-	return slbt_unmap_input(&mapinfo);
+	return slbt_fs_unmap_input(&mapinfo);
 }
 
 static int slbt_ar_free_archive_ctx_impl(struct slbt_archive_ctx_impl * ctx, int ret)
