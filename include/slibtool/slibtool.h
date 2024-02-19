@@ -338,6 +338,11 @@ struct slbt_archive_ctx {
 	void *				any;
 };
 
+struct slbt_symlist_ctx {
+	const char * const *            path;
+	const char **                   symstrv;
+};
+
 /* raw input api */
 slbt_api int  slbt_fs_map_input         (const struct slbt_driver_ctx *,
                                          int, const char *, int,
@@ -355,6 +360,10 @@ slbt_api void slbt_lib_free_driver_ctx  (struct slbt_driver_ctx *);
 slbt_api int  slbt_lib_get_driver_fdctx (const struct slbt_driver_ctx *, struct slbt_fd_ctx *);
 
 slbt_api int  slbt_lib_set_driver_fdctx (struct slbt_driver_ctx *, const struct slbt_fd_ctx *);
+
+slbt_api int  slbt_lib_get_symlist_ctx  (const struct slbt_driver_ctx *, const char *, struct slbt_symlist_ctx **);
+
+slbt_api void slbt_lib_free_symlist_ctx (struct slbt_symlist_ctx *);
 
 /* command execution context api */
 slbt_api int  slbt_ectx_get_exec_ctx    (const struct slbt_driver_ctx *, struct slbt_exec_ctx **);

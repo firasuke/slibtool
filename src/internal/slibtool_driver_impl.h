@@ -185,6 +185,15 @@ struct slbt_archive_ctx_impl {
 	struct slbt_archive_ctx		actx;
 };
 
+struct slbt_symlist_ctx_impl {
+	const struct slbt_driver_ctx *	dctx;
+	const char *                    path;
+	char *                          pathbuf;
+	char *                          symstrs;
+	const char **                   symstrv;
+	struct slbt_symlist_ctx         sctx;
+};
+
 
 const char * slbt_program_name(const char *);
 
