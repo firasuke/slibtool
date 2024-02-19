@@ -537,7 +537,7 @@ static int slbt_exec_install_entry(
 
 	/* symlink-based alternate host */
 	if (!fstatic) {
-		if (slbt_set_alternate_host(dctx,host,host))
+		if (slbt_host_set_althost(dctx,host,host))
 			return SLBT_NESTED_ERROR(dctx);
 
 		fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");

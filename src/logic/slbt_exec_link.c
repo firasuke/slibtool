@@ -254,7 +254,7 @@ int slbt_exec_link(
 	if (fstaticonly && dot && !strcmp(dot,".la")) {
 		const struct slbt_flavor_settings * dflavor;
 
-		if (slbt_get_flavor_settings("default",&dflavor) < 0)
+		if (slbt_host_flavor_settings("default",&dflavor) < 0)
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
 
 		if (strcmp(dctx->cctx->settings.dsosuffix,dflavor->dsosuffix)) {
@@ -319,7 +319,7 @@ int slbt_exec_link(
 	if (dot && !strcmp(dot,".la") && dctx->cctx->rpath && !fstaticonly) {
 		const struct slbt_flavor_settings * dflavor;
 
-		if (slbt_get_flavor_settings("default",&dflavor) < 0)
+		if (slbt_host_flavor_settings("default",&dflavor) < 0)
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LINK_FLOW);
 
 		/* -shrext support */

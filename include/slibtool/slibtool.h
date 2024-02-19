@@ -369,10 +369,10 @@ slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *, struct 
 slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
 
-slbt_api int  slbt_set_alternate_host   (const struct slbt_driver_ctx *, const char * host, const char * flavor);
-slbt_api void slbt_reset_alternate_host (const struct slbt_driver_ctx *);
+slbt_api int  slbt_host_set_althost     (const struct slbt_driver_ctx *, const char * host, const char * flavor);
+slbt_api void slbt_host_reset_althost   (const struct slbt_driver_ctx *);
 
-slbt_api int  slbt_get_flavor_settings  (const char *, const struct slbt_flavor_settings **);
+slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_settings **);
 
 /* utility helper interfaces */
 slbt_api int  slbt_util_import_archive  (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,

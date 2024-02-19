@@ -624,7 +624,7 @@ slbt_hidden int slbt_init_ldrpath(
 }
 
 
-void slbt_reset_alternate_host(const struct slbt_driver_ctx * ctx)
+void slbt_host_reset_althost(const struct slbt_driver_ctx * ctx)
 {
 	struct slbt_driver_ctx_alloc *	ictx;
 	uintptr_t			addr;
@@ -636,7 +636,7 @@ void slbt_reset_alternate_host(const struct slbt_driver_ctx * ctx)
 	slbt_free_host_params(&ictx->ctx.ahost);
 }
 
-int  slbt_set_alternate_host(
+int  slbt_host_set_althost(
 	const struct slbt_driver_ctx *	ctx,
 	const char *			host,
 	const char *			flavor)
@@ -686,7 +686,7 @@ int  slbt_set_alternate_host(
 	return 0;
 }
 
-int slbt_get_flavor_settings(
+int slbt_host_flavor_settings(
 	const char *                            flavor,
 	const struct slbt_flavor_settings **    settings)
 {
