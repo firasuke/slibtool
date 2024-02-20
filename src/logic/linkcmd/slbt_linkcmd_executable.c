@@ -118,7 +118,7 @@ slbt_hidden int slbt_exec_link_create_executable(
 
 	/* --no-undefined */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_NO_UNDEFINED)
-		*ectx->noundef = !strcmp(dctx->cctx->host.flavor,"darwin")
+		*ectx->noundef = slbt_host_group_is_darwin(dctx)
 			? "-Wl,-undefined,error"
 			: "-Wl,--no-undefined";
 
