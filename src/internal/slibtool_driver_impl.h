@@ -320,6 +320,18 @@ static inline struct slbt_driver_ctx_impl * slbt_get_driver_ictx(const struct sl
 	return 0;
 }
 
+static inline struct slbt_symlist_ctx_impl * slbt_get_symlist_ictx(const struct slbt_symlist_ctx * sctx)
+{
+	uintptr_t addr;
+
+	if (sctx) {
+		addr = (uintptr_t)sctx - offsetof(struct slbt_symlist_ctx_impl,sctx);
+		return (struct slbt_symlist_ctx_impl *)addr;
+	}
+
+	return 0;
+}
+
 static inline void slbt_driver_set_arctx(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * arctx,
