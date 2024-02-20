@@ -263,7 +263,7 @@ slbt_hidden int slbt_exec_link_create_library(
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-		if (slbt_output_link(dctx,ectx))
+		if (slbt_output_link(ectx))
 			return slbt_linkcmd_exit(
 				&depsmeta,
 				SLBT_NESTED_ERROR(dctx));

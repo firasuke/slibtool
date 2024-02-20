@@ -90,7 +90,7 @@ int  slbt_exec_execute(
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-		if (slbt_output_execute(dctx,ectx)) {
+		if (slbt_output_execute(ectx)) {
 			slbt_ectx_free_exec_ctx(actx);
 			return SLBT_NESTED_ERROR(dctx);
 		}

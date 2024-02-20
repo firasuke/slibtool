@@ -84,7 +84,7 @@ static int slbt_exec_uninstall_fs_entry(
 	*parg = path;
 
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-		if (slbt_output_uninstall(dctx,ectx))
+		if (slbt_output_uninstall(ectx))
 			return SLBT_NESTED_ERROR(dctx);
 
 	/* directory? */

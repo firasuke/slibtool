@@ -104,12 +104,12 @@ slbt_hidden int slbt_create_symlink(
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
 		if (dctx->cctx->mode == SLBT_MODE_LINK) {
-			if (slbt_output_link(dctx,ectx)) {
+			if (slbt_output_link(ectx)) {
 				ectx->argv = oargv;
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		} else {
-			if (slbt_output_install(dctx,ectx)) {
+			if (slbt_output_install(ectx)) {
 				ectx->argv = oargv;
 				return SLBT_NESTED_ERROR(dctx);
 			}

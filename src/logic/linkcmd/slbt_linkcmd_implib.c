@@ -140,7 +140,7 @@ slbt_hidden int slbt_exec_link_create_import_library(
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-		if (slbt_output_link(dctx,ectx))
+		if (slbt_output_link(ectx))
 			return SLBT_NESTED_ERROR(dctx);
 
 	/* dlltool/mdso spawn */

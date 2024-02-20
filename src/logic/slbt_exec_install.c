@@ -397,7 +397,7 @@ static int slbt_exec_install_entry(
 		*dst = dest ? 0 : (char *)last->arg;
 
 		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-			if (slbt_output_install(dctx,ectx))
+			if (slbt_output_install(ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
@@ -586,7 +586,7 @@ static int slbt_exec_install_entry(
 		*dst = dest ? 0 : dstfile;
 
 		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-			if (slbt_output_install(dctx,ectx))
+			if (slbt_output_install(ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
@@ -616,7 +616,7 @@ static int slbt_exec_install_entry(
 	*dst = dest ? 0 : dstfile;
 
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-		if (slbt_output_install(dctx,ectx))
+		if (slbt_output_install(ectx))
 			return SLBT_NESTED_ERROR(dctx);
 
 	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
@@ -901,7 +901,7 @@ int slbt_exec_install(
 
 		/* spawn */
 		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
-			if (slbt_output_install(dctx,ectx))
+			if (slbt_output_install(ectx))
 				return SLBT_NESTED_ERROR(dctx);
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {

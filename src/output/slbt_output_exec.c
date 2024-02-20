@@ -90,11 +90,14 @@ static int slbt_output_exec_plain(
 }
 
 int slbt_output_exec(
-	const struct slbt_driver_ctx *	dctx,
 	const struct slbt_exec_ctx *	ectx,
 	const char *			step)
 {
-	int fdout = slbt_driver_fdout(dctx);
+	const struct slbt_driver_ctx *  dctx;
+	int                             fdout;
+
+	dctx  = (slbt_get_exec_ictx(ectx))->dctx;
+	fdout = slbt_driver_fdout(dctx);
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER)
 		return slbt_output_exec_plain(dctx,ectx,step);
@@ -109,37 +112,27 @@ int slbt_output_exec(
 		return slbt_output_exec_plain(dctx,ectx,step);
 }
 
-int slbt_output_compile(
-	const struct slbt_driver_ctx *	dctx,
-	const struct slbt_exec_ctx *	ectx)
+int slbt_output_compile(const struct slbt_exec_ctx * ectx)
 {
-	return slbt_output_exec(dctx,ectx,"compile");
+	return slbt_output_exec(ectx,"compile");
 }
 
-int slbt_output_execute(
-	const struct slbt_driver_ctx *	dctx,
-	const struct slbt_exec_ctx *	ectx)
+int slbt_output_execute(const struct slbt_exec_ctx * ectx)
 {
-	return slbt_output_exec(dctx,ectx,"execute");
+	return slbt_output_exec(ectx,"execute");
 }
 
-int slbt_output_install(
-	const struct slbt_driver_ctx *	dctx,
-	const struct slbt_exec_ctx *	ectx)
+int slbt_output_install(const struct slbt_exec_ctx * ectx)
 {
-	return slbt_output_exec(dctx,ectx,"install");
+	return slbt_output_exec(ectx,"install");
 }
 
-int slbt_output_link(
-	const struct slbt_driver_ctx *	dctx,
-	const struct slbt_exec_ctx *	ectx)
+int slbt_output_link(const struct slbt_exec_ctx * ectx)
 {
-	return slbt_output_exec(dctx,ectx,"link");
+	return slbt_output_exec(ectx,"link");
 }
 
-int slbt_output_uninstall(
-	const struct slbt_driver_ctx *	dctx,
-	const struct slbt_exec_ctx *	ectx)
+int slbt_output_uninstall(const struct slbt_exec_ctx * ectx)
 {
-	return slbt_output_exec(dctx,ectx,"uninstall");
+	return slbt_output_exec(ectx,"uninstall");
 }

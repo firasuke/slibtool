@@ -230,7 +230,7 @@ int  slbt_exec_compile(
 			return SLBT_NESTED_ERROR(dctx);
 
 		if (!(cctx->drvflags & SLBT_DRIVER_SILENT)) {
-			if (slbt_output_compile(dctx,ectx)) {
+			if (slbt_output_compile(ectx)) {
 				slbt_ectx_free_exec_ctx(actx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
@@ -265,7 +265,7 @@ int  slbt_exec_compile(
 			return SLBT_NESTED_ERROR(dctx);
 
 		if (!(cctx->drvflags & SLBT_DRIVER_SILENT)) {
-			if (slbt_output_compile(dctx,ectx)) {
+			if (slbt_output_compile(ectx)) {
 				slbt_ectx_free_exec_ctx(actx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
