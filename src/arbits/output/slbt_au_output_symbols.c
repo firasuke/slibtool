@@ -35,7 +35,7 @@ static int slbt_au_output_symbols_posix(
 
 	fdout = fdctx->fdout;
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
-	fcoff = (mctx->ofmtattr == AR_OBJECT_ATTR_COFF);
+	fcoff = (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
 
 	if (fsort && !mctx->mapstrv)
 		if (slbt_update_mapstrv(dctx,mctx) < 0)
