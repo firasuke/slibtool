@@ -19,6 +19,11 @@
 	                         | SLBT_PRETTY_POSIX    \
 	                         | SLBT_PRETTY_HEXDATA)
 
+static int slbt_is_strong_coff_symbol(const char * sym)
+{
+	return strncmp(sym,"__imp_",6) && strncmp(sym,".weak.",6);
+}
+
 static int slbt_au_output_symbols_posix(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
@@ -50,7 +55,7 @@ static int slbt_au_output_symbols_posix(
 	symstrv = fsort ? mctx->mapstrv : mctx->symstrv;
 
 	for (symv=symstrv; *symv; symv++)
-		if (!fcoff || strncmp(*symv,"__imp_",6))
+		if (!fcoff || slbt_is_strong_coff_symbol(*symv))
 			if (!regex || !regexec(&regctx,*symv,1,pmatch,0))
 				if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
 					return SLBT_SYSTEM_ERROR(dctx,0);
