@@ -39,12 +39,8 @@ static int slbt_util_output_mapfile_impl(
 	const char **   symv;
 	const char **   symstrv;
 
-	fmach = !strcmp(dctx->cctx->host.flavor,"darwin");
-
-	fcoff = !strcmp(dctx->cctx->host.flavor,"midipix");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"cygwin");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"mingw");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"msys2");
+	fcoff = slbt_host_objfmt_is_coff(dctx);
+	fmach = slbt_host_objfmt_is_macho(dctx);
 
 	if (fcoff) {
 		if (slbt_dprintf(fdout,"EXPORTS\n") < 0)
