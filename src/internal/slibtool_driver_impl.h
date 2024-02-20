@@ -135,27 +135,28 @@ struct slbt_obj_list {
 };
 
 struct slbt_driver_ctx_impl {
-	struct slbt_common_ctx	cctx;
-	struct slbt_driver_ctx	ctx;
-	struct slbt_host_strs	host;
-	struct slbt_host_strs	ahost;
-	struct slbt_fd_ctx	fdctx;
-	struct slbt_map_info    lconf;
-	struct slbt_obj_list *	objlistv;
+	struct slbt_common_ctx          cctx;
+	struct slbt_driver_ctx          ctx;
+	struct slbt_host_strs           host;
+	struct slbt_host_strs           ahost;
+	struct slbt_fd_ctx              fdctx;
+	struct slbt_map_info            lconf;
+	struct slbt_obj_list *          objlistv;
 
 	const struct slbt_archive_ctx * arctx;
 	const char *                    arpath;
 
-	char *			libname;
-	char *			dargs;
-	char **			dargv;
-	char **			targv;
-	char **			cargv;
-	char **			envp;
-	struct slbt_error_info**errinfp;
-	struct slbt_error_info**erricap;
-	struct slbt_error_info *erriptr[64];
-	struct slbt_error_info	erribuf[64];
+	char *                          libname;
+	char *                          dargs;
+	char **                         dargv;
+	char **                         targv;
+	char **                         cargv;
+	char **                         envp;
+
+	struct slbt_error_info**        errinfp;
+	struct slbt_error_info**        erricap;
+	struct slbt_error_info *        erriptr[64];
+	struct slbt_error_info          erribuf[64];
 };
 
 struct slbt_driver_ctx_alloc {
@@ -166,16 +167,16 @@ struct slbt_driver_ctx_alloc {
 
 struct slbt_exec_ctx_impl {
 	const struct slbt_driver_ctx *	dctx;
-	int			argc;
-	char *			args;
-	char *			shadow;
-	char *			dsoprefix;
-	size_t			size;
-	struct slbt_exec_ctx	ctx;
-	int			fdwrapper;
-	char **			lout[2];
-	char **			mout[2];
-	char *			vbuffer[];
+	int                             argc;
+	char *                          args;
+	char *                          shadow;
+	char *                          dsoprefix;
+	size_t                          size;
+	struct slbt_exec_ctx            ctx;
+	int                             fdwrapper;
+	char **                         lout[2];
+	char **                         mout[2];
+	char *                          vbuffer[];
 };
 
 struct slbt_archive_ctx_impl {
