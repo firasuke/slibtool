@@ -436,6 +436,7 @@ slbt_api int  slbt_output_link          (const struct slbt_driver_ctx *, const s
 slbt_api int  slbt_output_uninstall     (const struct slbt_driver_ctx *, const struct slbt_exec_ctx *);
 slbt_api int  slbt_output_error_record  (const struct slbt_driver_ctx *, const struct slbt_error_info *);
 slbt_api int  slbt_output_error_vector  (const struct slbt_driver_ctx *);
+slbt_api int  slbt_output_mapfile       (const struct slbt_symlist_ctx *);
 
 /* archiver utility api */
 slbt_api int  slbt_au_output_arname     (const struct slbt_archive_ctx *);

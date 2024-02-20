@@ -47,6 +47,7 @@ API_SRCS = \
 	src/output/slbt_output_features.c \
 	src/output/slbt_output_info.c \
 	src/output/slbt_output_machine.c \
+	src/output/slbt_output_mapfile.c \
 	src/skin/slbt_skin_ar.c \
 	src/skin/slbt_skin_default.c \
 	src/skin/slbt_skin_install.c \
