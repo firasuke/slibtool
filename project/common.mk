@@ -9,10 +9,10 @@ API_SRCS = \
 	src/arbits/slbt_armap_bsd_64.c \
 	src/arbits/slbt_armap_sysv_32.c \
 	src/arbits/slbt_armap_sysv_64.c \
-	src/arbits/output/slbt_ar_output_arname.c \
+	src/arbits/output/slbt_au_output_arname.c \
 	src/arbits/output/slbt_au_output_mapfile.c \
-	src/arbits/output/slbt_ar_output_members.c \
-	src/arbits/output/slbt_ar_output_symbols.c \
+	src/arbits/output/slbt_au_output_members.c \
+	src/arbits/output/slbt_au_output_symbols.c \
 	src/driver/slbt_amain.c \
 	src/driver/slbt_driver_ctx.c \
 	src/driver/slbt_link_params.c \
