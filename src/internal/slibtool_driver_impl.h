@@ -165,6 +165,7 @@ struct slbt_driver_ctx_alloc {
 };
 
 struct slbt_exec_ctx_impl {
+	const struct slbt_driver_ctx *	dctx;
 	int			argc;
 	char *			args;
 	char *			shadow;

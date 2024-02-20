@@ -153,6 +153,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 		return 0;
 	}
 
+	ictx->dctx = dctx;
 	ictx->args = args;
 	ictx->argc = argc;
 
