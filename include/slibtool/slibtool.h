@@ -384,6 +384,14 @@ slbt_api int  slbt_host_set_althost     (const struct slbt_driver_ctx *, const c
 
 slbt_api void slbt_host_reset_althost   (const struct slbt_driver_ctx *);
 
+slbt_api int slbt_host_objfmt_is_coff   (const struct slbt_driver_ctx *);
+
+slbt_api int slbt_host_objfmt_is_macho  (const struct slbt_driver_ctx *);
+
+slbt_api int slbt_host_group_is_winnt   (const struct slbt_driver_ctx *);
+
+slbt_api int slbt_host_group_is_darwin  (const struct slbt_driver_ctx *);
+
 slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_settings **);
 
 /* utility helper interfaces */

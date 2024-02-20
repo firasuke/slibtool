@@ -173,3 +173,34 @@ int slbt_host_flavor_settings(
 
 	return *settings ? 0 : -1;
 }
+
+
+int slbt_host_objfmt_is_coff(const struct slbt_driver_ctx * dctx)
+{
+	const char * flavor = dctx->cctx->host.flavor;
+
+	return !strcmp(flavor,"midipix")
+		|| !strcmp(flavor,"mingw")
+		|| !strcmp(flavor,"cygwin")
+		|| !strcmp(flavor,"msys");
+}
+
+
+int slbt_host_objfmt_is_macho(const struct slbt_driver_ctx * dctx)
+{
+	const char * flavor = dctx->cctx->host.flavor;
+
+	return !strcmp(flavor,"darwin");
+}
+
+
+int slbt_host_group_is_winnt(const struct slbt_driver_ctx * dctx)
+{
+	return slbt_host_objfmt_is_coff(dctx);
+}
+
+
+int slbt_host_group_is_darwin(const struct slbt_driver_ctx * dctx)
+{
+	return slbt_host_objfmt_is_macho(dctx);
+}
