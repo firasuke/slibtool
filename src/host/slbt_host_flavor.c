@@ -52,6 +52,12 @@ SLBT_FLAVOR_SETTINGS(host_flavor_cygwin,        \
 	"",".exe","lib",".dll.a",               \
 	"PATH");
 
+SLBT_FLAVOR_SETTINGS(host_flavor_msys,          \
+	"pe",0,                                 \
+	"lib",".a","lib",".dll","",".dll",      \
+	"",".exe","lib",".dll.a",               \
+	"PATH");
+
 SLBT_FLAVOR_SETTINGS(host_flavor_darwin,        \
 	"macho","-fPIC",                        \
 	"lib",".a","lib",".dylib","",".dylib",  \
@@ -123,6 +129,8 @@ slbt_hidden void slbt_init_flavor_settings(
 		settings = &host_flavor_mingw;
 	else if (!strcmp(host->flavor,"cygwin"))
 		settings = &host_flavor_cygwin;
+	else if (!strcmp(host->flavor,"msys"))
+		settings = &host_flavor_msys;
 	else if (!strcmp(host->flavor,"darwin"))
 		settings = &host_flavor_darwin;
 	else
@@ -154,6 +162,8 @@ int slbt_host_flavor_settings(
 		*settings = &host_flavor_mingw;
 	else if (!strcmp(flavor,"cygwin"))
 		*settings = &host_flavor_cygwin;
+	else if (!strcmp(flavor,"msys"))
+		*settings = &host_flavor_msys;
 	else if (!strcmp(flavor,"darwin"))
 		*settings = &host_flavor_darwin;
 	else if (!strcmp(flavor,"default"))

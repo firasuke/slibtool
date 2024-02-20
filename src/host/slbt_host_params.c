@@ -214,6 +214,8 @@ slbt_hidden int slbt_init_host_params(
 			host->flavor = "bsd";
 		else if ((dash && !strcmp(dash,"-cygwin")) || strstr(machine,"-cygwin-"))
 			host->flavor = "cygwin";
+		else if ((dash && !strcmp(dash,"-msys")) || strstr(machine,"-msys-"))
+			host->flavor = "msys";
 		else if ((dash && !strcmp(dash,"-darwin")) || strstr(machine,"-darwin"))
 			host->flavor = "darwin";
 		else if ((dash && !strcmp(dash,"-linux")) || strstr(machine,"-linux-"))
@@ -361,6 +363,7 @@ slbt_hidden int slbt_init_host_params(
 		cfgmeta->windres = cfgexplicit;
 
 	else if (strcmp(host->flavor,"cygwin")
+			&& strcmp(host->flavor,"msys")
 			&& strcmp(host->flavor,"midipix")
 			&& strcmp(host->flavor,"mingw")) {
 		host->windres    = "";
@@ -386,6 +389,7 @@ slbt_hidden int slbt_init_host_params(
 		cfgmeta->dlltool = cfgmeta_dlltool ? cfgmeta_dlltool : cfgexplicit;
 
 	else if (strcmp(host->flavor,"cygwin")
+			&& strcmp(host->flavor,"msys")
 			&& strcmp(host->flavor,"midipix")
 			&& strcmp(host->flavor,"mingw")) {
 		host->dlltool = "";
@@ -411,6 +415,7 @@ slbt_hidden int slbt_init_host_params(
 		cfgmeta->mdso = cfgexplicit;
 
 	else if (strcmp(host->flavor,"cygwin")
+			&& strcmp(host->flavor,"msys")
 			&& strcmp(host->flavor,"midipix")
 			&& strcmp(host->flavor,"mingw")) {
 		host->mdso = "";
