@@ -67,6 +67,7 @@ static int slbt_ar_create_mapfile_impl(
 	const char *                      path,
 	mode_t                            mode)
 {
+	int                             ret;
 	struct slbt_archive_meta_impl * mctx;
 	const struct slbt_driver_ctx *  dctx;
 	struct slbt_fd_ctx              fdctx;
@@ -91,8 +92,14 @@ static int slbt_ar_create_mapfile_impl(
 		fdout = fdctx.fdout;
 	}
 
-	return slbt_ar_output_mapfile_impl(
+	ret = slbt_ar_output_mapfile_impl(
 		dctx,mctx,fdout);
+
+	if (path) {
+		close(fdout);
+	}
+
+	return ret;
 }
 
 
