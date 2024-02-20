@@ -45,14 +45,11 @@ static int slbt_ar_output_mapfile_impl(
 
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
 
-	fmach = !strcmp(dctx->cctx->host.flavor,"darwin");
-	fmach = fmach || (mctx->ofmtattr & AR_OBJECT_ATTR_MACHO);
+	fmach  = slbt_host_objfmt_is_macho(dctx);
+	fmach |= (mctx->ofmtattr & AR_OBJECT_ATTR_MACHO);
 
-	fcoff = !strcmp(dctx->cctx->host.flavor,"midipix");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"cygwin");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"mingw");
-	fcoff = fcoff || !strcmp(dctx->cctx->host.flavor,"msys2");
-	fcoff = fcoff || (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
+	fcoff  = slbt_host_objfmt_is_coff(dctx);
+	fcoff |= (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
 
 	if (fcoff) {
 		if (slbt_dprintf(fdout,"EXPORTS\n") < 0)
