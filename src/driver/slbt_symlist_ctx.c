@@ -52,6 +52,7 @@ int slbt_lib_get_symlist_ctx(
 	char *                          src;
 	const char **                   psym;
 	char                            dummy;
+	int                             cint;
 	bool                            fvalid;
 
 	/* map symlist file temporarily */
@@ -68,16 +69,16 @@ int slbt_lib_get_symlist_ctx(
 	src = mapinfo.size ? mapinfo.addr : &dummy;
 	cap = &src[mapinfo.size];
 
-	for (; (src<cap) && isspace(*src); )
+	for (; (src<cap) && isspace((cint=*src)); )
 		src++;
 
 	for (ch=src,nsyms=0; ch<cap; nsyms++) {
-		for (; (ch<cap) && !isspace(*ch); )
+		for (; (ch<cap) && !isspace((cint=*ch)); )
 			ch++;
 
 		fvalid = false;
 
-		for (; (ch<cap) && isspace(*ch); )
+		for (; (ch<cap) && isspace((cint=*ch)); )
 			fvalid = (*ch++ == '\n') || fvalid;
 
 		if (!fvalid)
@@ -112,16 +113,16 @@ int slbt_lib_get_symlist_ctx(
 	src = ctx->symstrs;
 	cap = &src[mapinfo.size];
 
-	for (; (src<cap) && isspace(*src); )
+	for (; (src<cap) && isspace((cint=*src)); )
 		src++;
 
 	for (ch=src,psym=ctx->symstrv; ch<cap; psym++) {
 		*psym = ch;
 
-		for (; (ch<cap) && !isspace(*ch); )
+		for (; (ch<cap) && !isspace((cint=*ch)); )
 			ch++;
 
-		for (; (ch<cap) && isspace(*ch); )
+		for (; (ch<cap) && isspace((cint=*ch)); )
 			*ch++ = '\0';
 	}
 

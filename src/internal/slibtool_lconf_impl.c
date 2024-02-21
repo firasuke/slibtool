@@ -629,6 +629,7 @@ static int slbt_get_lconf_var(
 	const char *    mark;
 	const char *    match;
 	ssize_t         len;
+	int             cint;
 
 	/* init */
 	len   = strlen(var);
@@ -649,7 +650,7 @@ static int slbt_get_lconf_var(
 			while ((*mark != '\n') && (mark < cap))
 				mark++;
 
-			while (isspace(*mark) && (mark < cap))
+			while (isspace((cint=*mark)) && (mark < cap))
 				mark++;
 		}
 	}
@@ -669,7 +670,7 @@ static int slbt_get_lconf_var(
 		for (; (*mark != '"') && (mark < cap); )
 			mark++;
 	} else {
-		for (; !isspace(*mark) && (mark < cap); )
+		for (; !isspace((cint=*mark)) && (mark < cap); )
 			mark++;
 	}
 
