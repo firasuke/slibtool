@@ -163,14 +163,12 @@ static int slbt_exec_compile_finalize_argument_vector(
 	return 0;
 }
 
-int  slbt_exec_compile(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx)
+int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 {
 	int				ret;
 	char *				fpic;
 	char *				ccwrap;
-	struct slbt_exec_ctx *		actx = 0;
+	struct slbt_exec_ctx *		ectx;
 	const struct slbt_common_ctx *	cctx = dctx->cctx;
 
 	/* dry run */
@@ -178,12 +176,8 @@ int  slbt_exec_compile(
 		return 0;
 
 	/* context */
-	if (ectx)
-		slbt_reset_placeholders(ectx);
-	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
-		return ret;
-	else
-		actx = ectx;
+	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	/* remove old .lo wrapper */
 	if (slbt_exec_compile_remove_file(dctx,ectx,ectx->ltobjname))
@@ -193,7 +187,7 @@ int  slbt_exec_compile(
 	if (cctx->drvflags & SLBT_DRIVER_SHARED)
 		if (slbt_mkdir(dctx,ectx->ldirname)) {
 			ret = SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return ret;
 		}
 
@@ -231,17 +225,17 @@ int  slbt_exec_compile(
 
 		if (!(cctx->drvflags & SLBT_DRIVER_SILENT)) {
 			if (slbt_output_compile(ectx)) {
-				slbt_ectx_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(ectx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		}
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_SYSTEM_ERROR(dctx,0);
 
 		} else if (ectx->exitcode) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_COMPILE_ERROR);
 		}
 
@@ -266,23 +260,23 @@ int  slbt_exec_compile(
 
 		if (!(cctx->drvflags & SLBT_DRIVER_SILENT)) {
 			if (slbt_output_compile(ectx)) {
-				slbt_ectx_free_exec_ctx(actx);
+				slbt_ectx_free_exec_ctx(ectx);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		}
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_SYSTEM_ERROR(dctx,0);
 
 		} else if (ectx->exitcode) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_COMPILE_ERROR);
 		}
 	}
 
 	ret = slbt_create_object_wrapper(dctx,ectx);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 
 	return ret ? SLBT_NESTED_ERROR(dctx) : 0;
 }

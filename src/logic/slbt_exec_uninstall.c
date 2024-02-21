@@ -50,12 +50,12 @@ static int slbt_uninstall_usage(
 }
 
 static int slbt_exec_uninstall_fail(
-	struct slbt_exec_ctx *	actx,
+	struct slbt_exec_ctx *	ectx,
 	struct argv_meta *	meta,
 	int			ret)
 {
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 	return ret;
 }
 
@@ -264,16 +264,13 @@ static int slbt_exec_uninstall_entry(
 	return 0;
 }
 
-int slbt_exec_uninstall(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx)
+int slbt_exec_uninstall(const struct slbt_driver_ctx * dctx)
 {
-	int				ret;
 	int				fdout;
 	char **				argv;
 	char **				iargv;
 	uint32_t			flags;
-	struct slbt_exec_ctx *		actx;
+	struct slbt_exec_ctx *		ectx;
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
@@ -283,12 +280,8 @@ int slbt_exec_uninstall(
 		return 0;
 
 	/* context */
-	if (ectx)
-		actx = 0;
-	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
-		return ret;
-	else
-		actx = ectx;
+	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+		return  SLBT_NESTED_ERROR(dctx);
 
 	/* initial state, uninstall mode skin */
 	slbt_ectx_reset_arguments(ectx);
@@ -314,7 +307,7 @@ int slbt_exec_uninstall(
 				: ARGV_VERBOSITY_NONE,
 			fdout)))
 		return slbt_exec_uninstall_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_UNINSTALL_FAIL));
 
 	/* dest, alternate argument vector options */
@@ -374,11 +367,11 @@ int slbt_exec_uninstall(
 		if (!entry->fopt)
 			if (slbt_exec_uninstall_entry(dctx,ectx,entry,argv,flags))
 				return slbt_exec_uninstall_fail(
-					actx,meta,
+					ectx,meta,
 					SLBT_NESTED_ERROR(dctx));
 
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 
 	return 0;
 }

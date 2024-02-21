@@ -391,12 +391,12 @@ slbt_api void slbt_ectx_reset_argvector (struct slbt_exec_ctx *);
 slbt_api void slbt_ectx_reset_arguments (struct slbt_exec_ctx *);
 
 /* core api */
-slbt_api int  slbt_exec_compile         (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
-slbt_api int  slbt_exec_execute         (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
-slbt_api int  slbt_exec_install         (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
-slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
-slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
-slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *, struct slbt_exec_ctx *);
+slbt_api int  slbt_exec_compile         (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_execute         (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_install         (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *);
 
 /* host and flavor interfaces */
 slbt_api int  slbt_host_set_althost     (const struct slbt_driver_ctx *, const char * host, const char * flavor);

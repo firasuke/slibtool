@@ -69,22 +69,22 @@ static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 		slbt_output_config(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_COMPILE)
-		slbt_exec_compile(dctx,0);
+		slbt_exec_compile(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_EXECUTE)
-		slbt_exec_execute(dctx,0);
+		slbt_exec_execute(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_INSTALL)
-		slbt_exec_install(dctx,0);
+		slbt_exec_install(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_LINK)
-		slbt_exec_link(dctx,0);
+		slbt_exec_link(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_UNINSTALL)
-		slbt_exec_uninstall(dctx,0);
+		slbt_exec_uninstall(dctx);
 
 	if (dctx->cctx->mode == SLBT_MODE_AR)
-		slbt_exec_ar(dctx,0);
+		slbt_exec_ar(dctx);
 }
 
 static int slbt_exit(struct slbt_driver_ctx * dctx, int ret)

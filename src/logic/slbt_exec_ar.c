@@ -64,12 +64,12 @@ static int slbt_ar_usage(
 }
 
 static int slbt_exec_ar_fail(
-	struct slbt_exec_ctx *	actx,
+	struct slbt_exec_ctx *	ectx,
 	struct argv_meta *	meta,
 	int			ret)
 {
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 	return ret;
 }
 
@@ -121,15 +121,14 @@ static int slbt_exec_ar_perform_archive_actions(
 	return 0;
 }
 
-int slbt_exec_ar(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx)
+int slbt_exec_ar(const struct slbt_driver_ctx * dctx)
 {
 	int				ret;
 	int				fdout;
 	int				fderr;
 	char **				argv;
 	char **				iargv;
+	struct slbt_exec_ctx *		ectx;
 	struct slbt_driver_ctx_impl *	ictx;
 	const struct slbt_common_ctx *	cctx;
 	struct slbt_archive_ctx **	arctxv;
@@ -137,18 +136,13 @@ int slbt_exec_ar(
 	const char **			unitv;
 	const char **			unitp;
 	size_t				nunits;
-	struct slbt_exec_ctx *		actx;
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
 
 	/* context */
-	if (ectx)
-		actx = 0;
-	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
-		return ret;
-	else
-		actx = ectx;
+	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	/* initial state, ar mode skin */
 	slbt_ectx_reset_arguments(ectx);
@@ -168,7 +162,7 @@ int slbt_exec_ar(
 		return slbt_ar_usage(
 			fdout,
 			dctx->program,
-			0,optv,0,actx,
+			0,optv,0,ectx,
 			dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER);
 
 	/* <ar> argv meta */
@@ -179,7 +173,7 @@ int slbt_exec_ar(
 				: ARGV_VERBOSITY_NONE,
 			fdout)))
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_AR_FAIL));
 
 	/* dest, alternate argument vector options */
@@ -289,7 +283,7 @@ int slbt_exec_ar(
 	/* defer --version printing to slbt_main() as needed */
 	if (cctx->drvflags & SLBT_DRIVER_VERSION) {
 		slbt_argv_free(meta);
-		slbt_ectx_free_exec_ctx(actx);
+		slbt_ectx_free_exec_ctx(ectx);
 		return SLBT_OK;
 	}
 
@@ -307,7 +301,7 @@ int slbt_exec_ar(
 				dctx->program);
 
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_AR_NO_ACTION_SPECIFIED));
@@ -321,7 +315,7 @@ int slbt_exec_ar(
 				dctx->program);
 
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_AR_OUTPUT_NOT_SPECIFIED));
@@ -337,7 +331,7 @@ int slbt_exec_ar(
 				dctx->program);
 
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_AR_OUTPUT_NOT_APPLICABLE));
@@ -352,7 +346,7 @@ int slbt_exec_ar(
 				dctx->program);
 
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_AR_NO_INPUT_SPECIFIED));
@@ -361,7 +355,7 @@ int slbt_exec_ar(
 	/* archive vector allocation */
 	if (!(arctxv = calloc(nunits+1,sizeof(struct slbt_archive_ctx *))))
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_SYSTEM_ERROR(dctx,0));
 
 	/* unit vector allocation */
@@ -369,7 +363,7 @@ int slbt_exec_ar(
 		free (arctxv);
 
 		return slbt_exec_ar_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_SYSTEM_ERROR(dctx,0));
 	}
 
@@ -388,7 +382,7 @@ int slbt_exec_ar(
 			free(arctxv);
 
 			return slbt_exec_ar_fail(
-				actx,meta,
+				ectx,meta,
 				SLBT_NESTED_ERROR(dctx));
 		}
 	}
@@ -404,7 +398,7 @@ int slbt_exec_ar(
 	free(arctxv);
 
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 
 	return ret;
 }

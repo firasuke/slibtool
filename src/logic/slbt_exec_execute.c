@@ -16,11 +16,8 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
-int  slbt_exec_execute(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx)
+int slbt_exec_execute(const struct slbt_driver_ctx * dctx)
 {
-	int			ret;
 	int			fdcwd;
 	char *			program;
 	char *			script;
@@ -29,21 +26,17 @@ int  slbt_exec_execute(
 	char			exeref [PATH_MAX];
 	char			wrapper[PATH_MAX];
 	struct stat		st;
-	struct slbt_exec_ctx *	actx = 0;
+	struct slbt_exec_ctx *	ectx;
 
 	/* dry run */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_DRY_RUN)
 		return 0;
 
 	/* context */
-	if (ectx)
-		slbt_disable_placeholders(ectx);
-	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
-		return ret;
-	else {
-		actx = ectx;
-		slbt_disable_placeholders(ectx);
-	}
+	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	slbt_disable_placeholders(ectx);
 
 	/* script, program */
 	program = ectx->cargv[0];
@@ -64,7 +57,7 @@ int  slbt_exec_execute(
 		if (slbt_snprintf(wrapper,sizeof(wrapper),
 					"%s.exe.wrapper",
 					exeref) < 0) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_BUFFER_ERROR(dctx);
 		}
 
@@ -91,12 +84,12 @@ int  slbt_exec_execute(
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
 		if (slbt_output_execute(ectx)) {
-			slbt_ectx_free_exec_ctx(actx);
+			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
 	execvp(ectx->cargv[0],ectx->argv);
 
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 	return SLBT_SYSTEM_ERROR(dctx,0);
 }

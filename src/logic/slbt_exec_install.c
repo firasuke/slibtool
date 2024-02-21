@@ -54,12 +54,12 @@ static int slbt_install_usage(
 }
 
 static int slbt_exec_install_fail(
-	struct slbt_exec_ctx *	actx,
+	struct slbt_exec_ctx *	ectx,
 	struct argv_meta *	meta,
 	int			ret)
 {
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 	return ret;
 }
 
@@ -706,11 +706,8 @@ static int slbt_exec_install_entry(
 	return 0;
 }
 
-int slbt_exec_install(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx)
+int slbt_exec_install(const struct slbt_driver_ctx * dctx)
 {
-	int				ret;
 	int				fdout;
 	char **				argv;
 	char **				iargv;
@@ -720,7 +717,7 @@ int slbt_exec_install(
 	char *				optsh;
 	char *				script;
 	char *				shtool;
-	struct slbt_exec_ctx *		actx;
+	struct slbt_exec_ctx *		ectx;
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
 	struct argv_entry *		copy;
@@ -734,12 +731,8 @@ int slbt_exec_install(
 		return 0;
 
 	/* context */
-	if (ectx)
-		actx = 0;
-	else if ((ret = slbt_ectx_get_exec_ctx(dctx,&ectx)))
-		return ret;
-	else
-		actx = ectx;
+	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	/* initial state, install mode skin */
 	slbt_ectx_reset_arguments(ectx);
@@ -789,7 +782,7 @@ int slbt_exec_install(
 				: ARGV_VERBOSITY_NONE,
 			fdout)))
 		return slbt_exec_install_fail(
-			actx,meta,
+			ectx,meta,
 			SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FAIL));
 
 	/* dest, alternate argument vector options */
@@ -880,7 +873,7 @@ int slbt_exec_install(
 		/* dstdir */
 		if (slbt_exec_install_init_dstdir(dctx,dest,last,dstdir))
 			return slbt_exec_install_fail(
-				actx,meta,
+				ectx,meta,
 				SLBT_NESTED_ERROR(dctx));
 
 		/* install entries one at a time */
@@ -892,7 +885,7 @@ int slbt_exec_install(
 						dest,dstdir,
 						src,dst))
 					return slbt_exec_install_fail(
-						actx,meta,
+						ectx,meta,
 						SLBT_NESTED_ERROR(dctx));
 	} else {
 		/* using original argument vector */
@@ -906,12 +899,12 @@ int slbt_exec_install(
 
 		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
 			return slbt_exec_install_fail(
-				actx,meta,
+				ectx,meta,
 				SLBT_SPAWN_ERROR(dctx));
 
 		} else if (ectx->exitcode) {
 			return slbt_exec_install_fail(
-				actx,meta,
+				ectx,meta,
 				SLBT_CUSTOM_ERROR(
 					dctx,
 					SLBT_ERR_INSTALL_ERROR));
@@ -919,7 +912,7 @@ int slbt_exec_install(
 	}
 
 	slbt_argv_free(meta);
-	slbt_ectx_free_exec_ctx(actx);
+	slbt_ectx_free_exec_ctx(ectx);
 
 	return 0;
 }
