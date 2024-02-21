@@ -167,12 +167,13 @@ struct slbt_driver_ctx_alloc {
 
 struct slbt_exec_ctx_impl {
 	const struct slbt_driver_ctx *	dctx;
+	struct slbt_symlist_ctx *       sctx;
+	struct slbt_exec_ctx            ctx;
 	int                             argc;
 	char *                          args;
 	char *                          shadow;
 	char *                          dsoprefix;
 	size_t                          size;
-	struct slbt_exec_ctx            ctx;
 	int                             fdwrapper;
 	char **                         lout[2];
 	char **                         mout[2];

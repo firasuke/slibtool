@@ -207,6 +207,9 @@ struct slbt_exec_ctx {
 	char ** 	symdefs;
 	char ** 	symfile;
 
+	char **         explarg;
+	char **         expsyms;
+
 	char ** 	lout[2];
 	char ** 	mout[2];
 	char ** 	rpath[2];
@@ -232,6 +235,7 @@ struct slbt_exec_ctx {
 	char *		relfilename;
 	char *		dsorellnkname;
 	char *		deffilename;
+	char *		mapfilename;
 	char *		rpathfilename;
 
 	char *		dimpfilename;

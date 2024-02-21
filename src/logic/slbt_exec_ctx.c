@@ -104,12 +104,12 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 
 	/* buffer size (ldirname, lbasename, lobjname, aobjname, etc.) */
 	if (dctx->cctx->output)
-		size += 9*strlen(dctx->cctx->output);
+		size += 10*strlen(dctx->cctx->output);
 	else if ((csrc = slbt_source_file(dctx->cctx->cargv)))
-		size += 9*strlen(csrc);
+		size += 10*strlen(csrc);
 
 	/* pessimistic: long dso suffix, long x.y.z version */
-	size += 9 * (16 + 16 + 16 + 16);
+	size += 10 * (16 + 16 + 16 + 16);
 
 	/* pessimistic argc: .libs/libfoo.so --> -L.libs -lfoo */
 	argc *= 2;
@@ -122,6 +122,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	if (dctx->cctx->mode == SLBT_MODE_LINK)
 		size += strlen(dctx->cctx->settings.arprefix) + 1
 			+ strlen(dctx->cctx->settings.arsuffix) + 1
+			+ strlen(dctx->cctx->settings.mapsuffix) + 1
 			+ strlen(dctx->cctx->settings.dsoprefix) + 1
 			+ strlen(dctx->cctx->settings.dsoprefix) + 1
 			+ strlen(dctx->cctx->settings.dsoprefix) + 1
@@ -293,6 +294,8 @@ int  slbt_ectx_get_exec_ctx(
 	ictx->ctx.lsoname = &ictx->ctx.argv[i++];
 	ictx->ctx.symdefs = &ictx->ctx.argv[i++];
 	ictx->ctx.symfile = &ictx->ctx.argv[i++];
+	ictx->ctx.explarg = &ictx->ctx.argv[i++];
+	ictx->ctx.expsyms = &ictx->ctx.argv[i++];
 
 	ictx->ctx.lout[0] = &ictx->ctx.argv[i++];
 	ictx->ctx.lout[1] = &ictx->ctx.argv[i++];
@@ -338,7 +341,7 @@ int  slbt_ectx_get_exec_ctx(
 				+ 1;
 	}
 
-	/* linking: arfilename, lafilename, laifilename, dsobasename, dsofilename */
+	/* linking: arfilename, lafilename, laifilename, dsobasename, dsofilename, mapfilename */
 	if (dctx->cctx->mode == SLBT_MODE_LINK && dctx->cctx->libname) {
 		/* arprefix, dsoprefix */
 		if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
@@ -397,6 +400,17 @@ int  slbt_ectx_get_exec_ctx(
 				dsoprefix,
 				dctx->cctx->libname,
 				dctx->cctx->settings.dsosuffix);
+		ch++;
+
+		/* mapfilename */
+		ictx->ctx.mapfilename = ch;
+		ch += sprintf(ch,"%s%s%s%s%s%s",
+				ictx->ctx.ldirname,
+				dsoprefix,
+				dctx->cctx->libname,
+				dctx->cctx->release ? "-" : "",
+				dctx->cctx->release ? dctx->cctx->release : "",
+				dctx->cctx->settings.mapsuffix);
 		ch++;
 
 		/* deffilename */
@@ -504,6 +518,13 @@ int  slbt_ectx_get_exec_ctx(
 			ch += sprintf(ch,".libs/%s",dctx->cctx->output) + 1;
 	}
 
+	/* vector of exported symbols (raw input via -export-symbols) */
+	if (dctx->cctx->expsyms)
+		if (slbt_lib_get_symlist_ctx(
+				dctx,dctx->cctx->expsyms,
+				&ictx->sctx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
 	/* argument strings shadow copy */
 	memcpy(ictx->shadow,ictx->args,ictx->size);
 
@@ -529,6 +550,9 @@ static int slbt_ectx_free_exec_ctx_impl(
 	struct slbt_exec_ctx_impl *	ictx,
 	int				status)
 {
+	if (ictx->sctx)
+		slbt_lib_free_symlist_ctx(ictx->sctx);
+
 	if (ictx->fdwrapper >= 0)
 		close(ictx->fdwrapper);
 
@@ -598,6 +622,8 @@ slbt_hidden void slbt_reset_placeholders(struct slbt_exec_ctx * ectx)
 	*ectx->lsoname = "-USLIBTOOL_PLACEHOLDER_LSONAME";
 	*ectx->symdefs = "-USLIBTOOL_PLACEHOLDER_SYMDEF_SWITCH";
 	*ectx->symfile = "-USLIBTOOL_PLACEHOLDER_SYMDEF_FILE";
+	*ectx->explarg = "-USLIBTOOL_PLACEHOLDER_EXPSYMS_SWITCH";
+	*ectx->expsyms = "-USLIBTOOL_PLACEHOLDER_EXPSYMS_FILE";
 
 	*ectx->lout[0] = "-USLIBTOOL_PLACEHOLDER_OUTPUT_SWITCH";
 	*ectx->lout[1] = "-USLIBTOOL_PLACEHOLDER_OUTPUT_FILE";
@@ -622,6 +648,8 @@ slbt_hidden void slbt_disable_placeholders(struct slbt_exec_ctx * ectx)
 	*ectx->lsoname = 0;
 	*ectx->symdefs = 0;
 	*ectx->symfile = 0;
+	*ectx->explarg = 0;
+	*ectx->expsyms = 0;
 
 	*ectx->lout[0] = 0;
 	*ectx->lout[1] = 0;
