@@ -228,7 +228,6 @@ slbt_hidden int slbt_driver_usage(
 }
 
 static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
-	struct argv_meta *		meta,
 	const struct slbt_fd_ctx *	fdctx,
 	const struct slbt_common_ctx *	cctx,
 	struct slbt_split_vector *	sargv,
@@ -262,8 +261,7 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 
 	ictx->ctx.objlistv = objlistv;
 
-	ictx->meta = meta;
-	ictx->ctx.ctx.errv  = ictx->ctx.errinfp;
+	ictx->ctx.ctx.errv = ictx->ctx.errinfp;
 
 	return &ictx->ctx;
 }
@@ -865,7 +863,7 @@ int slbt_lib_get_driver_ctx(
 			cctx.tag = SLBT_TAG_CC;
 
 	/* driver context */
-	if (!(ctx = slbt_driver_ctx_alloc(meta,fdctx,&cctx,&sargv,objlistv,envp)))
+	if (!(ctx = slbt_driver_ctx_alloc(fdctx,&cctx,&sargv,objlistv,envp)))
 		return slbt_lib_get_driver_ctx_fail(0,meta);
 
 	/* ctx */
@@ -874,6 +872,7 @@ int slbt_lib_get_driver_ctx(
 
 	ctx->cctx.targv		= sargv.targv;
 	ctx->cctx.cargv		= sargv.cargv;
+	ctx->meta               = meta;
 
 	/* heuristics */
 	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
@@ -1015,7 +1014,7 @@ static void slbt_lib_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 
 	slbt_free_host_params(&ictx->ctx.host);
 	slbt_free_host_params(&ictx->ctx.ahost);
-	argv_free(ictx->meta);
+	argv_free(ictx->ctx.meta);
 
 	free(ictx);
 }

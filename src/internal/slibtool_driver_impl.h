@@ -135,6 +135,7 @@ struct slbt_obj_list {
 };
 
 struct slbt_driver_ctx_impl {
+	struct argv_meta *		meta;
 	struct slbt_common_ctx          cctx;
 	struct slbt_driver_ctx          ctx;
 	struct slbt_host_strs           host;
@@ -160,7 +161,6 @@ struct slbt_driver_ctx_impl {
 };
 
 struct slbt_driver_ctx_alloc {
-	struct argv_meta *		meta;
 	struct slbt_driver_ctx_impl	ctx;
 	uint64_t			guard;
 };
