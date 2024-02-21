@@ -16,6 +16,6 @@ int slbt_create_symlink(
 	const char *			lnkname,
 	uint32_t			options);
 
-int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath);
+int slbt_symlink_is_a_placeholder(int fdcwd, const char * lnkpath);
 
 #endif

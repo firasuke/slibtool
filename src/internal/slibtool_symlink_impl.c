@@ -131,7 +131,7 @@ slbt_hidden int slbt_create_symlink(
 		: 0;
 }
 
-slbt_hidden int slbt_symlink_is_a_placeholder(int fdcwd, char * lnkpath)
+slbt_hidden int slbt_symlink_is_a_placeholder(int fdcwd, const char * lnkpath)
 {
 	size_t		len;
 	char		slink [PATH_MAX];

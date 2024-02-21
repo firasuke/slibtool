@@ -191,7 +191,7 @@ static int slbt_exec_install_import_libraries(
 		dctx->cctx->asettings.impsuffix);
 
 	/* copy: .libs/libfoo.x.y.z.lib.a --> dstdir */
-	if (slbt_util_copy_file(dctx,ectx,srcbuf,dstdir))
+	if (slbt_util_copy_file(ectx,srcbuf,dstdir))
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* .libs/libfoo.x.lib.a */
@@ -200,7 +200,7 @@ static int slbt_exec_install_import_libraries(
 		dctx->cctx->asettings.impsuffix);
 
 	/* copy: .libs/libfoo.x.lib.a --> dstdir */
-	if (slbt_util_copy_file(dctx,ectx,srcbuf,dstdir))
+	if (slbt_util_copy_file(ectx,srcbuf,dstdir))
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* /dstdir/libfoo.lib.a */
@@ -310,7 +310,7 @@ static int slbt_exec_install_library_wrapper(
 	slbt_unmap_file(mapinfo);
 
 	/* cp libfoo.la.slibtool.instal /dstdir/libfoo.la */
-	if (slbt_util_copy_file(dctx,ectx,clainame,instname))
+	if (slbt_util_copy_file(ectx,clainame,instname))
 		return SLBT_NESTED_ERROR(dctx);
 
 	return 0;
@@ -555,7 +555,8 @@ static int slbt_exec_install_entry(
 		farchive = false;
 
 	if (farchive)
-		if (slbt_util_copy_file(dctx,ectx,
+		if (slbt_util_copy_file(
+				ectx,
 				srcfile,
 				dest ? (char *)dest->arg : *dst))
 			return SLBT_NESTED_ERROR(dctx);
@@ -683,7 +684,7 @@ static int slbt_exec_install_entry(
 	if (fpe) {
 		/* copy: .libs/libfoo.so.x.y.z --> libfoo.so.x */
 		if (slbt_util_copy_file(
-				dctx,ectx,
+				ectx,
 				srcfile,
 				dlnkname))
 			return SLBT_NESTED_ERROR(dctx);

@@ -120,7 +120,7 @@ static int slbt_exec_link_create_library_symlink(
 
 	if (fmajor && (dctx->cctx->drvflags & SLBT_DRIVER_IMAGE_PE))
 		return slbt_util_copy_file(
-			dctx,ectx,
+			ectx,
 			target,lnkname);
 	else
 		return slbt_create_symlink(

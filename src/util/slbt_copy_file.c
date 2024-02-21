@@ -11,23 +11,38 @@
 #include "slibtool_errinfo_impl.h"
 
 int slbt_util_copy_file(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
-	char *				src,
-	char *				dst)
+	struct slbt_exec_ctx *	ectx,
+	const char *		from,
+	const char *		to)
 {
+	int	ret;
 	int	fdcwd;
 	char **	oargv;
 	char *	oprogram;
+	char *  src;
+	char *  dst;
 	char *	cp[4];
-	int	ret;
+
+	const struct slbt_driver_ctx *  dctx;
+
+	/* driver context */
+	dctx = (slbt_get_exec_ictx(ectx))->dctx;
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* placeholder? */
-	if (slbt_symlink_is_a_placeholder(fdcwd,src))
+	if (slbt_symlink_is_a_placeholder(fdcwd,from))
 		return 0;
+
+	/* until we perform an in-memory copy ... */
+	if (!(src = strdup(from)))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	if (!(dst = strdup(to))) {
+		free(src);
+		return SLBT_SYSTEM_ERROR(dctx,0);
+	}
 
 	/* cp argv */
 	cp[0] = "cp";
@@ -47,12 +62,14 @@ int slbt_util_copy_file(
 			if (slbt_output_link(ectx)) {
 				ectx->argv = oargv;
 				ectx->program = oprogram;
+				free(src); free(dst);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		} else {
 			if (slbt_output_install(ectx)) {
 				ectx->argv = oargv;
 				ectx->program = oprogram;
+				free(src); free(dst);
 				return SLBT_NESTED_ERROR(dctx);
 			}
 		}
@@ -69,6 +86,9 @@ int slbt_util_copy_file(
 	} else {
 		ret = 0;
 	}
+
+	free(src);
+	free(dst);
 
 	ectx->argv = oargv;
 	ectx->program = oprogram;

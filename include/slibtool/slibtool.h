@@ -417,10 +417,10 @@ slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_
 slbt_api int  slbt_util_import_archive  (const struct slbt_exec_ctx *,
                                          char * dstarchive, char * srcarchive);
 
-slbt_api int  slbt_util_create_mapfile  (const struct slbt_symlist_ctx *, const char *, mode_t);
+slbt_api int  slbt_util_copy_file       (struct slbt_exec_ctx *,
+                                         const char * from, const char * to);
 
-slbt_api int  slbt_util_copy_file       (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
-                                         char * src, char * dst);
+slbt_api int  slbt_util_create_mapfile  (const struct slbt_symlist_ctx *, const char *, mode_t);
 
 slbt_api int  slbt_util_dump_machine    (const char * compiler, char * machine, size_t bufsize);
 
