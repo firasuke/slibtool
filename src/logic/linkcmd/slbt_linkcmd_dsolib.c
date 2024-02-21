@@ -72,6 +72,7 @@ slbt_hidden int slbt_exec_link_create_library(
 	char                    output [PATH_MAX];
 	char                    soname [PATH_MAX];
 	char                    symfile[PATH_MAX];
+	char                    mapfile[PATH_MAX];
 	struct slbt_deps_meta   depsmeta = {0,0,0,0};
 
 	/* initial state */
@@ -196,6 +197,31 @@ slbt_hidden int slbt_exec_link_create_library(
 
 		*ectx->symdefs = "-Wl,--output-def";
 		*ectx->symfile = symfile;
+	}
+
+	/* -export-symbols */
+	if (dctx->cctx->expsyms) {
+		struct slbt_symlist_ctx * sctx;
+		sctx = (slbt_get_exec_ictx(ectx))->sctx;
+
+		if (slbt_util_create_mapfile(sctx,ectx->mapfilename,0644) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		if (slbt_snprintf(mapfile,sizeof(mapfile),
+					"-Wl,%s",
+					ectx->mapfilename) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		if (slbt_host_group_is_darwin(dctx)) {
+			*ectx->explarg = "-Wl,-exported_symbols_list";
+			*ectx->expsyms = mapfile;
+
+		} else if (slbt_host_group_is_winnt(dctx)) {
+			*ectx->expsyms = mapfile;
+		} else {
+			*ectx->explarg = "-Wl,--version-script";
+			*ectx->expsyms = mapfile;
+		}
 	}
 
 	/* shared/static */
