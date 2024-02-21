@@ -21,47 +21,47 @@ static const char * ldrpath_elf[] = {
 #define SLBT_FLAVOR_SETTINGS(flavor,          \
 		bfmt,pic,                     \
 		arp,ars,dsop,dsos,osds,osdf,  \
-		exep,exes,impp,imps,          \
+		exep,exes,impp,imps,maps,     \
 		ldenv)                        \
 	static const struct slbt_flavor_settings flavor = {  \
 		bfmt,arp,ars,dsop,dsos,osds,osdf,           \
-		exep,exes,impp,imps,                       \
+		exep,exes,impp,imps,maps,                  \
 		ldenv,pic}
 
 SLBT_FLAVOR_SETTINGS(host_flavor_default,       \
 	"elf","-fPIC",                          \
 	"lib",".a","lib",".so",".so","",        \
-	"","","","",                            \
+	"","","","",".ver",                     \
 	"LD_LIBRARY_PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_midipix,       \
 	"pe","-fPIC",                           \
 	"lib",".a","lib",".so",".so","",        \
-	"","","lib",".lib.a",                   \
+	"","","lib",".lib.a",".expsyms.def",    \
 	"LD_LIBRARY_PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_mingw,         \
 	"pe",0,                                 \
 	"lib",".a","lib",".dll","",".dll",      \
-	"",".exe","lib",".dll.a",               \
+	"",".exe","lib",".dll.a",".expsyms.def",\
 	"PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_cygwin,        \
 	"pe",0,                                 \
 	"lib",".a","lib",".dll","",".dll",      \
-	"",".exe","lib",".dll.a",               \
+	"",".exe","lib",".dll.a",".expsyms.def",\
 	"PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_msys,          \
 	"pe",0,                                 \
 	"lib",".a","lib",".dll","",".dll",      \
-	"",".exe","lib",".dll.a",               \
+	"",".exe","lib",".dll.a",".expsyms.def",\
 	"PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_darwin,        \
 	"macho","-fPIC",                        \
 	"lib",".a","lib",".dylib","",".dylib",  \
-	"","","","",                            \
+	"","","","",".exp",                     \
 	"DYLD_LIBRARY_PATH");
 
 
