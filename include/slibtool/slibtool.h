@@ -189,44 +189,58 @@ struct slbt_fd_ctx {
 struct slbt_exec_ctx {
 	char *		program;
 	char *		compiler;
+
 	char **		cargv;
 	char **		xargv;
 	char **		argv;
 	char **		envp;
 	char ** 	altv;
+
 	char ** 	dpic;
 	char ** 	fpic;
+
 	char ** 	cass;
 	char ** 	noundef;
 	char ** 	soname;
 	char ** 	lsoname;
+
 	char ** 	symdefs;
 	char ** 	symfile;
+
 	char ** 	lout[2];
 	char ** 	mout[2];
 	char ** 	rpath[2];
+
 	char ** 	sentinel;
 	char *		csrc;
+
 	int		ldirdepth;
 	char *		ldirname;
 	char *		lbasename;
+
 	char *		lobjname;
 	char *		aobjname;
 	char *		ltobjname;
+
 	char *		arfilename;
 	char *		lafilename;
 	char *		laifilename;
+
 	char *		dsobasename;
 	char *		dsofilename;
+
 	char *		relfilename;
 	char *		dsorellnkname;
 	char *		deffilename;
 	char *		rpathfilename;
+
 	char *		dimpfilename;
 	char *		pimpfilename;
 	char *		vimpfilename;
+
 	char *		exefilename;
 	char *		sonameprefix;
+
 	pid_t		pid;
 	int		exitcode;
 };
