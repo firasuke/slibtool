@@ -11,15 +11,14 @@
 
 /* legacy fallback, no longer in use */
 extern int slbt_util_import_archive_mri(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
+	const struct slbt_exec_ctx *    ectx,
 	char *				dstarchive,
 	char *				srcarchive);
 
 /* use slibtool's in-memory archive merging facility */
 static int slbt_util_import_archive_impl(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
+	const struct slbt_driver_ctx *  dctx,
+	const struct slbt_exec_ctx *	ectx,
 	char *				dstarchive,
 	char *				srcarchive)
 {
@@ -52,11 +51,14 @@ static int slbt_util_import_archive_impl(
 
 
 int slbt_util_import_archive(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
+	const struct slbt_exec_ctx *    ectx,
 	char *				dstarchive,
 	char *				srcarchive)
 {
+	const struct slbt_driver_ctx *	dctx;
+
+	dctx = (slbt_get_exec_ictx(ectx))->dctx;
+
 	if (slbt_symlink_is_a_placeholder(
 			slbt_driver_fdcwd(dctx),
 			srcarchive))

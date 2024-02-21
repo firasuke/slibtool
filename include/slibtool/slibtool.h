@@ -414,7 +414,7 @@ slbt_api int slbt_host_group_is_darwin  (const struct slbt_driver_ctx *);
 slbt_api int  slbt_host_flavor_settings (const char *, const struct slbt_flavor_settings **);
 
 /* utility helper interfaces */
-slbt_api int  slbt_util_import_archive  (const struct slbt_driver_ctx *, struct slbt_exec_ctx *,
+slbt_api int  slbt_util_import_archive  (const struct slbt_exec_ctx *,
                                          char * dstarchive, char * srcarchive);
 
 slbt_api int  slbt_util_create_mapfile  (const struct slbt_symlist_ctx *, const char *, mode_t);
