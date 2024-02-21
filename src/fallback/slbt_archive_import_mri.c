@@ -21,6 +21,7 @@
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_realpath_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
@@ -100,10 +101,9 @@ static void slbt_util_import_archive_child(
 }
 
 int slbt_util_import_archive_mri(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
-	char *				dstarchive,
-	char *				srcarchive)
+	struct slbt_exec_ctx *  ectx,
+	char *			dstarchive,
+	char *			srcarchive)
 {
 	int	fdcwd;
 	pid_t	pid;
@@ -115,6 +115,11 @@ int slbt_util_import_archive_mri(
 	char	mridst [96];
 	char	mrisrc [96];
 	char	program[PATH_MAX];
+
+	const struct slbt_driver_ctx * dctx;
+
+	/* driver context */
+	dctx = (slbt_get_exec_ictx(ectx))->dctx;
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);

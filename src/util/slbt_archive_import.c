@@ -11,9 +11,9 @@
 
 /* legacy fallback, no longer in use */
 extern int slbt_util_import_archive_mri(
-	const struct slbt_exec_ctx *    ectx,
-	char *				dstarchive,
-	char *				srcarchive);
+	struct slbt_exec_ctx *  ectx,
+	char *			dstarchive,
+	char *			srcarchive);
 
 /* use slibtool's in-memory archive merging facility */
 static int slbt_util_import_archive_impl(
