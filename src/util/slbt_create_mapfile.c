@@ -13,6 +13,7 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_pecoff_impl.h"
 #include "slibtool_ar_impl.h"
 
 /****************************************************/
@@ -23,13 +24,6 @@
 /* prepend symbol names with an underscore whenever */
 /* necessary.                                       */
 /****************************************************/
-
-static int slbt_is_strong_coff_symbol(const char * sym)
-{
-	return strncmp(sym,"__imp_",6)
-		&& strncmp(sym,".weak.",6)
-		&& strncmp(sym,".refptr.",8);
-}
 
 static int slbt_util_output_mapfile_impl(
 	const struct slbt_driver_ctx *  dctx,

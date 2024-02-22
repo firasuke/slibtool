@@ -65,6 +65,7 @@ INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_mapfile_impl.c \
 	src/internal/$(PACKAGE)_objlist_impl.c \
 	src/internal/$(PACKAGE)_objmeta_impl.c \
+	src/internal/$(PACKAGE)_pecoff_impl.c \
 	src/internal/$(PACKAGE)_realpath_impl.c \
 	src/internal/$(PACKAGE)_snprintf_impl.c \
 	src/internal/$(PACKAGE)_symlink_impl.c \
