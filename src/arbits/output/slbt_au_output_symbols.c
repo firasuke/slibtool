@@ -43,7 +43,7 @@ static int slbt_au_output_symbols_posix(
 			return SLBT_NESTED_ERROR(dctx);
 
 	if ((regex = dctx->cctx->regex))
-		if (regcomp(&regctx,regex,REG_NEWLINE))
+		if (regcomp(&regctx,regex,REG_EXTENDED|REG_NEWLINE))
 			return SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_FLOW_ERROR);
