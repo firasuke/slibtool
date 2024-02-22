@@ -31,7 +31,7 @@ static const char * ldrpath_elf[] = {
 SLBT_FLAVOR_SETTINGS(host_flavor_default,       \
 	"elf","-fPIC",                          \
 	"lib",".a","lib",".so",".so","",        \
-	"","","","",".ver",                     \
+	"","","","",".expsyms.ver",             \
 	"LD_LIBRARY_PATH");
 
 SLBT_FLAVOR_SETTINGS(host_flavor_midipix,       \
@@ -61,7 +61,7 @@ SLBT_FLAVOR_SETTINGS(host_flavor_msys,          \
 SLBT_FLAVOR_SETTINGS(host_flavor_darwin,        \
 	"macho","-fPIC",                        \
 	"lib",".a","lib",".dylib","",".dylib",  \
-	"","","","",".exp",                     \
+	"","","","",".expsyms.exp",             \
 	"DYLD_LIBRARY_PATH");
 
 

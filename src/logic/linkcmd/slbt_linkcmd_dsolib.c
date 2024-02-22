@@ -224,6 +224,26 @@ slbt_hidden int slbt_exec_link_create_library(
 		}
 	}
 
+	/* -export-symbols-regex; and see also:     */
+	/* slbt_exec_link_create_expsyms_archive() */
+	if (dctx->cctx->regex) {
+		if (slbt_snprintf(mapfile,sizeof(mapfile),
+					"-Wl,%s",
+					ectx->mapfilename) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		if (slbt_host_group_is_darwin(dctx)) {
+			*ectx->explarg = "-Wl,-exported_symbols_list";
+			*ectx->expsyms = mapfile;
+
+		} else if (slbt_host_group_is_winnt(dctx)) {
+			*ectx->expsyms = mapfile;
+		} else {
+			*ectx->explarg = "-Wl,--version-script";
+			*ectx->expsyms = mapfile;
+		}
+	}
+
 	/* shared/static */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ALL_STATIC) {
 		*ectx->dpic = "-static";

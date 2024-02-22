@@ -15,6 +15,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_spawn_impl.h"
 #include "slibtool_linkcmd_impl.h"
 #include "slibtool_mapfile_impl.h"
 #include "slibtool_metafile_impl.h"
@@ -560,6 +561,127 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 }
 
 
+static int slbt_exec_link_remove_file(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	const char *			target)
+{
+	int fdcwd;
+
+	(void)ectx;
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* remove target (if any) */
+	if (!unlinkat(fdcwd,target,0) || (errno == ENOENT))
+		return 0;
+
+	return SLBT_SYSTEM_ERROR(dctx,0);
+}
+
+
+static int slbt_exec_link_create_expsyms_archive(
+	const struct slbt_driver_ctx *  dctx,
+	struct slbt_exec_ctx *          ectx,
+	char **                         lobjv,
+	char **                         cnvlv)
+{
+	int                             ret;
+	char *                          dot;
+	char **                         argv;
+	char **                         aarg;
+	char **                         parg;
+	struct slbt_archive_ctx *       arctx;
+	char **                         ectx_argv;
+	char *                          ectx_program;
+	char                            program[PATH_MAX];
+	char                            output [PATH_MAX];
+
+	/* output */
+	if (slbt_snprintf(output,sizeof(output),
+			"%s",ectx->mapfilename) < 0)
+		return SLBT_BUFFER_ERROR(dctx);
+
+	if (!(dot = strrchr(output,'.')))
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_FLOW_ERROR);
+
+	dot[1] = 'a';
+	dot[2] = '\0';
+
+	/* tool-specific argument vector */
+	argv = (slbt_get_driver_ictx(dctx))->host.ar_argv;
+
+	/* ar alternate argument vector */
+	if (!argv)
+		if (slbt_snprintf(program,sizeof(program),
+				"%s",dctx->cctx->host.ar) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+
+	/* ar command argument vector */
+	aarg = lobjv;
+
+	if ((parg = argv)) {
+		for (; *parg; )
+			*aarg++ = *parg++;
+	} else {
+		*aarg++ = program;
+	}
+
+	*aarg++ = "-crs";
+	*aarg++ = output;
+
+	ectx_argv     = ectx->argv;
+	ectx_program  = ectx->program;
+
+	ectx->argv    = lobjv;
+	ectx->program = ectx->argv[0];
+
+	/* step output */
+	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
+		if (slbt_output_link(ectx))
+			return SLBT_NESTED_ERROR(dctx);
+
+	/* remove old archive as needed */
+	if (slbt_exec_link_remove_file(dctx,ectx,output))
+		return SLBT_NESTED_ERROR(dctx);
+
+	/* ar spawn */
+	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {
+		return SLBT_SPAWN_ERROR(dctx);
+
+	} else if (ectx->exitcode) {
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_AR_ERROR);
+	}
+
+	/* restore link command ectx */
+	ectx->argv    = ectx_argv;
+	ectx->program = ectx_program;
+
+	/* input objects associated with .la archives */
+	for (parg=cnvlv; *parg; parg++)
+		if (slbt_util_import_archive(ectx,output,*parg))
+			return SLBT_NESTED_ERROR(dctx);
+
+	/* do the thing */
+	if (slbt_ar_get_archive_ctx(dctx,output,&arctx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	ret = slbt_ar_create_mapfile(
+		arctx->meta,
+		ectx->mapfilename,
+		0644);
+
+	slbt_ar_free_archive_ctx(arctx);
+
+	return (ret < 0) ? SLBT_NESTED_ERROR(dctx) : 0;
+}
+
+
 slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx)
@@ -568,14 +690,21 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	char **		sargvbuf;
 	char **		base;
 	char **		parg;
+	char **		pcap;
+	char **         argv;
+	char **         mark;
 	char **		aarg;
 	char **		oarg;
+	char **		lobj;
+	char **		cnvl;
 	char **		larg;
 	char **		darg;
 	char **		earg;
 	char **		rarg;
 	char **		aargv;
 	char **		oargv;
+	char **		lobjv;
+	char **		cnvlv;
 	char **		cap;
 	char **		src;
 	char **		dst;
@@ -591,29 +720,58 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	for (parg=base; *parg; parg++)
 		(void)0;
 
+	if (dctx->cctx->regex) {
+		argv = (slbt_get_driver_ictx(dctx))->host.ar_argv;
+
+		for (mark=argv; mark && *mark; mark++)
+			(void)0;
+	} else {
+		argv = 0;
+		mark  = 0;
+	}
+
 	/* buffer */
-	if (parg - base < 512) {
+	if ((parg - base) + (mark - argv) < 256) {
 		aargv    = &sargv[0];
-		oargv    = &sargv[512];
-		aarg     = aargv;
-		oarg     = oargv;
+		oargv    = &sargv[1*256];
+		lobjv    = &sargv[2*256];
+		cnvlv    = &sargv[3*256];
 		sargvbuf = 0;
 
-	} else if (!(sargvbuf = calloc(2*(parg-base+1),sizeof(char *)))) {
+		parg = &sargv[0];
+		pcap = &sargv[1024];
+
+		for (; parg<pcap; )
+			*parg++ = 0;
+
+	} else if (!(sargvbuf = calloc(3*(parg-base+1),sizeof(char *)))) {
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	} else {
 		aargv = &sargvbuf[0];
-		oargv = &sargvbuf[parg-base+1];
-		aarg  = aargv;
-		oarg  = oargv;
+		oargv = &sargvbuf[1*(parg-base+1)];
+		lobjv = &sargvbuf[2*(parg-base+1)];
+		cnvlv = &sargvbuf[3*(parg-base+1)];
 	}
+
+	aarg = aargv;
+	oarg = oargv;
+	cnvl = cnvlv;
+	lobj = lobjv;
+
+	/* -export-symbols-regex: lobjv in place: ar [arg] [arg] -crs <output> */
+	if (dctx->cctx->regex && argv)
+		lobj += mark - argv + 2;
+	else
+		lobj += 3;
 
 	/* (program name) */
 	parg = &base[1];
 
 	/* split object args from all other args, record output */
-	/* annotation, and remove redundant -l arguments       */
+	/* annotation, and remove redundant -l arguments; and   */
+	/* create additional vectors of all input objects as    */
+	/* convenience libraries for -export-symbols-regex.     */
 	for (; *parg; ) {
 		if (ectx->lout[0] == parg) {
 			ectx->lout[0] = &aarg[0];
@@ -630,6 +788,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 
 		/* object input argument? */
 		if (dot && (!strcmp(dot,".o") || !strcmp(dot,".lo"))) {
+			*lobj++ = *parg;
 			*oarg++ = *parg++;
 
 		/* --whole-archive input argument? */
@@ -642,6 +801,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 				&& !strcmp(parg[2],"-Wl,--no-whole-archive")
 				&& (dot = strrchr(parg[1],'.'))
 				&& !strcmp(dot,arsuffix)) {
+			*cnvl++ = parg[1];
 			*oarg++ = *parg++;
 			*oarg++ = *parg++;
 			*oarg++ = *parg++;
@@ -710,6 +870,12 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 			*aarg++ = *parg++;
 		}
 	}
+
+	/* export-symbols-regex */
+	if (dctx->cctx->regex)
+		if (slbt_exec_link_create_expsyms_archive(
+				dctx,ectx,lobjv,cnvlv) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 
 	/* program name, ccwrap */
 	if ((ccwrap = (char *)dctx->cctx->ccwrap)) {
