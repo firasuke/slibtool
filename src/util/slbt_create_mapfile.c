@@ -26,7 +26,9 @@
 
 static int slbt_is_strong_coff_symbol(const char * sym)
 {
-	return strncmp(sym,"__imp_",6) && strncmp(sym,".weak.",6);
+	return strncmp(sym,"__imp_",6)
+		&& strncmp(sym,".weak.",6)
+		&& strncmp(sym,".refptr.",8);
 }
 
 static int slbt_util_output_mapfile_impl(
