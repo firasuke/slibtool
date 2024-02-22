@@ -216,14 +216,12 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 	{"export-symbols",	0,TAG_EXPSYMS_FILE,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<symfile>",
-				"only export the symbols that are listed in %s "
-				"[currently a no-op]"},
+				"only export the symbols that are listed in %s "},
 
 	{"export-symbols-regex",0,TAG_EXPSYMS_REGEX,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<regex>",
-				"only export symbols mathing the regex expression %s "
-				"[currently a no-op]"},
+				"only export symbols mathing the regex expression %s "},
 
 	{"module",		0,TAG_MODULE,ARGV_OPTARG_NONE,
 				ARGV_OPTION_HYBRID_ONLY,0,0,
