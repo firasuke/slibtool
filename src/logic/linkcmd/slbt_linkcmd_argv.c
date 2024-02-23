@@ -672,31 +672,44 @@ static int slbt_exec_link_create_expsyms_archive(
 	if (slbt_ar_get_archive_ctx(dctx,output,&arctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
-	ret = slbt_ar_create_mapfile(
-		arctx->meta,
-		ectx->mapfilename,
-		0644);
-
 	/* .expsyms.a --> .exp */
-	if (ret == 0) {
-		*dot = '\0';
+	if ((*dot = '\0'), !(dot = strrchr(output,'.'))) {
+		slbt_ar_free_archive_ctx(arctx);
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_FLOW_ERROR);
+	}
 
-		if ((dot = strrchr(output,'.'))) {
-			dot[1] = 'e';
-			dot[2] = 'x';
-			dot[3] = 'p';
-			dot[4] = '\0';
+	dot[1] = 'e';
+	dot[2] = 'x';
+	dot[3] = 'p';
+	dot[4] = '\0';
 
-			ret = slbt_ar_create_symfile(
-				arctx->meta,
-				output,
-				0644);
-		}
+	/* symfile */
+	if (dctx->cctx->expsyms) {
+		struct slbt_symlist_ctx * sctx;
+		sctx = (slbt_get_exec_ictx(ectx))->sctx;
+
+		ret = slbt_util_create_symfile(
+			sctx,output,0644);
+	} else {
+		ret = slbt_ar_create_symfile(
+			arctx->meta,
+			output,
+			0644);
+	}
+
+	/* mapfile */
+	if ((ret == 0) && (dctx->cctx->regex)) {
+		ret = slbt_ar_create_mapfile(
+			arctx->meta,
+			ectx->mapfilename,
+			0644);
 	}
 
 	slbt_ar_free_archive_ctx(arctx);
 
-	return ((ret < 0) && dot) ? SLBT_NESTED_ERROR(dctx) : 0;
+	return (ret < 0) ? SLBT_NESTED_ERROR(dctx) : 0;
 }
 
 
@@ -889,8 +902,8 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 		}
 	}
 
-	/* export-symbols-regex */
-	if (dctx->cctx->regex)
+	/* export-symbols-regex, proper dlpreopen support */
+	if (dctx->cctx->libname)
 		if (slbt_exec_link_create_expsyms_archive(
 				dctx,ectx,lobjv,cnvlv) < 0)
 			return SLBT_NESTED_ERROR(dctx);
