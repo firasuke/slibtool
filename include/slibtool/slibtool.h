@@ -422,6 +422,8 @@ slbt_api int  slbt_util_copy_file       (struct slbt_exec_ctx *,
 
 slbt_api int  slbt_util_create_mapfile  (const struct slbt_symlist_ctx *, const char *, mode_t);
 
+slbt_api int  slbt_util_create_symfile  (const struct slbt_symlist_ctx *, const char *, mode_t);
+
 slbt_api int  slbt_util_dump_machine    (const char * compiler, char * machine, size_t bufsize);
 
 slbt_api int  slbt_util_real_path       (int, const char *, int, char *, size_t);
