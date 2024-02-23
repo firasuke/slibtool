@@ -717,6 +717,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx)
 {
+	size_t          nargs;
 	char *		sargv[1024];
 	char **		sargvbuf;
 	char **		base;
@@ -762,7 +763,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	}
 
 	/* buffer */
-	if ((parg - base) + (mark - argv) < 256) {
+	if ((nargs = ((parg - base) + (mark - argv))) < 256) {
 		aargv    = &sargv[0];
 		oargv    = &sargv[1*256];
 		lobjv    = &sargv[2*256];
@@ -775,14 +776,14 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 		for (; parg<pcap; )
 			*parg++ = 0;
 
-	} else if (!(sargvbuf = calloc(3*(parg-base+1),sizeof(char *)))) {
+	} else if (!(sargvbuf = calloc(4*(nargs+1),sizeof(char *)))) {
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	} else {
 		aargv = &sargvbuf[0];
-		oargv = &sargvbuf[1*(parg-base+1)];
-		lobjv = &sargvbuf[2*(parg-base+1)];
-		cnvlv = &sargvbuf[3*(parg-base+1)];
+		oargv = &sargvbuf[1*(nargs+1)];
+		lobjv = &sargvbuf[2*(nargs+1)];
+		cnvlv = &sargvbuf[3*(nargs+1)];
 	}
 
 	aarg = aargv;
