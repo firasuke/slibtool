@@ -608,6 +608,7 @@ static int slbt_exec_link_create_expsyms_archive(
 			dctx,
 			SLBT_ERR_FLOW_ERROR);
 
+	/* .expsyms.xxx --> .expsyms.a */
 	dot[1] = 'a';
 	dot[2] = '\0';
 
@@ -676,9 +677,26 @@ static int slbt_exec_link_create_expsyms_archive(
 		ectx->mapfilename,
 		0644);
 
+	/* .expsyms.a --> .exp */
+	if (ret == 0) {
+		*dot = '\0';
+
+		if ((dot = strrchr(output,'.'))) {
+			dot[1] = 'e';
+			dot[2] = 'x';
+			dot[3] = 'p';
+			dot[4] = '\0';
+
+			ret = slbt_ar_create_symfile(
+				arctx->meta,
+				output,
+				0644);
+		}
+	}
+
 	slbt_ar_free_archive_ctx(arctx);
 
-	return (ret < 0) ? SLBT_NESTED_ERROR(dctx) : 0;
+	return ((ret < 0) && dot) ? SLBT_NESTED_ERROR(dctx) : 0;
 }
 
 
