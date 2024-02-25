@@ -198,6 +198,16 @@ struct slbt_symlist_ctx_impl {
 };
 
 
+struct slbt_txtfile_ctx_impl {
+	const struct slbt_driver_ctx *	dctx;
+	const char *                    path;
+	char *                          pathbuf;
+	char *                          txtlines;
+	const char **                   txtlinev;
+	struct slbt_txtfile_ctx         tctx;
+};
+
+
 const char * slbt_program_name(const char *);
 
 
