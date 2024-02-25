@@ -14,6 +14,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_visibility_impl.h"
 
 /********************************************************/
 /* Read a text file, and create an in-memory vecotr of  */
@@ -45,9 +46,10 @@ static int slbt_lib_free_txtfile_ctx_impl(
 	return ret;
 }
 
-int slbt_lib_get_txtfile_ctx(
+static int slbt_lib_get_txtfile_ctx_impl(
 	const struct slbt_driver_ctx *  dctx,
 	const char *                    path,
+	int                             fdsrc,
 	struct slbt_txtfile_ctx **      pctx)
 {
 	struct slbt_txtfile_ctx_impl *  ctx;
@@ -62,7 +64,7 @@ int slbt_lib_get_txtfile_ctx(
 	int                             cint;
 
 	/* map txtfile file temporarily */
-	if (slbt_fs_map_input(dctx,-1,path,PROT_READ,&mapinfo) < 0)
+	if (slbt_fs_map_input(dctx,fdsrc,path,PROT_READ,&mapinfo) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* alloc context */
@@ -138,6 +140,23 @@ int slbt_lib_get_txtfile_ctx(
 	*pctx = &ctx->tctx;
 
 	return 0;
+}
+
+slbt_hidden int slbt_impl_get_txtfile_ctx(
+	const struct slbt_driver_ctx *  dctx,
+	const char *                    path,
+	int                             fdsrc,
+	struct slbt_txtfile_ctx **      pctx)
+{
+	return slbt_lib_get_txtfile_ctx_impl(dctx,path,fdsrc,pctx);
+}
+
+int slbt_lib_get_txtfile_ctx(
+	const struct slbt_driver_ctx *  dctx,
+	const char *                    path,
+	struct slbt_txtfile_ctx **      pctx)
+{
+	return slbt_lib_get_txtfile_ctx_impl(dctx,path,(-1),pctx);
 }
 
 void slbt_lib_free_txtfile_ctx(struct slbt_txtfile_ctx * ctx)

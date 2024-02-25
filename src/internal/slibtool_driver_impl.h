@@ -308,6 +308,12 @@ void slbt_reset_placeholders   (struct slbt_exec_ctx *);
 
 void slbt_disable_placeholders (struct slbt_exec_ctx *);
 
+int slbt_impl_get_txtfile_ctx(
+	const struct slbt_driver_ctx *  dctx,
+	const char *                    path,
+	int                             fdsrc,
+	struct slbt_txtfile_ctx **      pctx);
+
 
 static inline struct slbt_archive_ctx_impl * slbt_get_archive_ictx(const struct slbt_archive_ctx * actx)
 {
