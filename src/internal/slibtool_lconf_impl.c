@@ -819,6 +819,19 @@ slbt_hidden int slbt_get_lconf_flags(
 	}
 
 
+	/* nm tool */
+	if (!ctx->cctx.host.nm) {
+		if (slbt_get_lconf_var(confctx,"NM=",0x20,&val) < 0)
+			return SLBT_CUSTOM_ERROR(
+				dctx,SLBT_ERR_LCONF_PARSE);
+
+		if (val[0] && !(ctx->host.nm = strdup(val)))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		ctx->cctx.host.nm = ctx->host.nm;
+	}
+
+
 	/* ranlib tool */
 	if (!ctx->cctx.host.ranlib) {
 		if (slbt_get_lconf_var(confctx,"RANLIB=",0x20,&val) < 0)

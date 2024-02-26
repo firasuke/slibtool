@@ -117,6 +117,9 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 	{"as",			0,TAG_AS,ARGV_OPTARG_REQUIRED,0,0,"<as>",
 				"explicitly specify the assembler to be used (with dlltool)"},
 
+	{"nm",			0,TAG_NM,ARGV_OPTARG_REQUIRED,0,0,"<nm>",
+				"explicitly specify the name mangler to be used"},
+
 	{"ranlib",		0,TAG_RANLIB,ARGV_OPTARG_REQUIRED,0,0,"<ranlib>",
 				"explicitly specify the librarian to be used"},
 

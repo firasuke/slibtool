@@ -47,6 +47,7 @@ enum app_tags {
 	TAG_FLAVOR,
 	TAG_AR,
 	TAG_AS,
+	TAG_NM,
 	TAG_RANLIB,
 	TAG_WINDRES,
 	TAG_DLLTOOL,
@@ -114,12 +115,14 @@ struct slbt_host_strs {
 	char *		flavor;
 	char *		ar;
 	char *		as;
+	char *		nm;
 	char *		ranlib;
 	char *		windres;
 	char *		dlltool;
 	char *		mdso;
 	char **		ar_argv;
 	char **		as_argv;
+	char **		nm_argv;
 	char **		ranlib_argv;
 	char **		windres_argv;
 	char **		dlltool_argv;
@@ -284,6 +287,7 @@ int slbt_init_host_params(
 	const char *                    cfgmeta_host,
 	const char *                    cfgmeta_ar,
 	const char *                    cfgmeta_as,
+	const char *                    cfgmeta_nm,
 	const char *                    cfgmeta_ranlib,
 	const char *                    cfgmeta_dlltool);
 

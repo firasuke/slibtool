@@ -272,6 +272,7 @@ struct slbt_host_params {
 	const char *			flavor;
 	const char *			ar;
 	const char *			as;
+	const char *			nm;
 	const char *			ranlib;
 	const char *			windres;
 	const char *			dlltool;

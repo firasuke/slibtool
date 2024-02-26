@@ -88,6 +88,7 @@ slbt_hidden int slbt_init_host_params(
 	const char *                    cfgmeta_host,
 	const char *                    cfgmeta_ar,
 	const char *                    cfgmeta_as,
+	const char *                    cfgmeta_nm,
 	const char *                    cfgmeta_ranlib,
 	const char *                    cfgmeta_dlltool)
 {
@@ -340,6 +341,24 @@ slbt_hidden int slbt_init_host_params(
 		host->as = drvhost->as;
 	}
 
+	/* nm */
+	if (host->nm)
+		cfgmeta->nm = cfgmeta_nm ? cfgmeta_nm : cfgexplicit;
+	else {
+		if (!(drvhost->nm = calloc(1,toollen)))
+			return -1;
+
+		if (fnative) {
+			strcpy(drvhost->nm,"nm");
+			cfgmeta->nm = cfgnative;
+		} else {
+			sprintf(drvhost->nm,"%s-nm",host->host);
+			cfgmeta->nm = cfghost;
+		}
+
+		host->nm = drvhost->nm;
+	}
+
 	/* ranlib */
 	if (host->ranlib)
 		cfgmeta->ranlib = cfgmeta_ranlib ? cfgmeta_ranlib : cfgexplicit;
@@ -469,6 +488,9 @@ slbt_hidden void slbt_free_host_params(struct slbt_host_strs * host)
 	if (host->as)
 		free(host->as);
 
+	if (host->nm)
+		free(host->nm);
+
 	if (host->ranlib)
 		free(host->ranlib);
 
@@ -483,6 +505,7 @@ slbt_hidden void slbt_free_host_params(struct slbt_host_strs * host)
 
 	slbt_free_host_tool_argv(host->ar_argv);
 	slbt_free_host_tool_argv(host->as_argv);
+	slbt_free_host_tool_argv(host->nm_argv);
 	slbt_free_host_tool_argv(host->ranlib_argv);
 	slbt_free_host_tool_argv(host->windres_argv);
 	slbt_free_host_tool_argv(host->dlltool_argv);
@@ -534,7 +557,7 @@ int  slbt_host_set_althost(
 			&ictx->ctx.ahost,
 			&ictx->ctx.cctx.ahost,
 			&ictx->ctx.cctx.acfgmeta,
-			0,0,0,0,0)) {
+			0,0,0,0,0,0)) {
 		slbt_free_host_params(&ictx->ctx.ahost);
 		return SLBT_CUSTOM_ERROR(ctx,SLBT_ERR_HOST_INIT);
 	}
