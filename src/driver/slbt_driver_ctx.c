@@ -1001,6 +1001,9 @@ static void slbt_lib_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 			ictx->ctx.lconf.addr,
 			ictx->ctx.lconf.size);
 
+	if (ictx->ctx.lconfctx)
+		slbt_lib_free_txtfile_ctx(ictx->ctx.lconfctx);
+
 	for (objlistp=ictx->ctx.objlistv; objlistp->name; objlistp++) {
 		free(objlistp->objv);
 		free(objlistp->addr);

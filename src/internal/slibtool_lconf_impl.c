@@ -366,13 +366,21 @@ static int slbt_lconf_trace_result_silent(
 	int				fd,
 	int				fdat,
 	const char *			lconf,
-	int				err)
+	int				err,
+	char				(*pathbuf)[PATH_MAX])
 {
 	(void)dctx;
 	(void)fd;
 	(void)fdat;
 	(void)lconf;
-	return err ? (-1) : fd;
+
+	if (err)
+		return -1;
+
+	if (slbt_realpath(fdat,lconf,0,*pathbuf,sizeof(*pathbuf)) <0)
+		return -1;
+
+	return fd;
 }
 
 static int slbt_lconf_trace_result_plain(
@@ -380,16 +388,16 @@ static int slbt_lconf_trace_result_plain(
 	int				fd,
 	int				fdat,
 	const char *			lconf,
-	int				err)
+	int				err,
+	char				(*pathbuf)[PATH_MAX])
 {
 	int             fderr;
 	const char *    cpath;
-	char            path[PATH_MAX];
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
-		? path : lconf;
+	cpath = !(slbt_realpath(fdat,lconf,0,*pathbuf,sizeof(*pathbuf)))
+		? *pathbuf : lconf;
 
 	switch (err) {
 		case 0:
@@ -428,16 +436,16 @@ static int slbt_lconf_trace_result_annotated(
 	int				fd,
 	int				fdat,
 	const char *			lconf,
-	int				err)
+	int				err,
+	char				(*pathbuf)[PATH_MAX])
 {
 	int             fderr;
 	const char *    cpath;
-	char            path[PATH_MAX];
 
 	fderr = slbt_driver_fderr(dctx);
 
-	cpath = !(slbt_realpath(fdat,lconf,0,path,sizeof(path)))
-		? path : lconf;
+	cpath = !(slbt_realpath(fdat,lconf,0,*pathbuf,sizeof(*pathbuf)))
+		? *pathbuf : lconf;
 
 	switch (err) {
 		case 0:
@@ -506,7 +514,8 @@ static int slbt_lconf_trace_result_annotated(
 
 static int slbt_lconf_open(
 	struct slbt_driver_ctx *	dctx,
-	const char *			lconf)
+	const char *			lconf,
+	char				(*lconfpath)[PATH_MAX])
 {
 	int		fderr;
 	int		fdcwd;
@@ -527,7 +536,8 @@ static int slbt_lconf_open(
 	                                int,const char *,int,int);
 
 	int             (*trace_result)(struct slbt_driver_ctx *,
-	                                int,int,const char *,int);
+	                                int,int,const char *,int,
+	                                char (*)[PATH_MAX]);
 
 	lconf      = lconf ? lconf : "libtool";
 	fderr      = slbt_driver_fderr(dctx);
@@ -573,7 +583,7 @@ static int slbt_lconf_open(
 	if (lconf && strchr(lconf,'/'))
 		return ((fdlconf = trace_openat(dctx,fdcwd,lconf,O_RDONLY,0)) < 0)
 			? SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_LCONF_OPEN)
-			: trace_result(dctx,fdlconf,fdcwd,lconf,0);
+			: trace_result(dctx,fdlconf,fdcwd,lconf,0,lconfpath);
 
 	if (trace_fstat(dctx,fdlconfdir,".",&stcwd) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -594,14 +604,14 @@ static int slbt_lconf_open(
 		}
 
 		if (stparent.st_dev != stcwd.st_dev) {
-			trace_result(dctx,fdparent,fdparent,".",EXDEV);
+			trace_result(dctx,fdparent,fdparent,".",EXDEV,lconfpath);
 			close(fdparent);
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_OPEN);
 		}
 
 		if (stparent.st_ino == stinode) {
-			trace_result(dctx,fdparent,fdparent,".",ELOOP);
+			trace_result(dctx,fdparent,fdparent,".",ELOOP,lconfpath);
 			close(fdparent);
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_OPEN);
@@ -612,7 +622,7 @@ static int slbt_lconf_open(
 		stinode    = stparent.st_ino;
 	}
 
-	trace_result(dctx,fdlconf,fdlconfdir,lconf,0);
+	trace_result(dctx,fdlconf,fdlconfdir,lconf,0,lconfpath);
 
 	slbt_lconf_close(fdcwd,fdlconfdir);
 
@@ -730,7 +740,11 @@ slbt_hidden int slbt_get_lconf_flags(
 	ctx = slbt_get_driver_ictx(dctx);
 
 	/* open relative libtool script */
-	if ((fdlconf = slbt_lconf_open(dctx,lconf)) < 0)
+	if ((fdlconf = slbt_lconf_open(dctx,lconf,&val)) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	/* cache the configuration in library friendly form) */
+	if (slbt_lib_get_txtfile_ctx(dctx,val,&ctx->lconfctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* map relative libtool script */
