@@ -630,43 +630,34 @@ static int slbt_lconf_open(
 }
 
 static int slbt_get_lconf_var(
-	void *          addr,
-	const char *    cap,
-	const char *    var,
-	const char      space,
-	char            (*val)[PATH_MAX])
+	const struct slbt_txtfile_ctx * tctx,
+	const char *                    var,
+	const char                      space,
+	char                            (*val)[PATH_MAX])
 {
+	const char **   pline;
 	const char *    mark;
 	const char *    match;
+	const char *    cap;
 	ssize_t         len;
 	int             cint;
 
 	/* init */
-	len   = strlen(var);
-	mark  = addr;
 	match = 0;
-
-	memset(*val,0,PATH_MAX);
+	pline = tctx->txtlinev;
+	len   = strlen(var);
 
 	/* search for ^var= */
-	for (; (mark < cap) && !match; ) {
-		if ((cap - mark) <= len)
-			return 0;
-
-		if (!strncmp(mark,var,len)) {
-			match = mark;
-
+	for (; *pline && !match; ) {
+		if (!strncmp(*pline,var,len)) {
+			match = *pline;
 		} else {
-			while ((*mark != '\n') && (mark < cap))
-				mark++;
-
-			while (isspace((cint=*mark)) && (mark < cap))
-				mark++;
+			pline++;
 		}
 	}
 
 	/* not found? */
-	if (mark == cap)
+	if (!match)
 		return 0;
 
 	/* support a single pair of double quotes */
@@ -677,22 +668,21 @@ static int slbt_get_lconf_var(
 		match++;
 		mark++;
 
-		for (; (*mark != '"') && (mark < cap); )
+		for (; *mark && (*mark != '"'); )
 			mark++;
+
+		/* unpaired quote? */
+		if (*mark != '"')
+			return -1;
 	} else {
-		for (; !isspace((cint=*mark)) && (mark < cap); )
+		for (; *mark && !isspace((cint=*mark)); )
 			mark++;
 	}
 
+	cap = mark;
 
 	/* validate */
-	if ((len = mark - match) >= PATH_MAX)
-		return -1;
-
-	/* copy and validate */
-	strncpy(*val,match,len);
-
-	for (mark=*val; *mark; mark++) {
+	for (mark=match; mark<cap; mark++) {
 		if ((*mark >= 'a') && (*mark <= 'z'))
 			(void)0;
 
@@ -718,6 +708,10 @@ static int slbt_get_lconf_var(
 			return -1;
 	}
 
+	/* all done */
+	memcpy(*val,match,cap-match);
+	(*val)[cap-match] = '\0';
+
 	return 0;
 }
 
@@ -727,11 +721,10 @@ slbt_hidden int slbt_get_lconf_flags(
 	uint64_t *			flags)
 {
 	struct slbt_driver_ctx_impl *   ctx;
+	struct slbt_txtfile_ctx *       confctx;
 	int				fdlconf;
 	struct stat			st;
 	void *				addr;
-	const char *			mark;
-	const char *			cap;
 	uint64_t			optshared;
 	uint64_t			optstatic;
 	char                            val[PATH_MAX];
@@ -746,6 +739,8 @@ slbt_hidden int slbt_get_lconf_flags(
 	/* cache the configuration in library friendly form) */
 	if (slbt_lib_get_txtfile_ctx(dctx,val,&ctx->lconfctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
+
+	confctx = ctx->lconfctx;
 
 	/* map relative libtool script */
 	if (fstat(fdlconf,&st) < 0)
@@ -762,15 +757,12 @@ slbt_hidden int slbt_get_lconf_flags(
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_MAP);
 
-	mark = addr;
-	cap  = &mark[st.st_size];
-
 	/* scan */
 	optshared = 0;
 	optstatic = 0;
 
 	/* shared libraries option */
-	if (slbt_get_lconf_var(addr,cap,"build_libtool_libs=",0,&val) < 0)
+	if (slbt_get_lconf_var(confctx,"build_libtool_libs=",0,&val) < 0)
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -783,7 +775,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 
 	/* static libraries option */
-	if (slbt_get_lconf_var(addr,cap,"build_old_libs=",0,&val) < 0)
+	if (slbt_get_lconf_var(confctx,"build_old_libs=",0,&val) < 0)
 		return SLBT_CUSTOM_ERROR(
 			dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -803,7 +795,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* host */
 	if (!ctx->cctx.host.host) {
-		if (slbt_get_lconf_var(addr,cap,"host=",0,&val) < 0)
+		if (slbt_get_lconf_var(confctx,"host=",0,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -816,7 +808,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* ar tool */
 	if (!ctx->cctx.host.ar) {
-		if (slbt_get_lconf_var(addr,cap,"AR=",0x20,&val) < 0)
+		if (slbt_get_lconf_var(confctx,"AR=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -829,7 +821,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* ranlib tool */
 	if (!ctx->cctx.host.ranlib) {
-		if (slbt_get_lconf_var(addr,cap,"RANLIB=",0x20,&val) < 0)
+		if (slbt_get_lconf_var(confctx,"RANLIB=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -842,7 +834,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* as tool (optional) */
 	if (!ctx->cctx.host.as) {
-		if (slbt_get_lconf_var(addr,cap,"AS=",0x20,&val) < 0)
+		if (slbt_get_lconf_var(confctx,"AS=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
@@ -856,7 +848,7 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* dlltool tool (optional) */
 	if (!ctx->cctx.host.dlltool) {
-		if (slbt_get_lconf_var(addr,cap,"DLLTOOL=",0x20,&val) < 0)
+		if (slbt_get_lconf_var(confctx,"DLLTOOL=",0x20,&val) < 0)
 			return SLBT_CUSTOM_ERROR(
 				dctx,SLBT_ERR_LCONF_PARSE);
 
