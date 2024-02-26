@@ -257,6 +257,8 @@ slbt_hidden int slbt_adjust_linker_argument(
 
 		if (slbt_symlink_is_a_placeholder(fdcwd,arg))
 			sprintf(dot,"%s",arsuffix);
+		else if (dctx->cctx->drvflags & SLBT_DRIVER_STATIC)
+			sprintf(dot,"%s",arsuffix);
 		else if ((fdlib = openat(fdcwd,arg,O_RDONLY)) >= 0)
 			close(fdlib);
 		else
