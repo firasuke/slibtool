@@ -309,7 +309,7 @@ static int slbt_exec_install_library_wrapper(
 	close(fddst);
 	slbt_unmap_file(mapinfo);
 
-	/* cp libfoo.la.slibtool.instal /dstdir/libfoo.la */
+	/* cp libfoo.la.slibtool.install /dstdir/libfoo.la */
 	if (slbt_util_copy_file(ectx,clainame,instname))
 		return SLBT_NESTED_ERROR(dctx);
 
