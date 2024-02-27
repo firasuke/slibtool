@@ -861,7 +861,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 				/* if all -l arguments following the previous */
 				/* occurence had already appeared before the */
 				/* previous argument, then the current      */
-				/* occurence is redundant.                 */
+				/* occurence is (possibly) redundant.      */
 
 				for (darg=&larg[1]; rarg && darg<aarg; darg++) {
 					/* only test -l arguments */
@@ -871,6 +871,13 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 								rarg = darg;
 					}
 				}
+
+				/* any archive (.a) input arguments between the */
+				/* current occurrence and the previous one?    */
+				for (darg=&larg[1]; rarg && darg<aarg; darg++)
+					if ((dot = strrchr(*darg,'.')))
+						if (!(strcmp(dot,arsuffix)))
+							rarg = 0;
 
 				/* final verdict: repeated -l argument? */
 				if (rarg) {
