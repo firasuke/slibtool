@@ -40,6 +40,12 @@ static int slbt_ar_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, 
 		if (meta->namestrs)
 			free(meta->namestrs);
 
+		if (meta->syminfo)
+			free(meta->syminfo);
+
+		if (meta->syminfv)
+			free(meta->syminfv);
+
 		if (meta->memberv)
 			free(meta->memberv);
 
@@ -54,6 +60,9 @@ static int slbt_ar_free_archive_meta_impl(struct slbt_archive_meta_impl * meta, 
 
 		if (meta->mapstrv)
 			free(meta->mapstrv);
+
+		if (meta->nminfo)
+			slbt_lib_free_txtfile_ctx(meta->nminfo);
 
 		free(meta);
 	}

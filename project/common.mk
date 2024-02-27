@@ -6,6 +6,7 @@ API_SRCS = \
 	src/arbits/slbt_archive_meta.c \
 	src/arbits/slbt_archive_store.c \
 	src/arbits/slbt_archive_symfile.c \
+	src/arbits/slbt_archive_syminfo.c \
 	src/arbits/slbt_armap_bsd_32.c \
 	src/arbits/slbt_armap_bsd_64.c \
 	src/arbits/slbt_armap_sysv_32.c \

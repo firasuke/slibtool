@@ -44,9 +44,12 @@ struct slbt_archive_meta_impl {
 	const char **                   symstrv;
 	const char **                   mapstrv;
 	off_t *                         offsetv;
+	struct ar_meta_symbol_info *    syminfo;
+	struct ar_meta_symbol_info **   syminfv;
 	struct ar_meta_member_info **   memberv;
 	struct ar_meta_member_info *    members;
 	struct ar_armaps_impl           armaps;
+	struct slbt_txtfile_ctx *       nminfo;
 	struct slbt_archive_meta        armeta;
 };
 
@@ -73,6 +76,10 @@ int slbt_ar_parse_primary_armap_sysv_64(
 int slbt_update_mapstrv(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * m);
+
+int slbt_ar_update_syminfo(
+	struct slbt_archive_ctx * actx,
+	struct slbt_exec_ctx *    ectx);
 
 static inline struct slbt_archive_meta_impl * slbt_archive_meta_ictx(const struct slbt_archive_meta * meta)
 {

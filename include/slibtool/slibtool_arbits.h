@@ -166,6 +166,15 @@ struct ar_meta_armap_common_64 {
 	const char *                    ar_string_table;
 };
 
+struct ar_meta_symbol_info {
+	const char *                    ar_archive_name;
+	const char *                    ar_object_name;
+	const char *                    ar_symbol_name;
+	const char *                    ar_symbol_type;
+	uint64_t                        ar_symbol_value;
+	uint64_t                        ar_symbol_size;
+};
+
 struct ar_meta_armap_info {
 	const struct ar_meta_armap_common_32 *  ar_armap_common_32;
 	const struct ar_meta_armap_common_64 *  ar_armap_common_64;
