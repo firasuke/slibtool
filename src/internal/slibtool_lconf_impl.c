@@ -575,6 +575,11 @@ static int slbt_lconf_open(
 		trace_result = slbt_lconf_trace_result_plain;
 	}
 
+	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DEBUG)) {
+		trace_fstat  = slbt_lconf_trace_fstat_silent;
+		trace_openat = slbt_lconf_trace_openat_silent;
+	}
+
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
 		trace_lconf(dctx,lconf);
 		slbt_output_fdcwd(dctx);
