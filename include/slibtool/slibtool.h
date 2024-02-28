@@ -460,6 +460,8 @@ slbt_api int  slbt_ar_create_mapfile    (const struct slbt_archive_meta *, const
 
 slbt_api int  slbt_ar_create_symfile    (const struct slbt_archive_meta *, const char *, mode_t);
 
+slbt_api int slbt_ar_create_dlsyms      (struct slbt_archive_ctx **, const char *, const char *, mode_t);
+
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,
                                          const struct slbt_fd_ctx *);
