@@ -13,6 +13,7 @@ API_SRCS = \
 	src/arbits/slbt_armap_sysv_32.c \
 	src/arbits/slbt_armap_sysv_64.c \
 	src/arbits/output/slbt_au_output_arname.c \
+	src/arbits/output/slbt_au_output_dlsyms.c \
 	src/arbits/output/slbt_au_output_mapfile.c \
 	src/arbits/output/slbt_au_output_members.c \
 	src/arbits/output/slbt_au_output_symbols.c \
