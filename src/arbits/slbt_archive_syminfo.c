@@ -122,7 +122,7 @@ static int slbt_obtain_nminfo(
 	if (rpid < 0) {
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
-	} else if (ectx->exitcode < 0) {
+	} else if (ectx->exitcode) {
 		return SLBT_CUSTOM_ERROR(
 			dctx,
 			SLBT_ERR_FLOW_ERROR);
