@@ -144,6 +144,11 @@ slbt_hidden int slbt_init_host_params(
 		cfgmeta->host = cfgtarget;
 		ftarget       = true;
 
+	} else if (!strcmp(base,"slibtool-ar")) {
+		host->host    = drvhost->machine;
+		cfgmeta->host = cfgnmachine;
+		fnative       = true;
+
 	} else if (strrchr(base,'-')) {
 		if (!(drvhost->host = strdup(cctx->cargv[0])))
 			return -1;
