@@ -107,6 +107,10 @@ static int slbt_exec_ar_perform_archive_actions(
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE)
 			if (slbt_au_output_mapfile((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+
+		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_DLSYMS)
+			if (slbt_au_output_dlsyms(arctxv,dctx->cctx->dlunit) < 0)
+				return SLBT_NESTED_ERROR(dctx);
 	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
@@ -237,6 +241,14 @@ int slbt_exec_ar(const struct slbt_driver_ctx * dctx)
 					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_MAPFILE;
 					break;
 
+				case TAG_AR_DLSYMS:
+					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_DLSYMS;
+					break;
+
+				case TAG_AR_DLUNIT:
+					ictx->cctx.dlunit = entry->arg;
+					break;
+
 				case TAG_AR_NOSORT:
 					ictx->cctx.fmtflags |= SLBT_OUTPUT_ARCHIVE_NOSORT;
 					break;
@@ -292,6 +304,9 @@ int slbt_exec_ar(const struct slbt_driver_ctx * dctx)
 		(void)0;
 
 	} else if (cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE) {
+		(void)0;
+
+	} else if (cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_DLSYMS) {
 		(void)0;
 
 	} else if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {

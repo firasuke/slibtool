@@ -314,6 +314,7 @@ struct slbt_common_ctx {
 	char **				cargv;
 	char **				targv;
 	char *				libname;
+	const char *			dlunit;
 	const char *			ccwrap;
 	const char *			target;
 	const char *			output;

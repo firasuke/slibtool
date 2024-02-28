@@ -51,6 +51,19 @@ const slbt_hidden struct argv_option slbt_ar_options[] = {
 			0,"<regexp>",
 			"filter armap symbols using the specified %s."},
 
+	{"Wdlunit",	0,TAG_AR_DLUNIT,ARGV_OPTARG_REQUIRED,
+			ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
+			0,"<dlunit>",
+			"consider %s to be the name of "
+			"the dynamic library (libfoo), the program (foo), "
+			"or the loaded module (foo) for which "
+			"a compatible dlsym vtable should be created."},
+
+	{"Wdlsyms",	0,TAG_AR_DLSYMS,ARGV_OPTARG_NONE,
+			ARGV_OPTION_HYBRID_ONLY,
+			0,0,
+			"print out a compatible dlsyms vtable."},
+
 	{"Wnosort",	0,TAG_AR_NOSORT,ARGV_OPTARG_NONE,
 			ARGV_OPTION_HYBRID_ONLY,
 			0,0,
