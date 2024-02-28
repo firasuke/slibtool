@@ -328,6 +328,8 @@ static int slbt_ar_create_dlsyms_impl(
 	mode_t                            mode)
 {
 	int                               ret;
+	struct slbt_archive_ctx **        actx;
+	struct slbt_exec_ctx *            ectx;
 	struct slbt_archive_meta_impl *   mctx;
 	const struct slbt_driver_ctx *    dctx;
 	struct slbt_fd_ctx                fdctx;
@@ -335,6 +337,7 @@ static int slbt_ar_create_dlsyms_impl(
 
 	mctx = slbt_archive_meta_ictx(arctxv[0]->meta);
 	dctx = mctx->dctx;
+	ectx = 0;
 
 	if (slbt_lib_get_driver_fdctx(dctx,&fdctx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
@@ -348,6 +351,21 @@ static int slbt_ar_create_dlsyms_impl(
 	} else {
 		fdout = fdctx.fdout;
 	}
+
+	for (actx=arctxv; *actx; actx++) {
+		mctx = slbt_archive_meta_ictx((*actx)->meta);
+
+		if (!mctx->syminfo && !ectx)
+			if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+
+		if (!mctx->syminfo)
+			if (slbt_ar_update_syminfo(*actx,ectx) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+	}
+
+	if (ectx)
+		slbt_ectx_free_exec_ctx(ectx);
 
 	ret = slbt_ar_output_dlsyms_impl(
 		fdout,dctx,arctxv,dlunit);
