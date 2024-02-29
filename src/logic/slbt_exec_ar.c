@@ -107,11 +107,11 @@ static int slbt_exec_ar_perform_archive_actions(
 		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_MAPFILE)
 			if (slbt_au_output_mapfile((*arctxp)->meta) < 0)
 				return SLBT_NESTED_ERROR(dctx);
-
-		if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_DLSYMS)
-			if (slbt_au_output_dlsyms(arctxv,dctx->cctx->dlunit) < 0)
-				return SLBT_NESTED_ERROR(dctx);
 	}
+
+	if (dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_DLSYMS)
+		if (slbt_au_output_dlsyms(arctxv,dctx->cctx->dlunit) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_MODE_AR_MERGE) {
 		if (slbt_ar_merge_archives(arctxv,&arctx) < 0)
