@@ -307,7 +307,7 @@ int slbt_exec_ar(const struct slbt_driver_ctx * dctx)
 		(void)0;
 
 	} else if (cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_DLSYMS) {
-		if (!cctx->dlunit)
+		if (!cctx->dlunit) {
 			slbt_dprintf(fderr,
 				"%s: missing -Wdlunit: generation of a dlsyms vtable "
 				"requires the name of the dynamic library, executable "
@@ -315,12 +315,12 @@ int slbt_exec_ar(const struct slbt_driver_ctx * dctx)
 				"be generated.\n",
 				dctx->program);
 
-		return slbt_exec_ar_fail(
-			ectx,meta,
-			SLBT_CUSTOM_ERROR(
-				dctx,
-				SLBT_ERR_AR_DLUNIT_NOT_SPECIFIED));
-
+			return slbt_exec_ar_fail(
+				ectx,meta,
+				SLBT_CUSTOM_ERROR(
+					dctx,
+					SLBT_ERR_AR_DLUNIT_NOT_SPECIFIED));
+		}
 	} else if (!(cctx->drvflags & SLBT_DRIVER_MODE_AR_ACTIONS)) {
 		if (cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_dprintf(fderr,
