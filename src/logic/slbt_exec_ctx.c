@@ -84,6 +84,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	/* tool-specific argv: to simplify matters, be additive */
 	argc += slbt_exec_ctx_tool_argc(ctx->host.ar_argv);
 	argc += slbt_exec_ctx_tool_argc(ctx->host.as_argv);
+	argc += slbt_exec_ctx_tool_argc(ctx->host.nm_argv);
 	argc += slbt_exec_ctx_tool_argc(ctx->host.ranlib_argv);
 	argc += slbt_exec_ctx_tool_argc(ctx->host.windres_argv);
 	argc += slbt_exec_ctx_tool_argc(ctx->host.dlltool_argv);
