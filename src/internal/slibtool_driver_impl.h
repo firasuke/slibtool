@@ -183,7 +183,7 @@ struct slbt_exec_ctx_impl {
 	int                             fdwrapper;
 	char **                         lout[2];
 	char **                         mout[2];
-	char *                          vbuffer[];
+	char **                         vbuffer;
 };
 
 struct slbt_archive_ctx_impl {

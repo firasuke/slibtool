@@ -13,7 +13,8 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
 
-#define SLBT_ARGV_SPARE_PTRS	16
+#define SLBT_ECTX_LIB_EXTRAS	20
+#define SLBT_ECTX_SPARE_PTRS	16
 
 static size_t slbt_parse_comma_separated_flags(
 	const char *	str,
@@ -68,18 +69,57 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	struct slbt_driver_ctx_impl *   ctx;
 	struct slbt_exec_ctx_impl *	ictx;
 	size_t				size;
-	size_t				vsize;
+	size_t                          slen;
 	int				argc;
 	char *				args;
 	char *				shadow;
 	char *				csrc;
 	char **				parg;
 
-	argc = 0;
-	csrc = 0;
-
 	/* internal driver context for host-specific tool arguments */
 	ctx = slbt_get_driver_ictx(dctx);
+
+	/* initial buffer size (cargv, -Wc) */
+	argc = 0;
+	csrc = 0;
+	size = 0;
+
+	for (parg=dctx->cctx->cargv; *parg; parg++, argc++) {
+		if (!(strncmp("-Wc,",*parg,4))) {
+			size += slbt_parse_comma_separated_flags(
+				&(*parg)[4],&argc) + 1;
+		} else {
+			size += strlen(*parg) + 1;
+		}
+	}
+
+	/* argument transformation: additive, worst case scenario */
+	size += argc * (strlen(".lo") + 1);
+	size += argc * (strlen(".libs/") + 1);
+	size += argc * (strlen(".0000.0000.0000") + 1);
+
+	/* buffer size (csrc, ldirname, lbasename, lobjname, aobjname, etc.) */
+	if (dctx->cctx->libname) {
+		slen  = strlen(dctx->cctx->libname);
+		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+
+	} else if (dctx->cctx->output) {
+		slen  = strlen(dctx->cctx->output);
+		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+
+	} else if ((csrc = slbt_source_file(dctx->cctx->cargv))) {
+		slen  = strlen(csrc);
+		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+	}
+
+	/* string buffers: args, shadow */
+	if (!(args = malloc(size)))
+		return 0;
+
+	if (!(shadow = malloc(size))) {
+		free(args);
+		return 0;
+	}
 
 	/* tool-specific argv: to simplify matters, be additive */
 	argc += slbt_exec_ctx_tool_argc(ctx->host.ar_argv);
@@ -90,71 +130,27 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	argc += slbt_exec_ctx_tool_argc(ctx->host.dlltool_argv);
 	argc += slbt_exec_ctx_tool_argc(ctx->host.mdso_argv);
 
-	/* clerical [worst-case] buffer size (guard, .libs, version) */
-	size  = strlen(".lo") + 1;
-	size += 12 * (strlen(".libs/") + 1);
-	size += 36 * (strlen(".0000") + 1);
-
-	/* buffer size (cargv, -Wc) */
-	for (parg=dctx->cctx->cargv; *parg; parg++, argc++)
-		if (!(strncmp("-Wc,",*parg,4)))
-			size += slbt_parse_comma_separated_flags(
-				&(*parg)[4],&argc) + 1;
-		else
-			size += strlen(*parg) + 1;
-
-	/* buffer size (ldirname, lbasename, lobjname, aobjname, etc.) */
-	if (dctx->cctx->output)
-		size += 10*strlen(dctx->cctx->output);
-	else if ((csrc = slbt_source_file(dctx->cctx->cargv)))
-		size += 10*strlen(csrc);
-
-	/* pessimistic: long dso suffix, long x.y.z version */
-	size += 10 * (16 + 16 + 16 + 16);
-
-	/* pessimistic argc: .libs/libfoo.so --> -L.libs -lfoo */
+	/* argv transformation: .libs/libfoo.so --> -L.libs -lfoo */
 	argc *= 2;
-	argc += SLBT_ARGV_SPARE_PTRS;
 
-	/* buffer size (.libs/%.o, pessimistic) */
-	size += argc * strlen(".libs/-L-l");
+	/* argv ad-hoc extensions */
+	argc += SLBT_ECTX_SPARE_PTRS;
 
-	/* buffer size (linking) */
-	if (dctx->cctx->mode == SLBT_MODE_LINK)
-		size += strlen(dctx->cctx->settings.arprefix) + 1
-			+ strlen(dctx->cctx->settings.arsuffix) + 1
-			+ strlen(dctx->cctx->settings.mapsuffix) + 1
-			+ strlen(dctx->cctx->settings.dsoprefix) + 1
-			+ strlen(dctx->cctx->settings.dsoprefix) + 1
-			+ strlen(dctx->cctx->settings.dsoprefix) + 1
-			+ strlen(dctx->cctx->settings.exeprefix) + 1
-			+ strlen(dctx->cctx->settings.exeprefix) + 1
-			+ strlen(dctx->cctx->settings.impprefix) + 1
-			+ strlen(dctx->cctx->settings.impprefix) + 1;
-
-	/* alloc */
-	if (!(args = malloc(size)))
-		return 0;
-
-	if (!(shadow = malloc(size))) {
-		free(args);
-		return 0;
-	}
-
-	/* ictx, argv, xargv */
-	vsize  = sizeof(*ictx);
-	vsize += sizeof(char *) * (argc + 1);
-	vsize += sizeof(char *) * (argc + 1);
-
-	/* altv: duplicate set, -Wl,--whole-archive, -Wl,--no-whole-archive */
-	vsize += sizeof(char *) * (argc + 1) * 3;
-
-	if (!(ictx = calloc(1,vsize))) {
+	/* ctx alloc and vector alloc: argv, xargv, and altv, where we  */
+	/* assume -Wl,--whole-archive arg -Wl,--no-whole-archive       */
+	if (!(ictx = calloc(1,sizeof(*ictx)))) {
 		free(args);
 		free(shadow);
 		return 0;
 	}
 
+	if (!(ictx->vbuffer = calloc(5*(argc+1),sizeof(char *)))) {
+		free(args);
+		free(shadow);
+		free(ictx);
+	}
+
+	/* all ready */
 	ictx->dctx = dctx;
 	ictx->args = args;
 	ictx->argc = argc;
@@ -559,6 +555,7 @@ static int slbt_ectx_free_exec_ctx_impl(
 
 	free(ictx->args);
 	free(ictx->shadow);
+	free(ictx->vbuffer);
 	free (ictx);
 
 	return status;
