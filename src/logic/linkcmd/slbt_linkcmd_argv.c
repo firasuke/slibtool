@@ -739,6 +739,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	char **		oargv;
 	char **		lobjv;
 	char **		cnvlv;
+	char **		dlargv;
 	char **		cap;
 	char **		src;
 	char **		dst;
@@ -902,6 +903,10 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 				*aarg++ = *parg++;
 			}
 
+		/* dlsyms vtable object must only be added once (see below) */
+		} else if (!strcmp(*parg,"-dlpreopen")) {
+			parg++;
+
 		/* placeholder argument? */
 		} else if (!strncmp(*parg,"-USLIBTOOL_PLACEHOLDER_",23)) {
 			parg++;
@@ -911,6 +916,10 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 			*aarg++ = *parg++;
 		}
 	}
+
+	/* dlsyms vtable object inclusion */
+	if (ectx->dlopenobj)
+		*oarg++ = ectx->dlopenobj;
 
 	/* export-symbols-regex, proper dlpreopen support */
 	if (dctx->cctx->libname)
@@ -952,6 +961,75 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	if (ectx->mout[0]) {
 		ectx->mout[0] = &base[1] + (oarg - oargv) + (ectx->mout[0] - aargv);
 		ectx->mout[1] = ectx->mout[0] + 1;
+	}
+
+	/* dlsyms vtable object compilation */
+	if (ectx->dlopenobj) {
+		dlargv  = (slbt_get_exec_ictx(ectx))->dlargv;
+		*dlargv = base[0];
+
+		src = aargv;
+		cap = aarg;
+		dst = &dlargv[1];
+
+		/* compile argv, based on the linkcmd argv */
+		for (; src<cap; ) {
+			if ((src[0][0] == '-') && (src[0][1] == '-')) {
+				*dst++ = *src;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'L')) {
+				(void)0;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'l')) {
+				(void)0;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'o')) {
+				src++;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'D')) {
+				if (!src[0][2])
+					src++;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'U')) {
+				if (!src[0][2])
+					src++;
+
+			} else if ((src[0][0] == '-') && (src[0][1] == 'W')) {
+				if ((src[0][2] == 'a') && (src[0][3] == ','))
+					*dst++ = *src;
+			} else {
+				*dst++ = *src;
+			}
+
+			src++;
+		}
+
+		*dst++ = dctx->cctx->settings.picswitch
+			? dctx->cctx->settings.picswitch
+			: *ectx->fpic;
+
+		*dst++ = "-c";
+		*dst++ = ectx->dlopensrc;
+
+		*dst++ = "-o";
+		*dst++ = ectx->dlopenobj;
+
+		/* nested compile step */
+		ectx->argv = dlargv;
+
+		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
+			if (slbt_output_compile(ectx))
+				return SLBT_NESTED_ERROR(dctx);
+
+		if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		if (ectx->exitcode)
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_COMPILE_ERROR);
+
+		ectx->argv = base;
 	}
 
 	/* all done */

@@ -209,7 +209,9 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<FILE>",
 				"Link the specified %s into the generated library "
-				"or executable"},
+				"or executable, and make it available to the compiled "
+				"shared library, dynamic module, or executable program "
+				"via a backward-compatible dlsymas vtable."},
 
 	{"export-dynamic",	0,TAG_EXPORT_DYNAMIC,ARGV_OPTARG_NONE,
 				ARGV_OPTION_HYBRID_ONLY,0,0,
