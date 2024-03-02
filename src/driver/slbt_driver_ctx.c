@@ -232,7 +232,8 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	const struct slbt_common_ctx *	cctx,
 	struct slbt_split_vector *	sargv,
 	struct slbt_obj_list *		objlistv,
-	char **				envp)
+	char **				envp,
+	size_t				ndlopen)
 {
 	struct slbt_driver_ctx_alloc *	ictx;
 	size_t				size;
@@ -243,6 +244,16 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	if (!(ictx = calloc(1,size))) {
 		slbt_free_argv_buffer(sargv,objlistv);
 		return 0;
+	}
+
+	if (ndlopen) {
+		if (!(ictx->ctx.dlopenv = calloc(ndlopen+1,sizeof(char *)))) {
+			free(ictx);
+			slbt_free_argv_buffer(sargv,objlistv);
+			return 0;
+		}
+
+		ictx->ctx.ndlopen = ndlopen;
 	}
 
 	ictx->ctx.dargs = sargv->dargs;
@@ -394,6 +405,8 @@ int slbt_lib_get_driver_ctx(
 	const char *			program;
 	const char *			lconf;
 	uint64_t			lflags;
+	size_t                          ndlopen;
+	const char **			dlopenv;
 	const char *                    cfgmeta_host;
 	const char *                    cfgmeta_ar;
 	const char *                    cfgmeta_as;
@@ -414,6 +427,7 @@ int slbt_lib_get_driver_ctx(
 	sargv.targv = 0;
 	sargv.cargv = 0;
 	objlistv    = 0;
+	ndlopen     = 0;
 
 	switch (slbt_split_argv(argv,flags,&sargv,&objlistv,fdctx->fderr,fdctx->fdcwd)) {
 		case SLBT_OK:
@@ -710,6 +724,10 @@ int slbt_lib_get_driver_ctx(
 				case TAG_DLOPEN:
 					break;
 
+				case TAG_DLPREOPEN:
+					ndlopen++;
+					break;
+
 				case TAG_STATIC_LIBTOOL_LIBS:
 					cctx.drvflags |= SLBT_DRIVER_STATIC_LIBTOOL_LIBS;
 					break;
@@ -870,7 +888,7 @@ int slbt_lib_get_driver_ctx(
 			cctx.tag = SLBT_TAG_CC;
 
 	/* driver context */
-	if (!(ctx = slbt_driver_ctx_alloc(fdctx,&cctx,&sargv,objlistv,envp)))
+	if (!(ctx = slbt_driver_ctx_alloc(fdctx,&cctx,&sargv,objlistv,envp,ndlopen)))
 		return slbt_lib_get_driver_ctx_fail(0,meta);
 
 	/* ctx */
@@ -988,6 +1006,22 @@ int slbt_lib_get_driver_ctx(
 		if (slbt_init_link_params(ctx))
 			return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
 
+	/* dlpreopen */
+	if ((dlopenv = ctx->dlopenv)) {
+		for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
+			if (entry->fopt) {
+				switch (entry->tag) {
+					case TAG_DLPREOPEN:
+						*dlopenv++ = entry->arg;
+
+					default:
+						break;
+				}
+			}
+		}
+	}
+
+	/* all ready */
 	*pctx = &ctx->ctx;
 
 	return 0;
@@ -1009,6 +1043,9 @@ static void slbt_lib_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 
 	if (ictx->ctx.libname)
 		free(ictx->ctx.libname);
+
+	if (ictx->ctx.dlopenv)
+		free(ictx->ctx.dlopenv);
 
 	if (ictx->ctx.lconf.addr)
 		munmap(

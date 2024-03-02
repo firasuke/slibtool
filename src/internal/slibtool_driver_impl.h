@@ -149,6 +149,8 @@ struct slbt_driver_ctx_impl {
 	struct slbt_map_info            lconf;
 	struct slbt_txtfile_ctx *       lconfctx;
 	struct slbt_obj_list *          objlistv;
+	const char **                   dlopenv;
+	size_t                          ndlopen;
 
 	const struct slbt_archive_ctx * arctx;
 	const char *                    arpath;

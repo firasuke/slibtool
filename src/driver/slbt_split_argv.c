@@ -503,7 +503,11 @@ slbt_hidden int slbt_split_argv(
 			*targv++ = argv[i];
 
 		} else if (!(strcmp("dlpreopen",&argv[i][1]))) {
-			(void)0;
+			*cargv++ = argv[i];
+			*targv++ = argv[i++];
+
+			*cargv++ = argv[i];
+			*targv++ = argv[i];
 
 		} else {
 			for (popt=optout; popt[0] && popt[0]->long_name; popt++)
