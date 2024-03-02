@@ -78,6 +78,7 @@ static int slbt_obtain_nminfo(
 	pid_t   pid;
 	pid_t   rpid;
 	int     fdout;
+	char ** argv;
 	char    arname [PATH_MAX];
 	char    output [PATH_MAX];
 	char	program[PATH_MAX];
@@ -85,10 +86,19 @@ static int slbt_obtain_nminfo(
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
 
-	/* program */
-	if (slbt_snprintf(program,sizeof(program),
-			"%s",dctx->cctx->host.nm) < 0)
-		return SLBT_BUFFER_ERROR(dctx);
+	/* tool-specific argument vector */
+	argv = (slbt_get_driver_ictx(dctx))->host.nm_argv;
+
+	/* ar alternate argument vector */
+	if (argv) {
+		if (slbt_snprintf(program,sizeof(program),
+				"%s",argv[0]) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+	} else {
+		if (slbt_snprintf(program,sizeof(program),
+				"%s",dctx->cctx->host.nm) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+	}
 
 	/* output (.nm suffix, buf treat as .syminfo) */
 	pos = slbt_snprintf(
