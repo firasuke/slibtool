@@ -226,6 +226,10 @@ struct slbt_exec_ctx {
 	char *		aobjname;
 	char *		ltobjname;
 
+	char *		dlunit;
+	char *		dlopensrc;
+	char *		dlopenobj;
+
 	char *		arfilename;
 	char *		lafilename;
 	char *		laifilename;

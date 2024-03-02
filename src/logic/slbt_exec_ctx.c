@@ -11,10 +11,16 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
+#include "slibtool_linkcmd_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_ar_impl.h"
 
-#define SLBT_ECTX_LIB_EXTRAS	20
+#define SLBT_ECTX_LIB_EXTRAS	24
 #define SLBT_ECTX_SPARE_PTRS	16
+
+static int slbt_ectx_free_exec_ctx_impl(
+	struct slbt_exec_ctx_impl *	ictx,
+	int				status);
 
 static size_t slbt_parse_comma_separated_flags(
 	const char *	str,
@@ -75,6 +81,8 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	char *				shadow;
 	char *				csrc;
 	char **				parg;
+	struct slbt_archive_ctx **      dlactxv;
+	size_t                          ndlopen;
 
 	/* internal driver context for host-specific tool arguments */
 	ctx = slbt_get_driver_ictx(dctx);
@@ -137,17 +145,29 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	argc += SLBT_ECTX_SPARE_PTRS;
 
 	/* ctx alloc and vector alloc: argv, xargv, and altv, where we  */
-	/* assume -Wl,--whole-archive arg -Wl,--no-whole-archive       */
+	/* assume -Wl,--whole-archive arg -Wl,--no-whole-archive;      */
+	/* and also dlargv for compiling dlunit.dlopen.c              */
 	if (!(ictx = calloc(1,sizeof(*ictx)))) {
 		free(args);
 		free(shadow);
 		return 0;
 	}
 
-	if (!(ictx->vbuffer = calloc(5*(argc+1),sizeof(char *)))) {
+	if (!(ictx->vbuffer = calloc(6*(argc+1),sizeof(char *)))) {
 		free(args);
 		free(shadow);
 		free(ictx);
+	}
+
+	if ((ndlopen = (slbt_get_driver_ictx(dctx))->ndlopen)) {
+		if (!(dlactxv = calloc(ndlopen+1,sizeof(*dlactxv)))) {
+			free(ictx->vbuffer);
+			free(ictx);
+			free(args);
+			free(shadow);
+		}
+
+		ictx->dlactxv = dlactxv;
 	}
 
 	/* all ready */
@@ -172,6 +192,7 @@ int  slbt_ectx_get_exec_ctx(
 	struct slbt_exec_ctx **		ectx)
 {
 	struct slbt_exec_ctx_impl *	ictx;
+	struct slbt_driver_ctx_impl *   idctx;
 	char **				parg;
 	char **				src;
 	char **				dst;
@@ -179,11 +200,17 @@ int  slbt_ectx_get_exec_ctx(
 	char *				mark;
 	const char *			dmark;
 	char *				slash;
+	char *                          arname;
+	struct slbt_archive_ctx **      dlactxv;
+	const char **                   dlopenv;
 	const char *			arprefix;
 	const char *			dsoprefix;
 	const char *			impprefix;
 	const char *			ref;
 	int				i;
+
+	/* internal driver context */
+	idctx = slbt_get_driver_ictx(dctx);
 
 	/* alloc */
 	if (!(ictx = slbt_exec_ctx_alloc(dctx)))
@@ -194,6 +221,7 @@ int  slbt_ectx_get_exec_ctx(
 	ictx->ctx.argv    = ictx->vbuffer;
 	ictx->ctx.xargv   = &ictx->ctx.argv [ictx->argc + 1];
 	ictx->ctx.altv    = &ictx->ctx.xargv[ictx->argc + 1];
+	ictx->dlargv      = &ictx->ctx.altv [ictx->argc + 1];
 
 	/* <compiler> */
 	ictx->ctx.compiler = dctx->cctx->cargv[0];
@@ -500,6 +528,63 @@ int  slbt_ectx_get_exec_ctx(
 					dctx->cctx->settings.dsosuffix);
 			ch++;
 		}
+
+		/* dlopensrc, dlopenobj */
+		if (idctx->ndlopen) {
+			ictx->ctx.dlopensrc = ch;
+			ch += sprintf(ch,"%s%s%s.dlopen.c",
+					ictx->ctx.ldirname,
+					dsoprefix,
+					dctx->cctx->libname);
+
+			ch++;
+
+			ictx->ctx.dlopenobj = ch;
+			ch += sprintf(ch,"%s%s%s.dlopen.o",
+					ictx->ctx.ldirname,
+					dsoprefix,
+					dctx->cctx->libname);
+
+			ch++;
+
+			ictx->ctx.dlunit = ch;
+			ch += sprintf(ch,"%s%s",
+					dsoprefix,
+					dctx->cctx->libname);
+
+			ch++;
+		}
+	}
+
+	/* dlopen, dlpreopen */
+	if ((dlopenv = idctx->dlopenv), (dlactxv = ictx->dlactxv)) {
+		for (; *dlopenv; ) {
+			arname = ictx->sbuf;
+			strcpy(arname,*dlopenv);
+			slbt_adjust_wrapper_argument(arname,true);
+
+			if (slbt_ar_get_archive_ctx(dctx,arname,dlactxv) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+			if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+			dlopenv++;
+			dlactxv++;
+		}
+
+		if (slbt_ar_create_dlsyms(
+					ictx->dlactxv,
+					ictx->ctx.dlunit,
+					ictx->ctx.dlopensrc,
+					0644) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
 	}
 
 	/* linking: exefilename */
@@ -547,11 +632,20 @@ static int slbt_ectx_free_exec_ctx_impl(
 	struct slbt_exec_ctx_impl *	ictx,
 	int				status)
 {
+	struct slbt_archive_ctx ** dlactxv;
+
 	if (ictx->sctx)
 		slbt_lib_free_symlist_ctx(ictx->sctx);
 
 	if (ictx->fdwrapper >= 0)
 		close(ictx->fdwrapper);
+
+	if (ictx->dlactxv) {
+		for (dlactxv=ictx->dlactxv; *dlactxv; dlactxv++)
+			slbt_ar_free_archive_ctx(*dlactxv);
+
+		free(ictx->dlactxv);
+	}
 
 	free(ictx->args);
 	free(ictx->shadow);

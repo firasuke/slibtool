@@ -149,6 +149,7 @@ struct slbt_driver_ctx_impl {
 	struct slbt_map_info            lconf;
 	struct slbt_txtfile_ctx *       lconfctx;
 	struct slbt_obj_list *          objlistv;
+
 	const char **                   dlopenv;
 	size_t                          ndlopen;
 
@@ -177,12 +178,15 @@ struct slbt_exec_ctx_impl {
 	const struct slbt_driver_ctx *	dctx;
 	struct slbt_symlist_ctx *       sctx;
 	struct slbt_exec_ctx            ctx;
+	struct slbt_archive_ctx **      dlactxv;
+	char **                         dlargv;
 	int                             argc;
 	char *                          args;
 	char *                          shadow;
 	char *                          dsoprefix;
 	size_t                          size;
 	int                             fdwrapper;
+	char                            sbuf[PATH_MAX];
 	char **                         lout[2];
 	char **                         mout[2];
 	char **                         vbuffer;
