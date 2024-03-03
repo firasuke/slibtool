@@ -746,6 +746,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	char *		arg;
 	char *		dot;
 	char *		ccwrap;
+	char *          program;
 	const char *	arsuffix;
 
 	/* vector size */
@@ -1014,8 +1015,12 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 		*dst++ = "-o";
 		*dst++ = ectx->dlopenobj;
 
+		*dst++ = 0;
+
 		/* nested compile step */
-		ectx->argv = dlargv;
+		program       = ectx->program;
+		ectx->argv    = dlargv;
+		ectx->program = dlargv[0];
 
 		if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
 			if (slbt_output_compile(ectx))
@@ -1029,7 +1034,8 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 				dctx,
 				SLBT_ERR_COMPILE_ERROR);
 
-		ectx->argv = base;
+		ectx->argv    = base;
+		ectx->program = program;
 	}
 
 	/* all done */
