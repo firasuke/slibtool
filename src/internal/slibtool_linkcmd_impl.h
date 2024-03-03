@@ -74,7 +74,9 @@ int slbt_exec_link_create_library(
 	struct slbt_exec_ctx *		ectx,
 	const char *			dsobasename,
 	const char *			dsofilename,
-	const char *			relfilename);
+	const char *			relfilename,
+	bool				fardlopen);
+
 
 int slbt_exec_link_create_executable(
 	const struct slbt_driver_ctx *	dctx,

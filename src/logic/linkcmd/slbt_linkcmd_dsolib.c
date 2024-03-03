@@ -60,7 +60,8 @@ slbt_hidden int slbt_exec_link_create_library(
 	struct slbt_exec_ctx *		ectx,
 	const char *			dsobasename,
 	const char *			dsofilename,
-	const char *			relfilename)
+	const char *			relfilename,
+	bool                            fardlopen)
 {
 	int                     fdcwd;
 	char **                 parg;
@@ -273,6 +274,7 @@ slbt_hidden int slbt_exec_link_create_library(
 			return SLBT_BUFFER_ERROR(dctx);
 	}
 
+	/* output marks */
 	*ectx->lout[0] = "-o";
 	*ectx->lout[1] = output;
 
@@ -306,6 +308,10 @@ slbt_hidden int slbt_exec_link_create_library(
 	/* sigh */
 	if (slbt_exec_link_finalize_argument_vector(dctx,ectx))
 		return SLBT_NESTED_ERROR(dctx);
+
+	/* all done? */
+	if (fardlopen)
+		return 0;
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))

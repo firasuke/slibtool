@@ -705,6 +705,15 @@ void slbt_ectx_reset_argvector(struct slbt_exec_ctx * ectx)
 
 slbt_hidden void slbt_reset_placeholders(struct slbt_exec_ctx * ectx)
 {
+	struct slbt_exec_ctx_impl * ictx;
+
+	ictx = slbt_get_exec_ictx(ectx);
+
+	if (ictx->lout[0]) {
+		ectx->lout[0] = ictx->lout[0];
+		ectx->lout[1] = ictx->lout[1];
+	}
+
 	*ectx->dpic = "-USLIBTOOL_PLACEHOLDER_DPIC";
 	*ectx->fpic = "-USLIBTOOL_PLACEHOLDER_FPIC";
 	*ectx->cass = "-USLIBTOOL_PLACEHOLDER_COMPILE_ASSEMBLE";
