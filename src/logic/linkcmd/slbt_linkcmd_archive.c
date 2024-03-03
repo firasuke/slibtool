@@ -89,14 +89,25 @@ slbt_hidden int slbt_exec_link_create_archive(
 			return slbt_exec_link_create_noop_symlink(
 				dctx,ectx,arfilename);
 
-	/* initial state */
+	/* dlopen, dlpreopen: object compilation (derived from dynamic linking) */
+	if (ectx->dlopenobj) {
+		slbt_ectx_reset_arguments(ectx);
+		slbt_reset_placeholders(ectx);
+
+		if (slbt_exec_link_create_library(
+				dctx,ectx,
+				"@ARDLOPEN",
+				"@ARDLOPEN",
+				"@ARDLOPEN",
+				true) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+	}
+
+	/* restore initial state */
 	slbt_ectx_reset_arguments(ectx);
 
 	/* placeholders */
 	slbt_reset_placeholders(ectx);
-
-	/* alternate program (ar, ranlib) */
-	ectx->program = program;
 
 	/* output */
 	if (slbt_snprintf(output,sizeof(output),
@@ -106,12 +117,6 @@ slbt_hidden int slbt_exec_link_create_archive(
 	/* tool-specific argument vector */
 	argv = (slbt_get_driver_ictx(dctx))->host.ar_argv;
 
-	/* ar alternate argument vector */
-	if (!argv)
-		if (slbt_snprintf(program,sizeof(program),
-				"%s",dctx->cctx->host.ar) < 0)
-			return SLBT_BUFFER_ERROR(dctx);
-
 	/* fdcwd */
 	fdcwd   = slbt_driver_fdcwd(dctx);
 
@@ -119,8 +124,6 @@ slbt_hidden int slbt_exec_link_create_archive(
 	aarg    = ectx->altv;
 
 	if ((parg = argv)) {
-		ectx->program = argv[0];
-
 		for (; *parg; )
 			*aarg++ = *parg++;
 	} else {
@@ -134,8 +137,22 @@ slbt_hidden int slbt_exec_link_create_archive(
 		if (slbt_adjust_object_argument(*parg,fpic,!fpic,fdcwd))
 			*aarg++ = *parg;
 
+	if (ectx->dlopenobj)
+		*aarg++ = ectx->dlopenobj;
+
 	*aarg = 0;
 	ectx->argv = ectx->altv;
+
+	/* ar program */
+	if (argv) {
+		ectx->program = argv[0];
+	} else {
+		if (slbt_snprintf(program,sizeof(program),
+				"%s",dctx->cctx->host.ar) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		ectx->program = program;
+	}
 
 	/* step output */
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT))
