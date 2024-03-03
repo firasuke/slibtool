@@ -115,6 +115,7 @@ static int slbt_ar_output_dlsyms_impl(
 	unsigned                            len;
 	unsigned                            cmp;
 	const char *                        arname;
+	const char *                        soname;
 	struct slbt_archive_ctx *           actx;
 	struct slbt_archive_ctx **          parctx;
 	struct slbt_archive_ctx_impl *      ictx;
@@ -215,13 +216,15 @@ static int slbt_ar_output_dlsyms_impl(
 			"};\n\n") < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
+	soname = (strcmp(dsounit,"@PROGRAM@")) ? dsounit : "_PROGRAM_";
+
 	if (slbt_dprintf(fdout,
 			"/* dlsym vtable */\n"
 			"extern const struct lt_dlsym_symdef "
 			"lt_%s_LTX_preloaded_symbols[];\n\n"
 			"const struct lt_dlsym_symdef "
 			"lt_%s_LTX_preloaded_symbols[] = {\n",
-			dsounit,dsounit) < 0)
+			soname,soname) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* align dlsym_name and dlsym_addr columsn (because we can) */
