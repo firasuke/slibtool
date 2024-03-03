@@ -554,6 +554,39 @@ int  slbt_ectx_get_exec_ctx(
 
 			ch++;
 		}
+
+	/* linking: exefilename */
+	} else if (dctx->cctx->mode == SLBT_MODE_LINK) {
+		ictx->ctx.exefilename = ch;
+
+		if ((slash = strrchr(dctx->cctx->output,'/'))) {
+			strcpy(ch,dctx->cctx->output);
+			mark = ch + (slash - dctx->cctx->output);
+			sprintf(++mark,".libs/%s",++slash);
+			ch += strlen(ch) + 1;
+		} else
+			ch += sprintf(ch,".libs/%s",dctx->cctx->output) + 1;
+	}
+
+	/* dlopensrc, dlopenobj: executable program */
+	if (idctx->dlopenv && !dctx->cctx->libname) {
+		ictx->ctx.dlopensrc = ch;
+		ch += sprintf(ch,"%s.dlopen.c",
+				ictx->ctx.exefilename);
+
+		ch++;
+
+		ictx->ctx.dlopenobj = ch;
+		ch += sprintf(ch,"%s.dlopen.o",
+				ictx->ctx.exefilename);
+
+		ch++;
+
+		ictx->ctx.dlunit = ch;
+		ch += sprintf(ch,"%s",
+				"@PROGRAM@");
+
+		ch++;
 	}
 
 	/* dlopen, dlpreopen */
@@ -585,19 +618,6 @@ int  slbt_ectx_get_exec_ctx(
 				return slbt_ectx_free_exec_ctx_impl(
 					ictx,
 					SLBT_NESTED_ERROR(dctx));
-	}
-
-	/* linking: exefilename */
-	if (dctx->cctx->mode == SLBT_MODE_LINK && !dctx->cctx->libname) {
-		ictx->ctx.exefilename = ch;
-
-		if ((slash = strrchr(dctx->cctx->output,'/'))) {
-			strcpy(ch,dctx->cctx->output);
-			mark = ch + (slash - dctx->cctx->output);
-			sprintf(++mark,".libs/%s",++slash);
-			ch += strlen(ch) + 1;
-		} else
-			ch += sprintf(ch,".libs/%s",dctx->cctx->output) + 1;
 	}
 
 	/* vector of exported symbols (raw input via -export-symbols) */
