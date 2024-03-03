@@ -100,7 +100,7 @@ slbt_hidden int slbt_exec_link_create_executable(
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* fpic */
-	fpic = !(dctx->cctx->drvflags & SLBT_DRIVER_ALL_STATIC);
+	fpic = (dctx->cctx->drvflags & SLBT_DRIVER_SHARED);
 
 	/* input argument adjustment */
 	for (parg=ectx->cargv; *parg; parg++)
@@ -110,7 +110,7 @@ slbt_hidden int slbt_exec_link_create_executable(
 	for (parg=ectx->cargv, xarg=ectx->xargv; *parg; parg++, xarg++)
 		if (slbt_adjust_linker_argument(
 				dctx,
-				*parg,xarg,true,
+				*parg,xarg,fpic,
 				dctx->cctx->settings.dsosuffix,
 				dctx->cctx->settings.arsuffix,
 				&depsmeta) < 0)
