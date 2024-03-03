@@ -309,6 +309,10 @@ static int slbt_ar_output_dlsyms_impl(
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
+	/* null-terminate the vtable */
+	if (slbt_dprintf(fdout,"\n\t{%d,%*c%d}\n",0,len,' ',0) < 0)
+		return SLBT_NESTED_ERROR(mctx->dctx);
+
 	/* close vtable, wrap translation unit */
 	if (slbt_dprintf(fdout,
 			"};\n\n"
