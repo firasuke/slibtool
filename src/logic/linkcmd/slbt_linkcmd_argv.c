@@ -984,6 +984,9 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 			} else if ((src[0][0] == '-') && (src[0][1] == 'l')) {
 				(void)0;
 
+			} else if ((dot = strrchr(*src,'.')) && (dot[1] == 'a') && !dot[2]) {
+				(void)0;
+
 			} else if ((src[0][0] == '-') && (src[0][1] == 'o')) {
 				src++;
 
@@ -998,6 +1001,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 			} else if ((src[0][0] == '-') && (src[0][1] == 'W')) {
 				if ((src[0][2] == 'a') && (src[0][3] == ','))
 					*dst++ = *src;
+
 			} else {
 				*dst++ = *src;
 			}
