@@ -55,6 +55,34 @@ static int slbt_exec_link_remove_file(
 	return SLBT_SYSTEM_ERROR(dctx,0);
 }
 
+static int slbt_exec_link_remove_dso_files(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	const char *			target)
+{
+	int fdcwd;
+	char * mark;
+	char * sbuf;
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* remove target (if any) */
+	if (unlinkat(fdcwd,target,0) && (errno != ENOENT))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	/* remove a previous .disabled placeholder */
+	sbuf  = (slbt_get_exec_ictx(ectx))->sbuf;
+	mark  = sbuf;
+	mark += sprintf(mark,"%s",target);
+	strcpy(mark,".disabled");
+
+	if (unlinkat(fdcwd,sbuf,0) && (errno != ENOENT))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	return 0;
+}
+
 slbt_hidden int slbt_exec_link_create_library(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -84,6 +112,10 @@ slbt_hidden int slbt_exec_link_create_library(
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* remove previous libfoo.so, libfoo.so.disabled */
+	if (slbt_exec_link_remove_dso_files(dctx,ectx,ectx->dsofilename) < 0)
+		return SLBT_NESTED_ERROR(dctx);
 
 	/* input argument adjustment */
 	for (parg=ectx->cargv; *parg; parg++)

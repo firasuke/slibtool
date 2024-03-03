@@ -57,17 +57,26 @@ static int slbt_exec_link_remove_file(
 	const char *			target)
 {
 	int fdcwd;
-
-	(void)ectx;
+	char * mark;
+	char * sbuf;
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* remove target (if any) */
-	if (!unlinkat(fdcwd,target,0) || (errno == ENOENT))
-		return 0;
+	if (unlinkat(fdcwd,target,0) && (errno != ENOENT))
+		return SLBT_SYSTEM_ERROR(dctx,0);
 
-	return SLBT_SYSTEM_ERROR(dctx,0);
+	/* remove a previous .disabled placeholder */
+	sbuf  = (slbt_get_exec_ictx(ectx))->sbuf;
+	mark  = sbuf;
+	mark += sprintf(mark,"%s",target);
+	strcpy(mark,".disabled");
+
+	if (unlinkat(fdcwd,sbuf,0) && (errno != ENOENT))
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	return 0;
 }
 
 slbt_hidden int slbt_exec_link_create_archive(

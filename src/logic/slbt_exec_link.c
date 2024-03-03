@@ -136,7 +136,9 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	char *			dot;
 	struct slbt_exec_ctx *	ectx;
 	bool			fpic;
-	bool			fstaticonly;
+	bool			fnodsolib;
+	bool			fnoarchive;
+	bool			fstaticobjs;
 	char			soname[PATH_MAX];
 	char			soxyz [PATH_MAX];
 	char			solnk [PATH_MAX];
@@ -208,21 +210,37 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 			return SLBT_NESTED_ERROR(dctx);
 		}
 
-	/* fpic, fstaticonly */
+	/* fpic, fstaticobjs, fnodsolib, fnoarchive */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ALL_STATIC) {
-		fstaticonly = true;
+		fstaticobjs = true;
+		fnodsolib   = true;
+		fnoarchive  = false;
 		fpic        = false;
 	} else if (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_SHARED) {
-		fstaticonly = true;
+		fstaticobjs = true;
+		fnodsolib   = true;
+		fnoarchive  = false;
 		fpic        = false;
-	} else if (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC) {
-		fstaticonly = false;
-		fpic        = true;
 	} else if (dctx->cctx->drvflags & SLBT_DRIVER_SHARED) {
-		fstaticonly = false;
+		fstaticobjs = false;
 		fpic        = true;
+
+		if (dctx->cctx->libname && dctx->cctx->rpath) {
+			fnodsolib  = false;
+			fnoarchive = (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC);
+
+		} else if (dctx->cctx->libname) {
+			fnodsolib  = true;
+			fnoarchive = false;
+
+		} else {
+			fnodsolib  = true;
+			fnoarchive = true;
+		}
 	} else {
-		fstaticonly = false;
+		fstaticobjs = false;
+		fnodsolib   = true;
+		fnoarchive  = false;
 		fpic        = false;
 	}
 
@@ -235,7 +253,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	}
 
 	/* pic libfoo.a */
-	if (dot && !strcmp(dot,".la"))
+	if (dot && !strcmp(dot,".la") && !fnoarchive)
 		if (slbt_exec_link_create_archive(
 				dctx,ectx,
 				ectx->arfilename,
@@ -245,7 +263,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 		}
 
 	/* static-only libfoo.la */
-	if (fstaticonly && dot && !strcmp(dot,".la")) {
+	if (fstaticobjs && dot && !strcmp(dot,".la")) {
 		const struct slbt_flavor_settings * dflavor;
 
 		if (slbt_host_flavor_settings("default",&dflavor) < 0)
@@ -277,12 +295,12 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 				dctx,ectx,
 				"/dev/null",
 				ectx->deffilename,
-				SLBT_SYMLINK_LITERAL|SLBT_SYMLINK_DEVNULL))
+				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
-	/* -all-static library */
-	if (fstaticonly && dctx->cctx->libname)
+	/* static archive or convenience library only? */
+	if (fnodsolib && ectx->dsofilename) {
 		if (slbt_create_symlink(
 				dctx,ectx,
 				"/dev/null",
@@ -290,8 +308,33 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 				SLBT_SYMLINK_LITERAL))
 			return SLBT_NESTED_ERROR(dctx);
 
+		if (slbt_create_symlink(
+				dctx,ectx,
+				"/dev/null",
+				ectx->dsofilename,
+				SLBT_SYMLINK_DEVNULL))
+			return SLBT_NESTED_ERROR(dctx);
+	}
+
+	/* disable static? */
+	if (fnoarchive && ectx->arfilename) {
+		if (slbt_create_symlink(
+				dctx,ectx,
+				"/dev/null",
+				ectx->arfilename,
+				SLBT_SYMLINK_LITERAL))
+			return SLBT_NESTED_ERROR(dctx);
+
+		if (slbt_create_symlink(
+				dctx,ectx,
+				"/dev/null",
+				ectx->arfilename,
+				SLBT_SYMLINK_DEVNULL))
+			return SLBT_NESTED_ERROR(dctx);
+	}
+
 	/* dynamic library via -module */
-	if (dctx->cctx->rpath && !fstaticonly) {
+	if (dctx->cctx->rpath && !fstaticobjs) {
 		if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
 			if (!dot || strcmp(dot,".la")) {
 				if (slbt_exec_link_create_library(
@@ -311,7 +354,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	}
 
 	/* dynamic library */
-	if (dot && !strcmp(dot,".la") && dctx->cctx->rpath && !fstaticonly) {
+	if (dot && !strcmp(dot,".la") && dctx->cctx->rpath && !fstaticobjs) {
 		const struct slbt_flavor_settings * dflavor;
 
 		if (slbt_host_flavor_settings("default",&dflavor) < 0)
@@ -427,7 +470,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 					dctx,ectx,
 					"/dev/null",
 					ectx->deffilename,
-					SLBT_SYMLINK_LITERAL|SLBT_SYMLINK_DEVNULL))
+					SLBT_SYMLINK_LITERAL))
 				return SLBT_NESTED_ERROR(dctx);
 		}
 	}

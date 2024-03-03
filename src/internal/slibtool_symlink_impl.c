@@ -47,17 +47,13 @@ slbt_hidden int slbt_create_symlink(
 	fdevnull = (options & SLBT_SYMLINK_DEVNULL);
 
 	/* symlink is a placeholder? */
-	if (fliteral && fdevnull) {
+	if (fliteral) {
 		slash = target;
 
-	} else if ((dctx->cctx->drvflags & SLBT_DEV_NULL_FLAGS)
-			&& !strcmp(target,"/dev/null")) {
+	/* .disabled .so or .a file */
+	} else if (fdevnull) {
 		slash  = target;
 		suffix = ".disabled";
-
-	/* target is an absolute path? */
-	} else if (fliteral) {
-		slash = target;
 
 	/* symlink target contains a dirname? */
 	} else if ((slash = strrchr(target,'/'))) {
