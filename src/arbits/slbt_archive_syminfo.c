@@ -249,8 +249,15 @@ slbt_hidden int slbt_ar_update_syminfo(
 	dctx = ictx->dctx;
 
 	/* nm -P -A -g */
-	if (slbt_obtain_nminfo(ictx,ectx,dctx,mctx) < 0)
-		return SLBT_NESTED_ERROR(dctx);
+	if (mctx->armaps.armap_nsyms) {
+		if (slbt_obtain_nminfo(ictx,ectx,dctx,mctx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+	} else {
+		if (slbt_lib_get_txtfile_ctx(
+				dctx,"/dev/null",
+				&mctx->nminfo) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+	}
 
 	/* free old syminfo vector */
 	if (mctx->syminfv)
