@@ -450,6 +450,9 @@ slbt_api int  slbt_ar_get_archive_ctx   (const struct slbt_driver_ctx *, const c
 
 slbt_api void slbt_ar_free_archive_ctx  (struct slbt_archive_ctx *);
 
+slbt_api int  slbt_ar_get_varchive_ctx  (const struct slbt_driver_ctx *,
+                                         struct slbt_archive_ctx **);
+
 slbt_api int  slbt_ar_get_archive_meta  (const struct slbt_driver_ctx *,
                                          const struct slbt_raw_archive *,
                                          struct slbt_archive_meta **);

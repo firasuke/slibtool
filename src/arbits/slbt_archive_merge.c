@@ -31,6 +31,9 @@
 /* file size format specifier */
 #define PPRIU64 "%"PRIu64
 
+/* dlopen self/force */
+static const char slbt_ar_self_dlunit[] = "@PROGRAM@";
+
 struct armap_buffer_32 {
 	uint32_t        moffset;
 	const char *    symname;
@@ -692,6 +695,40 @@ int slbt_ar_merge_archives(
 	ictx->actx.meta = ictx->meta;
 
 	*arctxm = arctx;
+
+	return 0;
+}
+
+
+int slbt_ar_get_varchive_ctx(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_archive_ctx **	pctx)
+{
+	struct slbt_archive_ctx *       ctx;
+	struct slbt_archive_ctx_impl *  ictx;
+	void *                          base;
+	size_t                          size;
+
+	size = sizeof(struct ar_raw_signature);
+
+	if (slbt_create_anonymous_archive_ctx(dctx,size,&ctx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	ictx = slbt_get_archive_ictx(ctx);
+
+	base = ctx->map->map_addr;
+	memcpy(base,ar_signature,size);
+
+	if (slbt_ar_get_archive_meta(dctx,ctx->map,&ictx->meta) < 0) {
+		slbt_ar_free_archive_ctx(ctx);
+		return SLBT_NESTED_ERROR(dctx);
+	}
+
+	ictx->path       = slbt_ar_self_dlunit;
+	ictx->actx.meta  = ictx->meta;
+	ictx->actx.path  = &ictx->path;
+
+	*pctx = ctx;
 
 	return 0;
 }
