@@ -305,26 +305,12 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 				dctx,ectx,
 				"/dev/null",
 				ectx->dsofilename,
-				SLBT_SYMLINK_LITERAL))
-			return SLBT_NESTED_ERROR(dctx);
-
-		if (slbt_create_symlink(
-				dctx,ectx,
-				"/dev/null",
-				ectx->dsofilename,
 				SLBT_SYMLINK_DEVNULL))
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
 	/* disable static? */
 	if (fnoarchive && ectx->arfilename) {
-		if (slbt_create_symlink(
-				dctx,ectx,
-				"/dev/null",
-				ectx->arfilename,
-				SLBT_SYMLINK_LITERAL))
-			return SLBT_NESTED_ERROR(dctx);
-
 		if (slbt_create_symlink(
 				dctx,ectx,
 				"/dev/null",

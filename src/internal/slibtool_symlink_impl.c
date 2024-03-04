@@ -78,7 +78,14 @@ slbt_hidden int slbt_create_symlink(
 			lnkname) <0)
 		return SLBT_BUFFER_ERROR(dctx);
 
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
 	/* placeholder? */
+	if (fdevnull)
+		if (unlinkat(fdcwd,lnkname,0) && (errno != ENOENT))
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
 	if (suffix) {
 		sprintf(alnkarg,"%s%s",lnkname,suffix);
 		lnkname = alnkarg;
@@ -114,9 +121,6 @@ slbt_hidden int slbt_create_symlink(
 
 	/* restore execution context */
 	ectx->argv = oargv;
-
-	/* fdcwd */
-	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* create symlink */
 	if (symlinkat(atarget,fdcwd,tmplnk))
