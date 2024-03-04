@@ -346,8 +346,6 @@ static int slbt_exec_install_entry(
 	bool		fpe;
 	bool		frelease;
 	bool		fdualver;
-	bool		fstatic;
-	bool		farchive;
 	size_t		slen;
 	size_t		dlen;
 	struct stat	st;
@@ -448,6 +446,14 @@ static int slbt_exec_install_entry(
 	dot = strrchr(srcfile,'.');
 	strcpy(dot,dctx->cctx->settings.arsuffix);
 
+	/* libfoo.a installation */
+	if (!slbt_symlink_is_a_placeholder(fdcwd,srcfile))
+		if (slbt_util_copy_file(
+				ectx,
+				srcfile,
+				dest ? (char *)dest->arg : *dst))
+			return SLBT_NESTED_ERROR(dctx);
+
 	/* dot/suffix */
 	strcpy(slnkname,srcfile);
 	dot = strrchr(slnkname,'.');
@@ -456,33 +462,29 @@ static int slbt_exec_install_entry(
 	slen  = sizeof(slnkname);
 	slen -= (dot - slnkname);
 
+	/* static library only? */
+	sprintf(dot,"%s",dsosuffix);
+
+	if (slbt_symlink_is_a_placeholder(fdcwd,slnkname))
+		return 0;
+
 	/* detect -release, exclusively or alongside -version-info */
 	frelease = false;
 	fdualver = false;
-	fstatic  = false;
 	fpe      = false;
 
-	/* static library only? */
-	sprintf(dot,"%s",dsosuffix);
-	fstatic = slbt_symlink_is_a_placeholder(fdcwd,slnkname);
-
 	/* libfoo.a --> libfoo.so.release */
-	if (!fstatic) {
-		sprintf(dot,"%s.release",dsosuffix);
-		frelease = !fstatat(fdcwd,slnkname,&st,0);
-	}
+	sprintf(dot,"%s.release",dsosuffix);
+	frelease = !fstatat(fdcwd,slnkname,&st,0);
 
 	/* libfoo.a --> libfoo.so.dualver */
-	if (!fstatic && !frelease) {
+	if (!frelease) {
 		sprintf(dot,"%s.dualver",dsosuffix);
 		fdualver = !fstatat(fdcwd,slnkname,&st,0);
 	}
 
 	/* libfoo.so.def.{flavor} */
-	if (fstatic) {
-		(void)0;
-
-	} else if (frelease || fdualver) {
+	if (frelease || fdualver) {
 		strcpy(dlnkname,slnkname);
 		slash = strrchr(dlnkname,'/');
 
@@ -526,40 +528,20 @@ static int slbt_exec_install_entry(
 	}
 
 	/* host/flabor */
-	if (fstatic) {
-		(void)0;
-
-	} else if (!(host = strrchr(hosttag,'.'))) {
+	if (!(host = strrchr(hosttag,'.'))) {
 		return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_INSTALL_FLOW);
 	} else {
 		host++;
 	}
 
 	/* symlink-based alternate host */
-	if (!fstatic) {
-		if (slbt_host_set_althost(dctx,host,host))
-			return SLBT_NESTED_ERROR(dctx);
+	if (slbt_host_set_althost(dctx,host,host))
+		return SLBT_NESTED_ERROR(dctx);
 
-		fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
-	}
+	fpe = !strcmp(dctx->cctx->asettings.imagefmt,"pe");
 
 	/* libfoo.a --> libfoo.so */
 	strcpy(dot,dsosuffix);
-
-	/* libfoo.a installation */
-	if (!(dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC))
-		farchive = true;
-	else if (fstatic)
-		farchive = true;
-	else
-		farchive = false;
-
-	if (farchive)
-		if (slbt_util_copy_file(
-				ectx,
-				srcfile,
-				dest ? (char *)dest->arg : *dst))
-			return SLBT_NESTED_ERROR(dctx);
 
 	/* basename */
 	if ((base = strrchr(slnkname,'/')))
@@ -569,10 +551,6 @@ static int slbt_exec_install_entry(
 
 	/* source (build) symlink target */
 	if (slbt_readlinkat(fdcwd,slnkname,target,sizeof(target)) < 0) {
-		/* -all-static? */
-		if (fstatic)
-			return 0;
-
 		/* -avoid-version? */
 		if (fstatat(fdcwd,slnkname,&st,0))
 			return SLBT_SYSTEM_ERROR(dctx,slnkname);
