@@ -22,35 +22,6 @@
 #include "slibtool_spawn_impl.h"
 #include "slibtool_visibility_impl.h"
 
-static int slbt_exec_link_create_noop_symlink(
-	const struct slbt_driver_ctx *	dctx,
-	struct slbt_exec_ctx *		ectx,
-	const char *			arfilename)
-{
-	struct stat st;
-	int         fdcwd;
-
-	/* fdcwd */
-	fdcwd = slbt_driver_fdcwd(dctx);
-
-	/* file exists? */
-	if (!fstatat(fdcwd,arfilename,&st,AT_SYMLINK_NOFOLLOW))
-		return 0;
-
-	/* needed? */
-	if (errno == ENOENT) {
-		if (slbt_create_symlink(
-				dctx,ectx,
-				"/dev/null",
-				arfilename,
-				SLBT_SYMLINK_LITERAL))
-			return SLBT_NESTED_ERROR(dctx);
-		return 0;
-	}
-
-	return SLBT_SYSTEM_ERROR(dctx,arfilename);
-}
-
 static int slbt_exec_link_remove_file(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -91,12 +62,6 @@ slbt_hidden int slbt_exec_link_create_archive(
 	char ** 	parg;
 	char		program[PATH_MAX];
 	char		output [PATH_MAX];
-
-	/* -disable-static? */
-	if (dctx->cctx->drvflags & SLBT_DRIVER_DISABLE_STATIC)
-		if (dctx->cctx->rpath)
-			return slbt_exec_link_create_noop_symlink(
-				dctx,ectx,arfilename);
 
 	/* dlopen, dlpreopen: object compilation (derived from dynamic linking) */
 	if (ectx->dlopenobj) {
