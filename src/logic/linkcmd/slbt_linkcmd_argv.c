@@ -217,36 +217,40 @@ slbt_hidden int slbt_adjust_linker_argument(
 	char *	dot;
 	char	base[PATH_MAX];
 
+	/* argv switch or non-library input argument? */
 	if (*arg == '-')
 		return 0;
 
 	if (!(dot = strrchr(arg,'.')))
 		return 0;
 
+	/* explicit .a input argument? */
 	if (!(strcmp(dot,arsuffix))) {
 		*xarg = arg;
 		return slbt_get_deps_meta(dctx,arg,1,depsmeta);
 	}
 
+	/* explicit .so input argument? */
 	if (!(strcmp(dot,dsosuffix)))
 		return slbt_get_deps_meta(dctx,arg,1,depsmeta);
 
+	/* not an .la library? */
 	if (strcmp(dot,".la"))
 		return 0;
 
-	if (fpic) {
-		if ((slash = strrchr(arg,'/')))
-			slash++;
-		else
-			slash = arg;
-
-		if (slbt_snprintf(base,sizeof(base),
-				"%s",slash) < 0)
-			return 0;
-
-		sprintf(slash,".libs/%s",base);
-		dot = strrchr(arg,'.');
+	/* .la file, associated .deps located under .libs */
+	if ((slash = strrchr(arg,'/'))) {
+		slash++;
+	} else {
+		slash = arg;
 	}
+
+	if (slbt_snprintf(base,sizeof(base),
+			"%s",slash) < 0)
+		return 0;
+
+	sprintf(slash,".libs/%s",base);
+	dot = strrchr(arg,'.');
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
@@ -255,12 +259,15 @@ slbt_hidden int slbt_adjust_linker_argument(
 	if (fpic) {
 		sprintf(dot,"%s",dsosuffix);
 
-		if (slbt_symlink_is_a_placeholder(fdcwd,arg))
+		if (slbt_symlink_is_a_placeholder(fdcwd,arg)) {
 			sprintf(dot,"%s",arsuffix);
-		else if ((fdlib = openat(fdcwd,arg,O_RDONLY)) >= 0)
+
+		} else if ((fdlib = openat(fdcwd,arg,O_RDONLY)) >= 0) {
 			close(fdlib);
-		else
+
+		} else {
 			sprintf(dot,"%s",arsuffix);
+		}
 
 		return slbt_get_deps_meta(dctx,arg,0,depsmeta);
 	}
