@@ -274,6 +274,11 @@ static int slbt_ar_output_dlsyms_impl(
 	if (slbt_dprintf(fdout,dlsymfmt,symname,"","0") < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
+	/* (-dlopen force) */
+	if (!arctxv[0]->meta->a_memberv)
+		if (!strcmp(*arctxv[0]->path,"@PROGRAM@"))
+			arctxv++;
+
 	/* at long last */
 	for (parctx=arctxv; *parctx; parctx++) {
 		actx = *parctx;
