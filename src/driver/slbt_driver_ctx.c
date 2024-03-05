@@ -1012,13 +1012,37 @@ int slbt_lib_get_driver_ctx(
 			if (entry->fopt) {
 				switch (entry->tag) {
 					case TAG_DLPREOPEN:
-						*dlopenv++ = entry->arg;
+						if (!strcmp(entry->arg,"self")) {
+							ctx->cctx.drvflags |= SLBT_DRIVER_DLPREOPEN_SELF;
+
+						} else if (!strcmp(entry->arg,"force")) {
+							ctx->cctx.drvflags |= SLBT_DRIVER_DLPREOPEN_FORCE;
+
+						} else {
+							*dlopenv++ = entry->arg;
+						}
 
 					default:
 						break;
 				}
 			}
 		}
+	}
+
+	/* -dlopen & -dlpreopen semantic validation */
+	uint64_t fmask;
+
+	fmask  = SLBT_DRIVER_DLOPEN_SELF  | SLBT_DRIVER_DLPREOPEN_SELF;
+	fmask |= SLBT_DRIVER_DLOPEN_FORCE | SLBT_DRIVER_DLPREOPEN_FORCE;
+
+	if (ctx->cctx.libname && (cctx.drvflags & fmask)) {
+		slbt_dprintf(ctx->fdctx.fderr,
+			"%s: error: -dlopen/-dlpreopen: "
+			"the special 'self' and 'force' arguments "
+			"may only be used when linking a program.\n",
+			ctx->ctx.program);
+
+		return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
 	}
 
 	/* all ready */

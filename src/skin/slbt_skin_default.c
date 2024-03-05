@@ -211,7 +211,11 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 				"Link the specified %s into the generated library "
 				"or executable, and make it available to the compiled "
 				"shared library, dynamic module, or executable program "
-				"via a backward-compatible dlsymas vtable."},
+				"via a backward-compatible dlsymas vtable. The special "
+				"arguments 'self' and 'force' can be used to request "
+				"that symbols from the executable program be added "
+				"to the vtable, and that a vtable always be created, "
+				"respectively."},
 
 	{"export-dynamic",	0,TAG_EXPORT_DYNAMIC,ARGV_OPTARG_NONE,
 				ARGV_OPTION_HYBRID_ONLY,0,0,
