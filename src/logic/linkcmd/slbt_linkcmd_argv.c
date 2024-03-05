@@ -25,6 +25,8 @@
 #include "slibtool_visibility_impl.h"
 
 
+static const char * slbt_ar_self_dlunit = "@PROGRAM@";
+
 static int slbt_linkcmd_exit(
 	struct slbt_deps_meta *	depsmeta,
 	int			ret)
@@ -592,7 +594,8 @@ static int slbt_exec_link_create_expsyms_archive(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_exec_ctx *          ectx,
 	char **                         lobjv,
-	char **                         cnvlv)
+	char **                         cnvlv,
+	char                            (*arname)[PATH_MAX])
 {
 	int                             ret;
 	char *                          dot;
@@ -602,8 +605,8 @@ static int slbt_exec_link_create_expsyms_archive(
 	struct slbt_archive_ctx *       arctx;
 	char **                         ectx_argv;
 	char *                          ectx_program;
-	char                            program[PATH_MAX];
 	char                            output [PATH_MAX];
+	char                            program[PATH_MAX];
 
 	/* output */
 	if (slbt_snprintf(output,sizeof(output),
@@ -618,6 +621,9 @@ static int slbt_exec_link_create_expsyms_archive(
 	/* .expsyms.xxx --> .expsyms.a */
 	dot[1] = 'a';
 	dot[2] = '\0';
+
+	if (arname)
+		strcpy(*arname,output);
 
 	/* tool-specific argument vector */
 	argv = (slbt_get_driver_ictx(dctx))->host.ar_argv;
@@ -930,8 +936,47 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	/* export-symbols-regex, proper dlpreopen support */
 	if (dctx->cctx->libname)
 		if (slbt_exec_link_create_expsyms_archive(
-				dctx,ectx,lobjv,cnvlv) < 0)
+				dctx,ectx,lobjv,cnvlv,0) < 0)
 			return SLBT_NESTED_ERROR(dctx);
+
+	/* -dlpreopen self */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_DLPREOPEN_SELF) {
+		struct slbt_archive_ctx *   arctx;
+		struct slbt_archive_ctx **  arctxv;
+		struct slbt_exec_ctx_impl * ictx;
+		char                        arname[PATH_MAX];
+
+		ictx   = slbt_get_exec_ictx(ectx);
+		arctxv = ictx->dlactxv;
+		arctx  = 0;
+
+		/* add or repalce the archive context */
+		for (; !arctx && *arctxv; )
+			if (!strcmp(*arctxv[0]->path,ectx->mapfilename))
+				arctx = *arctxv;
+			else
+				arctxv++;
+
+		if (arctx)
+			slbt_ar_free_archive_ctx(arctx);
+
+		if (slbt_exec_link_create_expsyms_archive(
+				dctx,ectx,lobjv,cnvlv,&arname) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		if (slbt_ar_get_archive_ctx(dctx,arname,arctxv) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		arctxv[0]->path = &slbt_ar_self_dlunit;
+
+		/* regenerate the dlsyms vtable source */
+		if (slbt_ar_create_dlsyms(
+				ictx->dlactxv,
+				ectx->dlunit,
+				ectx->dlopensrc,
+				0644) < 0)
+			return SLBT_NESTED_ERROR(dctx);
+	}
 
 	/* program name, ccwrap */
 	if ((ccwrap = (char *)dctx->cctx->ccwrap)) {
