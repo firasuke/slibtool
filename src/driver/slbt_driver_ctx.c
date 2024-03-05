@@ -722,8 +722,6 @@ int slbt_lib_get_driver_ctx(
 					break;
 
 				case TAG_DLOPEN:
-					break;
-
 				case TAG_DLPREOPEN:
 					ndlopen++;
 					break;
@@ -1011,6 +1009,10 @@ int slbt_lib_get_driver_ctx(
 		for (entry=meta->entries; entry->fopt || entry->arg; entry++) {
 			if (entry->fopt) {
 				switch (entry->tag) {
+					case TAG_DLOPEN:
+						ctx->cctx.drvflags |= SLBT_DRIVER_DLOPEN_FORCE;
+						break;
+
 					case TAG_DLPREOPEN:
 						if (!strcmp(entry->arg,"self")) {
 							ctx->cctx.drvflags |= SLBT_DRIVER_DLPREOPEN_SELF;

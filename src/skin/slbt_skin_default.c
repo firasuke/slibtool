@@ -202,8 +202,10 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 	{"dlopen",		0,TAG_DLOPEN,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,
 				0,"<module>",
-				"add the directory containing %s to the library path "
-				"[currently a no-op]"},
+				"create and link into the dynamic library, dynamic module, "
+				"or executable program a minimal, backward-compatible dlsyms "
+				"vtable. On modern systems, this has the same effect as "
+				"``-dlpreopen force``."},
 
 	{"dlpreopen",		0,TAG_DLPREOPEN,ARGV_OPTARG_REQUIRED,
 				ARGV_OPTION_HYBRID_ONLY|ARGV_OPTION_HYBRID_SPACE,

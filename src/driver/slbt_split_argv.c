@@ -472,10 +472,6 @@ slbt_hidden int slbt_split_argv(
 			*targv++ = argv[i++];
 			*targv++ = argv[i];
 
-		} else if (!(strcmp("dlopen",&argv[i][1]))) {
-			*targv++ = argv[i++];
-			*targv++ = argv[i];
-
 		} else if (!(strcmp("weak",&argv[i][1]))) {
 			*targv++ = argv[i++];
 			*targv++ = argv[i];
@@ -499,6 +495,13 @@ slbt_hidden int slbt_split_argv(
 			*targv++ = argv[i];
 
 		} else if (!(strcmp("version-number",&argv[i][1]))) {
+			*targv++ = argv[i++];
+			*targv++ = argv[i];
+
+		} else if (!(strcmp("dlopen",&argv[i][1]))) {
+			if (!argv[i+1])
+				return -1;
+
 			*targv++ = argv[i++];
 			*targv++ = argv[i];
 
