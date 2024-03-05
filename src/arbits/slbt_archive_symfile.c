@@ -98,7 +98,7 @@ static int slbt_ar_create_symfile_impl(
 				fdctx.fdcwd,path,
 				O_WRONLY|O_CREAT|O_TRUNC,
 				mode)) < 0)
-			return SLBT_SYSTEM_ERROR(dctx,0);
+			return SLBT_SYSTEM_ERROR(dctx,path);
 	} else {
 		fdout = fdctx.fdout;
 	}

@@ -82,7 +82,7 @@ int slbt_ar_store_archive(
 
 		if (fstatat(fdat,buf,&st,0) < 0)
 			return SLBT_SYSTEM_ERROR(
-				dctx,0);
+				dctx,buf);
 	} else {
 		if (fstatat(fdat,".",&st,0) < 0)
 			return SLBT_SYSTEM_ERROR(
@@ -109,7 +109,7 @@ int slbt_ar_store_archive(
 			SLBT_ERR_FLOW_ERROR);
 
 	if ((fdtmp = openat(fdat,buf,O_WRONLY|O_CREAT|O_EXCL,mode)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx,0);
+		return SLBT_SYSTEM_ERROR(dctx,buf);
 
 	/* set archive size */
 	if (ftruncate(fdtmp,arctx->map->map_size) < 0)
@@ -137,7 +137,7 @@ int slbt_ar_store_archive(
 	/* finalize (atomically) */
 	if (renameat(fdat,buf,fdat,path) < 0) {
 		unlinkat(fdat,buf,0);
-		return SLBT_SYSTEM_ERROR(dctx,0);
+		return SLBT_SYSTEM_ERROR(dctx,buf);
 	}
 
 	/* yay */
