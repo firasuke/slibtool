@@ -193,6 +193,7 @@ int  slbt_ectx_get_exec_ctx(
 {
 	struct slbt_exec_ctx_impl *	ictx;
 	struct slbt_driver_ctx_impl *   idctx;
+	uint64_t                        fmask;
 	char **				parg;
 	char **				src;
 	char **				dst;
@@ -587,10 +588,34 @@ int  slbt_ectx_get_exec_ctx(
 				"@PROGRAM@");
 
 		ch++;
+
+		ictx->ctx.mapfilename = ch;
+		ch += sprintf(ch,"%s%s",
+				ictx->ctx.exefilename,
+				dctx->cctx->settings.mapsuffix);
+		ch++;
+
 	}
 
 	/* dlopen, dlpreopen */
 	if ((dlopenv = idctx->dlopenv), (dlactxv = ictx->dlactxv)) {
+		fmask  = SLBT_DRIVER_DLPREOPEN_FORCE;
+		fmask |= SLBT_DRIVER_DLOPEN_FORCE;
+
+		if (dctx->cctx->drvflags & fmask) {
+			if (slbt_ar_get_varchive_ctx(dctx,dlactxv) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+			if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+			dlactxv++;
+		}
+
 		for (; *dlopenv; ) {
 			arname = ictx->sbuf;
 			strcpy(arname,*dlopenv);
