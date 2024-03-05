@@ -11,6 +11,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
+#include "slibtool_mkdir_impl.h"
 #include "slibtool_linkcmd_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_ar_impl.h"
@@ -634,6 +635,13 @@ int  slbt_ectx_get_exec_ctx(
 			dlopenv++;
 			dlactxv++;
 		}
+
+		if (slbt_mkdir(dctx,ictx->ctx.ldirname) < 0)
+			return slbt_ectx_free_exec_ctx_impl(
+				ictx,
+				SLBT_SYSTEM_ERROR(
+					dctx,
+					ictx->ctx.ldirname));
 
 		if (slbt_ar_create_dlsyms(
 					ictx->dlactxv,
