@@ -257,6 +257,12 @@ slbt_hidden int slbt_adjust_linker_argument(
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
 
+	/* .a preferred but a.disabled present? */
+	sprintf(dot,"%s",arsuffix);
+
+	if (slbt_symlink_is_a_placeholder(fdcwd,arg))
+		fpic = true;
+
 	/* shared library dependency? */
 	if (fpic) {
 		sprintf(dot,"%s",dsosuffix);
