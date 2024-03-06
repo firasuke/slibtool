@@ -999,12 +999,25 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 	for (; src<cap; )
 		*dst++ = *src++;
 
-	/* join all other args */
+	/* join all other args, eliminate no-op linker path args */
 	src = aargv;
 	cap = aarg;
 
-	for (; src<cap; )
-		*dst++ = *src++;
+	for (; src<cap; ) {
+		if ((src[0][0] == '-') && (src[0][1] == 'L')) {
+			for (larg=0,rarg=src; *rarg && !larg; rarg++)
+				if ((rarg[0][0] == '-') && (rarg[0][1] == 'l'))
+					larg = rarg;
+
+			if (larg) {
+				*dst++ = *src++;
+			} else {
+				src++;
+			}
+		} else {
+			*dst++ = *src++;
+		}
+	}
 
 	/* properly null-terminate argv, accounting for redundant -l arguments */
 	*dst = 0;
