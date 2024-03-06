@@ -17,6 +17,7 @@
 #include "slibtool_linkcmd_impl.h"
 #include "slibtool_mapfile_impl.h"
 #include "slibtool_metafile_impl.h"
+#include "slibtool_realpath_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_visibility_impl.h"
 
@@ -87,6 +88,254 @@ slbt_hidden int slbt_get_deps_meta(
 }
 
 
+static int slbt_exec_link_normalize_dep_file(
+	const struct slbt_driver_ctx *  dctx,
+	int                             deps,
+	char                            (*depfile)[PATH_MAX])
+{
+	int                             ret;
+	int                             fdcwd;
+	int                             fdtgt;
+	char *                          dot;
+	char *                          slash;
+	const char *                    mark;
+	struct slbt_txtfile_ctx *       tctx;
+	const char **                   pline;
+	char *                          tgtmark;
+	char *                          depmark;
+	char *                          relmark;
+	char *                          tgtnext;
+	char *                          depnext;
+	char                            tgtdir  [PATH_MAX];
+	char                            tgtpath [PATH_MAX];
+	char                            deppath [PATH_MAX];
+	char                            pathbuf [PATH_MAX];
+	char                            depsbuf [PATH_MAX];
+	char                            relapath[PATH_MAX];
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* first-pass dependency file */
+	if (slbt_impl_get_txtfile_ctx(dctx,*depfile,deps,&tctx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	/* second-pass dependency file */
+	dot = strrchr(*depfile,'.');
+	strcpy(dot,".tmp2");
+
+	if ((deps = openat(fdcwd,*depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0) {
+		slbt_lib_free_txtfile_ctx(tctx);
+		return SLBT_SYSTEM_ERROR(dctx,depfile);
+	}
+
+	/* fdtgt */
+	strcpy(tgtdir,*depfile);
+
+	if (!(slash = strrchr(tgtdir,'/')))
+		slash = tgtdir;
+
+	slash[0] = '\0';
+
+	if ((slash = strrchr(tgtdir,'/'))) {
+		slash[0] = '\0';
+		slash++;
+	} else {
+		slash    = tgtdir;
+		slash[0] = '.';
+		slash[1] = '/';
+		slash[2] = '\0';
+	}
+
+	if ((slash > tgtdir) && strcmp(slash,".libs")) {
+		close(deps);
+		slbt_lib_free_txtfile_ctx(tctx);
+
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_FLOW_ERROR);
+	}
+
+	if ((fdtgt = openat(fdcwd,tgtdir,O_DIRECTORY|O_CLOEXEC,0)) < 0) {
+		close(deps);
+		slbt_lib_free_txtfile_ctx(tctx);
+
+		return SLBT_CUSTOM_ERROR(
+			dctx,
+			SLBT_ERR_FLOW_ERROR);
+	}
+
+	if (slbt_realpath(fdcwd,tgtdir,0,tgtpath,sizeof(tgtpath)) < 0) {
+				close(fdtgt);
+				close(deps);
+				slbt_lib_free_txtfile_ctx(tctx);
+
+				return SLBT_CUSTOM_ERROR(
+					dctx,
+					SLBT_ERR_FLOW_ERROR);
+	}
+
+	strcpy(pathbuf,tgtpath);
+
+	/* normalize dependency lines as needed */
+	for (pline=tctx->txtlinev; *pline; pline++) {
+		if ((mark = *pline)) {
+			if ((mark[0] == '-') && (mark[1] == 'L'))
+					mark = &mark[2];
+
+			if ((mark > *pline) && (mark[0] == '/'))
+				mark = *pline;
+		} else {
+			mark = *pline;
+		}
+
+		if (mark > *pline) {
+			if (slbt_realpath(
+					fdtgt,mark,0,deppath,
+					sizeof(deppath)) < 0)
+				mark = *pline;
+
+			else if ((tgtpath[0] != '/') || (deppath[0] != '/'))
+				mark = 0;
+
+			else
+				strcpy(depsbuf,deppath);
+		}
+
+		if ((mark > *pline) && strcmp(tgtpath,deppath)) {
+			tgtmark = tgtpath;
+			depmark = deppath;
+
+			tgtnext = strchr(tgtmark,'/');
+			depnext = strchr(depmark,'/');
+
+			while (tgtnext && depnext) {
+				*tgtnext = '\0';
+				*depnext = '\0';
+
+				if (strcmp(tgtmark,depmark)) {
+					tgtnext = 0;
+					depnext = 0;
+				} else {
+					tgtmark = &tgtnext[1];
+					depmark = &depnext[1];
+
+					if (*tgtmark && *depmark) {
+						tgtnext = strchr(tgtmark,'/');
+						depnext = strchr(depmark,'/');
+					} else {
+						tgtnext = 0;
+						depnext = 0;
+					}
+				}
+			}
+
+			strcpy(tgtmark,&pathbuf[tgtmark-tgtpath]);
+			strcpy(depmark,&depsbuf[depmark-deppath]);
+
+			if ((tgtmark - tgtpath) == (depmark - deppath)) {
+				mark = &depmark[strlen(tgtmark)];
+
+				if ((mark[0] == '/') && !strncmp(tgtmark,depmark,mark-depmark))
+					sprintf(relapath,"-L.%s",mark);
+				else
+					mark = relapath;
+			} else {
+				mark = relapath;
+			}
+
+			if (mark == relapath) {
+				relmark = relapath;
+				relmark += sprintf(relapath,"-L../");
+
+				while ((tgtnext = strchr(tgtmark,'/'))) {
+					tgtmark = &tgtnext[1];
+					relmark += sprintf(relmark,"../");
+				}
+
+				strcpy(relmark,depmark);
+			}
+
+			mark = relapath;
+
+		} else if (mark > *pline) {
+			strcpy(relapath,"-L.");
+			mark = relapath;
+		}
+
+		ret = mark ? slbt_dprintf(deps,"%s\n",mark) : (-1);
+
+		if (ret < 0) {
+			close(deps);
+			close(fdtgt);
+			slbt_lib_free_txtfile_ctx(tctx);
+
+			return mark
+				? SLBT_SYSTEM_ERROR(dctx,0)
+				: SLBT_NESTED_ERROR(dctx);
+		}
+
+		if (mark == relapath)
+			strcpy(tgtpath,pathbuf);
+	}
+
+	close(fdtgt);
+	slbt_lib_free_txtfile_ctx(tctx);
+
+	return deps;
+}
+
+
+static int slbt_exec_link_compact_dep_file(
+	const struct slbt_driver_ctx *  dctx,
+	int                             deps,
+	char                            (*depfile)[PATH_MAX])
+{
+	int                             fdcwd;
+	struct slbt_txtfile_ctx *       tctx;
+	const char **                   pline;
+	const char **                   pcomp;
+	const char *                    depline;
+	char *                          dot;
+
+	/* fdcwd */
+	fdcwd = slbt_driver_fdcwd(dctx);
+
+	/* second-pass dependency file */
+	if (slbt_impl_get_txtfile_ctx(dctx,*depfile,deps,&tctx) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	/* second-pass dependency file */
+	dot = strrchr(*depfile,'.');
+	dot[0] = '\0';
+
+	if ((deps = openat(fdcwd,*depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0) {
+		slbt_lib_free_txtfile_ctx(tctx);
+		return SLBT_SYSTEM_ERROR(dctx,depfile);
+	}
+
+	/* iterate, only write unique entries */
+	for (pline=tctx->txtlinev; *pline; pline++) {
+		depline = *pline;
+
+		if ((depline[0] == '-') && (depline[1] == 'L'))
+			for (pcomp=tctx->txtlinev; depline && pcomp<pline; pcomp++)
+				if (!strcmp(*pcomp,depline))
+					depline = 0;
+
+		if (depline && (slbt_dprintf(deps,"%s\n",depline) < 0)) {
+			close(deps);
+			slbt_lib_free_txtfile_ctx(tctx);
+			return SLBT_SYSTEM_ERROR(dctx,0);
+		}
+	}
+
+	slbt_lib_free_txtfile_ctx(tctx);
+
+	return deps;
+}
+
+
 slbt_hidden int slbt_exec_link_create_dep_file(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -96,6 +345,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 {
 	int			ret;
 	int			deps;
+	int			fdtmp;
 	int			slen;
 	int			fdcwd;
 	char **			parg;
@@ -109,6 +359,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	bool			is_reladir;
 	char			reladir[PATH_MAX];
 	char			depfile[PATH_MAX];
+	char			pathbuf[PATH_MAX];
 	struct stat		st;
 	int			ldepth;
 	int			fdyndep;
@@ -119,9 +370,11 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 
 	/* depfile */
 	if (slbt_snprintf(depfile,sizeof(depfile),
-			"%s.slibtool.deps",
+			"%s.slibtool.deps.tmp1",
 			libfilename) < 0)
 		return SLBT_BUFFER_ERROR(dctx);
+
+	strcpy(pathbuf,depfile);
 
 	/* deps */
 	if ((deps = openat(fdcwd,depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
@@ -325,6 +578,17 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 			return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
+
+	if ((fdtmp = slbt_exec_link_normalize_dep_file(dctx,deps,&pathbuf)) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	close(deps);
+
+	if ((deps = slbt_exec_link_compact_dep_file(dctx,fdtmp,&pathbuf)) < 0)
+		return SLBT_NESTED_ERROR(dctx);
+
+	close(deps);
+	close(fdtmp);
 
 	return 0;
 }
