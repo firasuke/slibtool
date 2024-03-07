@@ -212,6 +212,7 @@ int  slbt_ectx_get_exec_ctx(
 	char *				ch;
 	char *				mark;
 	const char *			dmark;
+	const char *                    dsoext;
 	char *				slash;
 	char *                          arname;
 	struct slbt_archive_ctx **      dlactxv;
@@ -381,6 +382,9 @@ int  slbt_ectx_get_exec_ctx(
 
 	/* linking: arfilename, lafilename, laifilename, dsobasename, dsofilename, mapfilename */
 	if (dctx->cctx->mode == SLBT_MODE_LINK && dctx->cctx->libname) {
+		if (!(dsoext = dctx->cctx->shrext))
+			dsoext = dctx->cctx->settings.dsosuffix;
+
 		/* arprefix, dsoprefix */
 		if (dctx->cctx->drvflags & SLBT_DRIVER_MODULE) {
 			ictx->ctx.sonameprefix = "";
@@ -437,7 +441,7 @@ int  slbt_ectx_get_exec_ctx(
 				ictx->ctx.ldirname,
 				dsoprefix,
 				dctx->cctx->libname,
-				dctx->cctx->settings.dsosuffix);
+				dsoext);
 		ch++;
 
 		/* mapfilename */
@@ -459,7 +463,7 @@ int  slbt_ectx_get_exec_ctx(
 				dctx->cctx->libname,
 				dctx->cctx->release ? "-" : "",
 				dctx->cctx->release ? dctx->cctx->release : "",
-				dctx->cctx->settings.dsosuffix);
+				dsoext);
 		ch++;
 
 		/* rpathfilename */
@@ -468,7 +472,7 @@ int  slbt_ectx_get_exec_ctx(
 				ictx->ctx.ldirname,
 				dsoprefix,
 				dctx->cctx->libname,
-				dctx->cctx->settings.dsosuffix);
+				dsoext);
 		ch++;
 
 		/* default implib file name */
@@ -526,7 +530,7 @@ int  slbt_ectx_get_exec_ctx(
 					dsoprefix,
 					dctx->cctx->libname,
 					dctx->cctx->release,
-					dctx->cctx->settings.dsosuffix);
+					dsoext);
 			ch++;
 		}
 
@@ -538,7 +542,7 @@ int  slbt_ectx_get_exec_ctx(
 					dsoprefix,
 					dctx->cctx->libname,
 					dctx->cctx->release,
-					dctx->cctx->settings.dsosuffix);
+					dsoext);
 			ch++;
 		}
 

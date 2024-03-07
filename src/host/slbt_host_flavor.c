@@ -146,9 +146,6 @@ slbt_hidden void slbt_init_flavor_settings(
 	}
 
 	memcpy(psettings,settings,sizeof(*settings));
-
-	if (cctx->shrext)
-		psettings->dsosuffix = cctx->shrext;
 }
 
 
