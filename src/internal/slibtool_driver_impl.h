@@ -185,6 +185,7 @@ struct slbt_exec_ctx_impl {
 	char *                          shadow;
 	char *                          dsoprefix;
 	size_t                          size;
+	size_t                          exts;
 	int                             fdwrapper;
 	char                            sbuf[PATH_MAX];
 	char **                         lout[2];

@@ -77,6 +77,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	struct slbt_exec_ctx_impl *	ictx;
 	size_t				size;
 	size_t                          slen;
+	size_t                          exts;
 	int				argc;
 	char *				args;
 	char *				shadow;
@@ -88,10 +89,11 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	/* internal driver context for host-specific tool arguments */
 	ctx = slbt_get_driver_ictx(dctx);
 
-	/* initial buffer size (cargv, -Wc) */
+	/* initial buffer size (cargv, -Wc), .libs/extras */
 	argc = 0;
 	csrc = 0;
 	size = 0;
+	exts = 16;
 
 	for (parg=dctx->cctx->cargv; *parg; parg++, argc++) {
 		if (!(strncmp("-Wc,",*parg,4))) {
@@ -102,23 +104,31 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 		}
 	}
 
-	/* argument transformation: additive, worst case scenario */
-	size += argc * (strlen(".lo") + 1);
-	size += argc * (strlen(".libs/") + 1);
-	size += argc * (strlen(".0000.0000.0000") + 1);
+	/* argument transformation: assume for each argv member */
+	if (dctx->cctx->shrext) {
+		exts += argc * (strlen(dctx->cctx->shrext));
+	}
+
+	if (dctx->cctx->settings.dsosuffix) {
+		exts += argc * (strlen(dctx->cctx->settings.dsosuffix));
+	}
+
+	size += argc * exts;
 
 	/* buffer size (csrc, ldirname, lbasename, lobjname, aobjname, etc.) */
 	if (dctx->cctx->libname) {
 		slen  = strlen(dctx->cctx->libname);
-		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+		size += (strlen(".slibtool.expsyms.extension") + slen + exts + 1) * SLBT_ECTX_LIB_EXTRAS;
 
 	} else if (dctx->cctx->output) {
 		slen  = strlen(dctx->cctx->output);
-		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+		size += (strlen(".slibtool.expsyms.extension") + slen + exts + 1) * SLBT_ECTX_LIB_EXTRAS;
 
 	} else if ((csrc = slbt_source_file(dctx->cctx->cargv))) {
 		slen  = strlen(csrc);
-		size += (strlen(".slibtool.expsyms.extension") + slen + 1) * SLBT_ECTX_LIB_EXTRAS;
+		size += (strlen(".slibtool.expsyms.extension") + slen + exts + 1) * SLBT_ECTX_LIB_EXTRAS;
+	} else {
+		size += exts * SLBT_ECTX_LIB_EXTRAS;
 	}
 
 	/* string buffers: args, shadow */
@@ -177,6 +187,7 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	ictx->argc = argc;
 
 	ictx->size   = size;
+	ictx->exts   = exts;
 	ictx->shadow = shadow;
 
 	ictx->ctx.csrc  = csrc;
@@ -307,7 +318,7 @@ int  slbt_ectx_get_exec_ctx(
 		} else {
 			ictx->ctx.argv[i++] = ch;
 			ch += sprintf(ch,"%s",*parg);
-			ch += strlen(".libs/-L-l");
+			ch += ictx->exts;
 		}
 	}
 
