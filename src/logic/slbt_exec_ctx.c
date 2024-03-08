@@ -89,11 +89,11 @@ static struct slbt_exec_ctx_impl * slbt_exec_ctx_alloc(
 	/* internal driver context for host-specific tool arguments */
 	ctx = slbt_get_driver_ictx(dctx);
 
-	/* initial buffer size (cargv, -Wc), .libs/extras */
+	/* initial buffer size (cargv, -Wc), .libs/.exe.wrapper */
 	argc = 0;
 	csrc = 0;
 	size = 0;
-	exts = 16;
+	exts = 20;
 
 	for (parg=dctx->cctx->cargv; *parg; parg++, argc++) {
 		if (!(strncmp("-Wc,",*parg,4))) {

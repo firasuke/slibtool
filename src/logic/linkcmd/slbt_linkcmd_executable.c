@@ -210,9 +210,9 @@ slbt_hidden int slbt_exec_link_create_executable(
 			"export %s=\"$DL_PATH\"\n\n"
 			"if [ $(basename \"$0\") = \"%s\" ]; then\n"
 			"\tprogram=\"$1\"; shift\n"
-			"\texec \"$program\" \"$@\"\n"
+			"\texec -- \"$program\" \"$@\"\n"
 			"fi\n\n"
-			"exec %s/%s \"$@\"\n",
+			"exec -- %s/%s \"$@\"\n",
 			dctx->cctx->settings.ldpathenv,
 			dctx->cctx->settings.ldpathenv,
 			base,
