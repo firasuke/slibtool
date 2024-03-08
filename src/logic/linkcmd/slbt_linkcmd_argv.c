@@ -525,9 +525,11 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 						depsmeta,
 						SLBT_NESTED_ERROR(dctx));
 
-				*aarg++   = darg;
-				mark      = darg;
+				if (darg[0] != '#') {
+					*aarg++ = darg;
+				}
 
+				mark      = darg;
 				dlen      = strlen(darg);
 				size     -= dlen;
 				darg     += dlen;
