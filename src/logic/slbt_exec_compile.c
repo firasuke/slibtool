@@ -201,6 +201,7 @@ int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 		case SLBT_TAG_CC:
 		case SLBT_TAG_CXX:
 		case SLBT_TAG_F77:
+		case SLBT_TAG_FC:
 			fpic = cctx->settings.picswitch
 				? cctx->settings.picswitch
 				: *ectx->fpic;
