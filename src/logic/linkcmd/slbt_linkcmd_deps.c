@@ -185,8 +185,6 @@ static int slbt_exec_link_normalize_dep_file(
 
 			if ((mark > *pline) && (mark[0] == '/'))
 				mark = *pline;
-		} else {
-			mark = *pline;
 		}
 
 		if (mark > *pline) {
