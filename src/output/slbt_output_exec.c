@@ -31,7 +31,9 @@ static int slbt_output_exec_annotated(
 	const char * aclr_color;
 	const char * aclr_unset;
 
-	fdout = slbt_driver_fdout(dctx);
+	fdout = (strcmp(step,"execute"))
+		? slbt_driver_fdout(dctx)
+		: slbt_driver_fderr(dctx);
 
 	if (slbt_dprintf(
 			fdout,"%s%s%s: %s%s%s%s:%s",
@@ -74,7 +76,9 @@ static int slbt_output_exec_plain(
 	int	fdout;
 	char ** parg;
 
-	fdout = slbt_driver_fdout(dctx);
+	fdout = (strcmp(step,"execute"))
+		? slbt_driver_fdout(dctx)
+		: slbt_driver_fderr(dctx);
 
 	if (slbt_dprintf(fdout,"%s: %s:",dctx->program,step) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -97,7 +101,10 @@ int slbt_output_exec(
 	int                             fdout;
 
 	dctx  = (slbt_get_exec_ictx(ectx))->dctx;
-	fdout = slbt_driver_fdout(dctx);
+
+	fdout = (strcmp(step,"execute"))
+		? slbt_driver_fdout(dctx)
+		: slbt_driver_fderr(dctx);
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER)
 		return slbt_output_exec_plain(dctx,ectx,step);
