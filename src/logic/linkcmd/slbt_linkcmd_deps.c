@@ -355,7 +355,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	size_t			size;
 	bool                    fdep;
 	char			deplib [PATH_MAX];
-	bool			is_reladir;
+	char			deppref[PATH_MAX];
 	char			reladir[PATH_MAX];
 	char			depfile[PATH_MAX];
 	char			pathbuf[PATH_MAX];
@@ -363,6 +363,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	int			ldepth;
 	int			fdyndep;
 	struct slbt_map_info *  mapinfo;
+	bool			is_reladir;
 
 	/* fdcwd */
 	fdcwd = slbt_driver_fdcwd(dctx);
@@ -374,6 +375,55 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	strcpy(pathbuf,depfile);
+
+	/* dependency prefix */
+	if (depfile[0] == '/') {
+		deppref[0] = '\0';
+	} else {
+		if ((mark = strrchr(depfile,'/')))
+			*mark = 0;
+
+		if (!mark)
+			mark = depfile;
+
+		if (slbt_realpath(fdcwd,depfile,0,reladir,sizeof(reladir)) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		if (slbt_realpath(fdcwd,"./",0,deppref,sizeof(deppref)) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		if (mark > depfile)
+			*mark = '/';
+
+		mark = &reladir[strlen(deppref)];
+		*mark++ = '\0';
+
+		if (strcmp(reladir,deppref))
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_FLOW_ERROR);
+
+		if ((base = strrchr(mark,'/')))
+			base++;
+
+		if (!base)
+			base = mark;
+
+		if (strcmp(base,".libs"))
+			return SLBT_CUSTOM_ERROR(
+				dctx,
+				SLBT_ERR_FLOW_ERROR);
+
+		base = mark;
+		mark = deppref;
+
+		for (; base; ) {
+			if ((base = strchr(base,'/'))) {
+				mark += sprintf(mark,"../");
+				base++;
+			}
+		}
+	}
 
 	/* deps */
 	if ((deps = openat(fdcwd,depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
@@ -588,8 +638,8 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 						&& (deplib[1] == 'L')
 						&& (deplib[2] != '/'))
 					? slbt_dprintf(
-						deps,"-L%s/%s",
-						reladir,&deplib[2])
+						deps,"-L%s%s/%s",
+						deppref,reladir,&deplib[2])
 					: slbt_dprintf(
 						deps,"%s",
 						deplib);
