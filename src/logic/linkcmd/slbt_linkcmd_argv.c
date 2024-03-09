@@ -170,7 +170,8 @@ slbt_hidden bool slbt_adjust_object_argument(
 
 slbt_hidden bool slbt_adjust_wrapper_argument(
 	char *		arg,
-	bool		fpic)
+	bool		fpic,
+	const char *    suffix)
 {
 	char *	slash;
 	char *	dot;
@@ -199,7 +200,7 @@ slbt_hidden bool slbt_adjust_wrapper_argument(
 		dot = strrchr(arg,'.');
 	}
 
-	strcpy(dot,".a");
+	strcpy(dot,suffix);
 	return true;
 }
 

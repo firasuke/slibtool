@@ -156,7 +156,9 @@ slbt_hidden int slbt_exec_link_create_archive(
 
 	/* input objects associated with .la archives */
 	for (parg=ectx->cargv; *parg; parg++)
-		if (slbt_adjust_wrapper_argument(*parg,true))
+		if (slbt_adjust_wrapper_argument(
+				*parg,true,
+				dctx->cctx->settings.arsuffix))
 			if (slbt_util_import_archive(ectx,output,*parg))
 				return SLBT_NESTED_ERROR(dctx);
 

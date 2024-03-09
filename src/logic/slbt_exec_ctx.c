@@ -205,6 +205,7 @@ int  slbt_ectx_get_exec_ctx(
 {
 	struct slbt_exec_ctx_impl *	ictx;
 	struct slbt_driver_ctx_impl *   idctx;
+	struct slbt_error_info**        errinfp;
 	uint64_t                        fmask;
 	char **				parg;
 	char **				src;
@@ -635,12 +636,30 @@ int  slbt_ectx_get_exec_ctx(
 		for (; *dlopenv; ) {
 			arname = ictx->sbuf;
 			strcpy(arname,*dlopenv);
-			slbt_adjust_wrapper_argument(arname,true);
 
-			if (slbt_ar_get_archive_ctx(dctx,arname,dlactxv) < 0)
-				return slbt_ectx_free_exec_ctx_impl(
-					ictx,
-					SLBT_NESTED_ERROR(dctx));
+			slbt_adjust_wrapper_argument(
+				arname,true,
+				".expsyms.a");
+
+			errinfp = idctx->errinfp;
+
+			if (slbt_ar_get_archive_ctx(dctx,arname,dlactxv) < 0) {
+				strcpy(arname,*dlopenv);
+
+				slbt_adjust_wrapper_argument(
+					arname,true,
+					dctx->cctx->settings.arsuffix);
+
+				if (slbt_ar_get_archive_ctx(dctx,arname,dlactxv) < 0)
+					return slbt_ectx_free_exec_ctx_impl(
+						ictx,
+						SLBT_NESTED_ERROR(dctx));
+
+				idctx->errinfp = errinfp;
+
+				for (; *errinfp; )
+					*errinfp++ = 0;
+			}
 
 			if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
 				return slbt_ectx_free_exec_ctx_impl(

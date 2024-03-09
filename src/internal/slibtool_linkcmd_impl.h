@@ -29,7 +29,8 @@ bool slbt_adjust_object_argument(
 
 bool slbt_adjust_wrapper_argument(
 	char *		arg,
-	bool		fpic);
+	bool		fpic,
+	const char *    suffix);
 
 int slbt_adjust_linker_argument(
 	const struct slbt_driver_ctx *	dctx,
