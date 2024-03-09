@@ -62,17 +62,18 @@ slbt_hidden int slbt_exec_link_create_archive(
 	char ** 	parg;
 	char		program[PATH_MAX];
 	char		output [PATH_MAX];
+	char		namebuf[PATH_MAX];
 
 	/* dlopen, dlpreopen: object compilation (derived from dynamic linking) */
 	if (ectx->dlopenobj) {
 		slbt_ectx_reset_arguments(ectx);
 		slbt_reset_placeholders(ectx);
 
+		sprintf(namebuf,"%s%s",ectx->ldirname,"@ARDLOPEN@");
+
 		if (slbt_exec_link_create_library(
 				dctx,ectx,
-				"@ARDLOPEN",
-				"@ARDLOPEN",
-				"@ARDLOPEN",
+				namebuf,namebuf,namebuf,
 				true) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 	}
