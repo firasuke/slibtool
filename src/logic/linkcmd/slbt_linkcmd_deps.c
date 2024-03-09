@@ -353,6 +353,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	char *			mark;
 	char *			base;
 	size_t			size;
+	bool                    fdep;
 	char			deplib [PATH_MAX];
 	bool			is_reladir;
 	char			reladir[PATH_MAX];
@@ -378,6 +379,21 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	if ((deps = openat(fdcwd,depfile,O_RDWR|O_CREAT|O_TRUNC,0644)) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,depfile);
 
+	/* informational header */
+	if (slbt_realpath(fdcwd,"./",0,reladir,sizeof(reladir)) < 0)
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	if (slbt_dprintf(deps,
+			"# makefile target: %s\n"
+			"# slibtool target: %s\n"
+			"# cprocess fdcwd:  %s\n",
+			dctx->cctx->output,
+			libfilename,
+			reladir) < 0)
+		return SLBT_SYSTEM_ERROR(dctx,0);
+
+	fdep = 0;
+
 	/* iterate */
 	for (parg=altv; *parg; parg++) {
 		popt    = 0;
@@ -386,10 +402,30 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 		mapinfo = 0;
 
 		if (!strncmp(*parg,"-l",2)) {
+			if (fdep) {
+				if (slbt_dprintf(
+						deps,
+						"#\n# makefile target: %s\n",
+						dctx->cctx->output) < 0)
+					return SLBT_SYSTEM_ERROR(dctx,0);
+
+				fdep = false;
+			}
+
 			popt = *parg;
 			plib = popt + 2;
 
 		} else if (!strncmp(*parg,"-L",2)) {
+			if (fdep) {
+				if (slbt_dprintf(
+						deps,
+						"#\n# makefile target: %s\n",
+						dctx->cctx->output) < 0)
+					return SLBT_SYSTEM_ERROR(dctx,0);
+
+				fdep = false;
+			}
+
 			popt = *parg;
 			path = popt + 2;
 
@@ -398,6 +434,8 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 
 		} else if ((popt = strrchr(*parg,'.')) && !strcmp(popt,".la")) {
 			/* import dependency list */
+			fdep = true;
+
 			if ((base = strrchr(*parg,'/')))
 				base++;
 			else
