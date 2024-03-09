@@ -423,6 +423,8 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 				base++;
 			}
 		}
+
+		*mark = '\0';
 	}
 
 	/* deps */
