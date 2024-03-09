@@ -34,6 +34,7 @@ slbt_hidden int slbt_create_symlink(
 	char **		oargv;
 	const char *	slash;
 	char *		ln[5];
+	char *          dot;
 	char *		dotdot;
 	char		tmplnk [PATH_MAX];
 	char		lnkarg [PATH_MAX];
@@ -82,9 +83,21 @@ slbt_hidden int slbt_create_symlink(
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* placeholder? */
-	if (fdevnull)
+	if (fdevnull) {
 		if (unlinkat(fdcwd,lnkname,0) && (errno != ENOENT))
 			return SLBT_SYSTEM_ERROR(dctx,0);
+
+		if ((dot = strrchr(lnkname,'.'))) {
+			if (!strcmp(dot,dctx->cctx->settings.dsosuffix)) {
+				strcpy(dot,".expsyms.a");
+
+				if (unlinkat(fdcwd,lnkname,0) && (errno != ENOENT))
+					return SLBT_SYSTEM_ERROR(dctx,0);
+
+				strcpy(dot,dctx->cctx->settings.dsosuffix);
+			}
+		}
+	}
 
 	if (suffix) {
 		sprintf(alnkarg,"%s%s",lnkname,suffix);
