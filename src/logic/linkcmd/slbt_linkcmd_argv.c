@@ -298,7 +298,6 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 	int			fdcwd;
 	char ** 		carg;
 	char ** 		aarg;
-	char *			ldir;
 	char *			slash;
 	char *			mark;
 	char *			darg;
@@ -359,30 +358,10 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 		mark = *carg;
 
 		if ((mark[0] == '-') && (mark[1] == 'L')) {
-			if (mark[2]) {
-				ldir = &mark[2];
-			} else {
-				*aarg++ = *carg++;
-				ldir    = *carg;
-			}
-
-			mark = ldir + strlen(ldir);
-
-			if (mark[-1] == '/')
-				strcpy(mark,".libs");
-			else
-				strcpy(mark,"/.libs");
-
-			if ((fd = openat(fdcwd,ldir,O_DIRECTORY,0)) < 0)
-				*mark = 0;
-			else {
-				close(fd);
-
-				if ((ret = slbt_emit_fdwrap_amend_dl_path(
-						dctx,ectx,depsmeta,
-						"%s",ldir)) < 0)
-					return ret;
-			}
+			if ((ret = slbt_emit_fdwrap_amend_dl_path(
+					dctx,ectx,depsmeta,
+					"%s",&mark[2])) < 0)
+				return ret;
 
 			*aarg++ = *carg++;
 
