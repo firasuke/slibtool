@@ -134,7 +134,10 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	int			ret;
 	const char *		output;
 	char *			dot;
+	char *			slash;
 	struct slbt_exec_ctx *	ectx;
+	char *                  arref;
+	char *                  dsoref;
 	bool			fpic;
 	bool			fnodsolib;
 	bool			fnoarchive;
@@ -142,7 +145,6 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	char			soname[PATH_MAX];
 	char			soxyz [PATH_MAX];
 	char			solnk [PATH_MAX];
-	char			arname[PATH_MAX];
 	char			target[PATH_MAX];
 	char			lnkname[PATH_MAX];
 
@@ -153,6 +155,10 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	/* context */
 	if (slbt_ectx_get_exec_ctx(dctx,&ectx) < 0)
 		return SLBT_NESTED_ERROR(dctx);
+
+	/* .la wrapper */
+	arref  = 0;
+	dsoref = 0;
 
 	/* libfoo.so.x.y.z */
 	if (slbt_snprintf(soxyz,sizeof(soxyz),
@@ -186,12 +192,6 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 		dctx->cctx->libname,
 		dctx->cctx->settings.dsosuffix);
 
-	/* libfoo.a */
-	sprintf(arname,"%s%s%s",
-		dctx->cctx->settings.arprefix,
-		dctx->cctx->libname,
-		dctx->cctx->settings.arsuffix);
-
 	/* output suffix */
 	output = dctx->cctx->output;
 	dot    = strrchr(output,'.');
@@ -209,6 +209,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
+
 
 	/* fpic, fstaticobjs, fnodsolib, fnoarchive */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_ALL_STATIC) {
@@ -253,7 +254,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	}
 
 	/* pic libfoo.a */
-	if (dot && !strcmp(dot,".la") && !fnoarchive)
+	if (dot && !strcmp(dot,".la") && !fnoarchive) {
 		if (slbt_exec_link_create_archive(
 				dctx,ectx,
 				ectx->arfilename,
@@ -261,6 +262,12 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
+
+		arref = ectx->arfilename;
+
+		if ((slash = strrchr(arref,'/')))
+			arref = ++slash;
+	}
 
 	/* static-only libfoo.la */
 	if (fstaticobjs && dot && !strcmp(dot,".la")) {
@@ -459,6 +466,8 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 					SLBT_SYMLINK_LITERAL))
 				return SLBT_NESTED_ERROR(dctx);
 		}
+
+		dsoref = soname;
 	}
 
 	/* executable */
@@ -481,7 +490,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 	/* library wrapper */
 	if (slbt_create_library_wrapper(
 			dctx,ectx,
-			arname,soname,soxyz,solnk)) {
+			arref,dsoref,soxyz,solnk)) {
 		slbt_ectx_free_exec_ctx(ectx);
 		return SLBT_NESTED_ERROR(dctx);
 	}
