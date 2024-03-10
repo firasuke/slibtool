@@ -29,6 +29,7 @@ static int  slbt_create_default_library_wrapper(
 	const char *				base;
 	bool					fnover;
 	bool					fvernum;
+	bool                                    fspace;
 	int					current;
 	int					revision;
 	int					age;
@@ -55,6 +56,7 @@ static int  slbt_create_default_library_wrapper(
 
 	fnover  = !!(dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION);
 	fvernum = !!(dctx->cctx->verinfo.vernumber);
+	fspace  = !!soname[0];
 	verinfo = slbt_api_source_version();
 
 	/* wrapper header */
@@ -68,7 +70,7 @@ static int  slbt_create_default_library_wrapper(
 		"# [commit reference: %s]\n\n"
 
 		"dlname='%s'\n"
-		"library_names='%s %s %s'\n"
+		"library_names='%s%s%s%s%s'\n"
 		"old_library='%s'\n\n"
 
 		"inherited_linker_flags='%s'\n"
@@ -100,7 +102,9 @@ static int  slbt_create_default_library_wrapper(
 
 		/* library_names */
 		fnover ? solnk : soxyz,
+		fspace ? " "    : "",
 		fnover ? solnk : soname,
+		fspace ? " "    : "",
 		solnk,
 
 		/* old_library */
@@ -141,6 +145,7 @@ static int  slbt_create_compatible_library_wrapper(
 	const char *				base;
 	bool					fnover;
 	bool					fvernum;
+	bool                                    fspace;
 	int					current;
 	int					revision;
 	int					age;
@@ -174,6 +179,7 @@ static int  slbt_create_compatible_library_wrapper(
 
 	fnover  = !!(dctx->cctx->drvflags & SLBT_DRIVER_AVOID_VERSION);
 	fvernum = !!(dctx->cctx->verinfo.vernumber);
+	fspace  = !!soname[0];
 	verinfo = slbt_api_source_version();
 
 	/* wrapper content */
@@ -189,7 +195,7 @@ static int  slbt_create_compatible_library_wrapper(
 		"dlname='%s'\n\n"
 
 		"# Names of this library.\n"
-		"library_names='%s %s %s'\n\n"
+		"library_names='%s%s%s%s%s'\n\n"
 
 		"# The name of the static archive.\n"
 		"old_library='%s'\n\n"
@@ -234,7 +240,9 @@ static int  slbt_create_compatible_library_wrapper(
 
 		/* library_names */
 		fnover ? solnk : soxyz,
+		fspace ? " "   : "",
 		fnover ? solnk : soname,
+		fspace ? " "   : "",
 		solnk,
 
 		/* old_library */
@@ -275,6 +283,16 @@ slbt_hidden int slbt_create_library_wrapper(
 	const char *			soxyz,
 	const char *			solnk)
 {
+	if (!arname) {
+		arname = "";
+	}
+
+	if (!soname) {
+		soname = "";
+		soxyz  = "";
+		solnk  = "";
+	}
+
 	if (dctx->cctx->drvflags & SLBT_DRIVER_LEGABITS)
 		return slbt_create_compatible_library_wrapper(
 			dctx,ectx,arname,soxyz,soname,solnk);
