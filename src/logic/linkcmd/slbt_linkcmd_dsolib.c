@@ -172,10 +172,11 @@ slbt_hidden int slbt_exec_link_create_library(
 
 	} else if (relfilename && dctx->cctx->verinfo.verinfo) {
 		if (slbt_snprintf(soname,sizeof(soname),
-					"-Wl,%s%s-%s%s.%d%s",
+					"-Wl,%s%s%s%s%s.%d%s",
 					ectx->sonameprefix,
 					dctx->cctx->libname,
-					dctx->cctx->release,
+					dctx->cctx->release ? "-" : "",
+					dctx->cctx->release ? dctx->cctx->release : "",
 					dctx->cctx->settings.osdsuffix,
 					dctx->cctx->verinfo.major,
 					dctx->cctx->settings.osdfussix) < 0)
@@ -186,10 +187,11 @@ slbt_hidden int slbt_exec_link_create_library(
 
 	} else if (relfilename) {
 		if (slbt_snprintf(soname,sizeof(soname),
-					"-Wl,%s%s-%s%s",
+					"-Wl,%s%s%s%s%s",
 					ectx->sonameprefix,
 					dctx->cctx->libname,
-					dctx->cctx->release,
+					dctx->cctx->release ? "-" : "",
+					dctx->cctx->release ? dctx->cctx->release : "",
 					dctx->cctx->settings.dsosuffix) < 0)
 			return SLBT_BUFFER_ERROR(dctx);
 
