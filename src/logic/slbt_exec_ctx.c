@@ -206,7 +206,6 @@ int  slbt_ectx_get_exec_ctx(
 	struct slbt_exec_ctx_impl *	ictx;
 	struct slbt_driver_ctx_impl *   idctx;
 	struct slbt_error_info**        errinfp;
-	uint64_t                        fmask;
 	char **				parg;
 	char **				src;
 	char **				dst;
@@ -632,23 +631,17 @@ int  slbt_ectx_get_exec_ctx(
 
 	/* dlopen, dlpreopen */
 	if ((dlopenv = idctx->dlopenv), (dlactxv = ictx->dlactxv)) {
-		fmask  = SLBT_DRIVER_DLPREOPEN_FORCE;
-		fmask |= SLBT_DRIVER_DLPREOPEN_SELF;
-		fmask |= SLBT_DRIVER_DLOPEN_FORCE;
+		if (slbt_ar_get_varchive_ctx(dctx,dlactxv) < 0)
+			return slbt_ectx_free_exec_ctx_impl(
+				ictx,
+				SLBT_NESTED_ERROR(dctx));
 
-		if (dctx->cctx->drvflags & fmask) {
-			if (slbt_ar_get_varchive_ctx(dctx,dlactxv) < 0)
-				return slbt_ectx_free_exec_ctx_impl(
-					ictx,
-					SLBT_NESTED_ERROR(dctx));
+		if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+			return slbt_ectx_free_exec_ctx_impl(
+				ictx,
+				SLBT_NESTED_ERROR(dctx));
 
-			if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
-				return slbt_ectx_free_exec_ctx_impl(
-					ictx,
-					SLBT_NESTED_ERROR(dctx));
-
-			dlactxv++;
-		}
+		dlactxv++;
 
 		for (; *dlopenv; ) {
 			dlentry  = *dlopenv;

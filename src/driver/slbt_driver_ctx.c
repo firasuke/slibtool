@@ -885,6 +885,10 @@ int slbt_lib_get_driver_ctx(
 		if (cctx.tag == SLBT_TAG_UNKNOWN)
 			cctx.tag = SLBT_TAG_CC;
 
+	/* dlopen/dlpreopen: first vector member is a virtual archive */
+	if (ndlopen)
+		ndlopen++;
+
 	/* driver context */
 	if (!(ctx = slbt_driver_ctx_alloc(fdctx,&cctx,&sargv,objlistv,envp,ndlopen)))
 		return slbt_lib_get_driver_ctx_fail(0,meta);
