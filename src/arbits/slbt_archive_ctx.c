@@ -52,6 +52,7 @@ static int slbt_ar_free_archive_ctx_impl(struct slbt_archive_ctx_impl * ctx, int
 	if (ctx) {
 		slbt_ar_free_archive_meta(ctx->meta);
 		slbt_unmap_raw_archive(&ctx->map);
+		free(ctx->pathbuf);
 		free(ctx);
 	}
 
@@ -84,8 +85,12 @@ int slbt_ar_get_archive_ctx(
 		return slbt_ar_free_archive_ctx_impl(ctx,
 			SLBT_NESTED_ERROR(dctx));
 
+	if (!(ctx->pathbuf = strdup(path)))
+		return slbt_ar_free_archive_ctx_impl(ctx,
+			SLBT_NESTED_ERROR(dctx));
+
 	ctx->dctx       = dctx;
-	ctx->path	= path;
+	ctx->path	= ctx->pathbuf;
 	ctx->actx.path	= &ctx->path;
 	ctx->actx.map	= &ctx->map;
 	ctx->actx.meta	= ctx->meta;
