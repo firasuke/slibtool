@@ -150,7 +150,7 @@ struct slbt_driver_ctx_impl {
 	struct slbt_txtfile_ctx *       lconfctx;
 	struct slbt_obj_list *          objlistv;
 
-	const char **                   dlopenv;
+	struct argv_entry **            dlopenv;
 	size_t                          ndlopen;
 
 	const struct slbt_archive_ctx * arctx;
@@ -179,6 +179,7 @@ struct slbt_exec_ctx_impl {
 	struct slbt_symlist_ctx *       sctx;
 	struct slbt_exec_ctx            ctx;
 	struct slbt_archive_ctx **      dlactxv;
+	struct slbt_archive_ctx *       dlpreopen;
 	char **                         dlargv;
 	int                             argc;
 	char *                          args;

@@ -247,7 +247,7 @@ static struct slbt_driver_ctx_impl * slbt_driver_ctx_alloc(
 	}
 
 	if (ndlopen) {
-		if (!(ictx->ctx.dlopenv = calloc(ndlopen+1,sizeof(char *)))) {
+		if (!(ictx->ctx.dlopenv = calloc(ndlopen+1,sizeof(*ictx->ctx.dlopenv)))) {
 			free(ictx);
 			slbt_free_argv_buffer(sargv,objlistv);
 			return 0;
@@ -406,7 +406,7 @@ int slbt_lib_get_driver_ctx(
 	const char *			lconf;
 	uint64_t			lflags;
 	size_t                          ndlopen;
-	const char **			dlopenv;
+	struct argv_entry **            dlopenv;
 	const char *                    cfgmeta_host;
 	const char *                    cfgmeta_ar;
 	const char *                    cfgmeta_as;
@@ -1010,7 +1010,16 @@ int slbt_lib_get_driver_ctx(
 			if (entry->fopt) {
 				switch (entry->tag) {
 					case TAG_DLOPEN:
-						ctx->cctx.drvflags |= SLBT_DRIVER_DLOPEN_FORCE;
+						if (!strcmp(entry->arg,"self")) {
+							ctx->cctx.drvflags |= SLBT_DRIVER_DLOPEN_FORCE;
+
+						} else if (!strcmp(entry->arg,"force")) {
+							ctx->cctx.drvflags |= SLBT_DRIVER_DLOPEN_FORCE;
+
+						} else {
+							*dlopenv++ = entry;
+						}
+
 						break;
 
 					case TAG_DLPREOPEN:
@@ -1021,8 +1030,10 @@ int slbt_lib_get_driver_ctx(
 							ctx->cctx.drvflags |= SLBT_DRIVER_DLPREOPEN_FORCE;
 
 						} else {
-							*dlopenv++ = entry->arg;
+							*dlopenv++ = entry;
 						}
+
+						break;
 
 					default:
 						break;

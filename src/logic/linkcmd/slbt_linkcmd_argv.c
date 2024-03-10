@@ -23,6 +23,7 @@
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
 #include "slibtool_visibility_impl.h"
+#include "slibtool_ar_impl.h"
 
 
 static const char * slbt_ar_self_dlunit = "@PROGRAM@";
@@ -940,7 +941,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 
 		/* add or repalce the archive context */
 		for (; !arctx && *arctxv; )
-			if (!strcmp(*arctxv[0]->path,ectx->mapfilename))
+			if (!strcmp(*arctxv[0]->path,slbt_ar_self_dlunit))
 				arctx = *arctxv;
 			else
 				arctxv++;
@@ -955,7 +956,11 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 		if (slbt_ar_get_archive_ctx(dctx,arname,arctxv) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 
-		arctxv[0]->path = &slbt_ar_self_dlunit;
+		arctx       = *arctxv;
+		arctx->path = &slbt_ar_self_dlunit;
+
+		if (slbt_ar_update_syminfo(arctx,ectx) < 0)
+			return SLBT_NESTED_ERROR(dctx);
 
 		/* regenerate the dlsyms vtable source */
 		if (slbt_ar_create_dlsyms(
@@ -980,6 +985,10 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 
 	for (; src<cap; )
 		*dst++ = *src++;
+
+	/* dlpreopen */
+	if (ectx->dlpreopen)
+		*dst++ = ectx->dlpreopen;
 
 	/* join all other args, eliminate no-op linker path args */
 	src = aargv;

@@ -16,7 +16,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_ar_impl.h"
 
-#define SLBT_ECTX_LIB_EXTRAS	24
+#define SLBT_ECTX_LIB_EXTRAS	26
 #define SLBT_ECTX_SPARE_PTRS	16
 
 static int slbt_ectx_free_exec_ctx_impl(
@@ -217,7 +217,9 @@ int  slbt_ectx_get_exec_ctx(
 	char *				slash;
 	char *                          arname;
 	struct slbt_archive_ctx **      dlactxv;
-	const char **                   dlopenv;
+	struct argv_entry *             dlentry;
+	struct argv_entry **            dlopenv;
+	bool                            fpreopen;
 	const char *			arprefix;
 	const char *			dsoprefix;
 	const char *			impprefix;
@@ -548,7 +550,7 @@ int  slbt_ectx_get_exec_ctx(
 		}
 
 		/* dlopensrc, dlopenobj */
-		if (idctx->ndlopen) {
+		if (idctx->dlopenv) {
 			ictx->ctx.dlopensrc = ch;
 			ch += sprintf(ch,"%s%s%s.dlopen.c",
 					ictx->ctx.ldirname,
@@ -559,6 +561,14 @@ int  slbt_ectx_get_exec_ctx(
 
 			ictx->ctx.dlopenobj = ch;
 			ch += sprintf(ch,"%s%s%s.dlopen.o",
+					ictx->ctx.ldirname,
+					dsoprefix,
+					dctx->cctx->libname);
+
+			ch++;
+
+			ictx->ctx.dlpreopen = ch;
+			ch += sprintf(ch,"%s%s%s.dlpreopen.a",
 					ictx->ctx.ldirname,
 					dsoprefix,
 					dctx->cctx->libname);
@@ -600,6 +610,12 @@ int  slbt_ectx_get_exec_ctx(
 
 		ch++;
 
+		ictx->ctx.dlpreopen = ch;
+		ch += sprintf(ch,"%s.dlpreopen.a",
+				ictx->ctx.exefilename);
+
+		ch++;
+
 		ictx->ctx.dlunit = ch;
 		ch += sprintf(ch,"%s",
 				"@PROGRAM@");
@@ -617,6 +633,7 @@ int  slbt_ectx_get_exec_ctx(
 	/* dlopen, dlpreopen */
 	if ((dlopenv = idctx->dlopenv), (dlactxv = ictx->dlactxv)) {
 		fmask  = SLBT_DRIVER_DLPREOPEN_FORCE;
+		fmask |= SLBT_DRIVER_DLPREOPEN_SELF;
 		fmask |= SLBT_DRIVER_DLOPEN_FORCE;
 
 		if (dctx->cctx->drvflags & fmask) {
@@ -634,8 +651,11 @@ int  slbt_ectx_get_exec_ctx(
 		}
 
 		for (; *dlopenv; ) {
+			dlentry  = *dlopenv;
+			fpreopen = (dlentry->tag == TAG_DLPREOPEN);
+
 			arname = ictx->sbuf;
-			strcpy(arname,*dlopenv);
+			strcpy(arname,dlentry->arg);
 
 			slbt_adjust_wrapper_argument(
 				arname,true,
@@ -644,7 +664,12 @@ int  slbt_ectx_get_exec_ctx(
 			errinfp = idctx->errinfp;
 
 			if (slbt_ar_get_archive_ctx(dctx,arname,dlactxv) < 0) {
-				strcpy(arname,*dlopenv);
+				if ((*errinfp)->esyscode != ENOENT)
+					return slbt_ectx_free_exec_ctx_impl(
+						ictx,
+						SLBT_NESTED_ERROR(dctx));
+
+				strcpy(arname,dlentry->arg);
 
 				slbt_adjust_wrapper_argument(
 					arname,true,
@@ -659,15 +684,23 @@ int  slbt_ectx_get_exec_ctx(
 
 				for (; *errinfp; )
 					*errinfp++ = 0;
+
+				fpreopen = true;
 			}
 
-			if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
-				return slbt_ectx_free_exec_ctx_impl(
-					ictx,
-					SLBT_NESTED_ERROR(dctx));
+			if (fpreopen) {
+				if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+					return slbt_ectx_free_exec_ctx_impl(
+						ictx,
+						SLBT_NESTED_ERROR(dctx));
+
+				dlactxv++;
+			} else {
+				slbt_ar_free_archive_ctx(*dlactxv);
+				*dlactxv = 0;
+			}
 
 			dlopenv++;
-			dlactxv++;
 		}
 
 		if (slbt_mkdir(dctx,ictx->ctx.ldirname) < 0)
@@ -682,6 +715,16 @@ int  slbt_ectx_get_exec_ctx(
 					ictx->ctx.dlunit,
 					ictx->ctx.dlopensrc,
 					0644) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+		if (slbt_ar_merge_archives(ictx->dlactxv,&ictx->dlpreopen) < 0)
+				return slbt_ectx_free_exec_ctx_impl(
+					ictx,
+					SLBT_NESTED_ERROR(dctx));
+
+		if (slbt_ar_store_archive(ictx->dlpreopen,ictx->ctx.dlpreopen,0644) < 0)
 				return slbt_ectx_free_exec_ctx_impl(
 					ictx,
 					SLBT_NESTED_ERROR(dctx));

@@ -234,6 +234,7 @@ struct slbt_exec_ctx {
 	char *		dlunit;
 	char *		dlopensrc;
 	char *		dlopenobj;
+	char *		dlpreopen;
 
 	char *		arfilename;
 	char *		lafilename;
