@@ -18,10 +18,10 @@
 static int  slbt_create_default_library_wrapper(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
-	char *				arname,
-	char *				soname,
-	char *				soxyz,
-	char *				solnk)
+	const char *			arname,
+	const char *			soname,
+	const char *			soxyz,
+	const char *			solnk)
 {
 	int					ret;
 	int					fdout;
@@ -131,10 +131,10 @@ static int  slbt_create_default_library_wrapper(
 static int  slbt_create_compatible_library_wrapper(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
-	char *				arname,
-	char *				soname,
-	char *				soxyz,
-	char *				solnk)
+	const char *			arname,
+	const char *			soname,
+	const char *			soxyz,
+	const char *			solnk)
 {
 	int					ret;
 	int					fdout;
@@ -270,10 +270,10 @@ static int  slbt_create_compatible_library_wrapper(
 slbt_hidden int slbt_create_library_wrapper(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
-	char *				arname,
-	char *				soname,
-	char *				soxyz,
-	char *				solnk)
+	const char *			arname,
+	const char *			soname,
+	const char *			soxyz,
+	const char *			solnk)
 {
 	if (dctx->cctx->drvflags & SLBT_DRIVER_LEGABITS)
 		return slbt_create_compatible_library_wrapper(

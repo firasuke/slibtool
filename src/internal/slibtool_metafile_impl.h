@@ -10,9 +10,9 @@ int  slbt_create_object_wrapper(
 int  slbt_create_library_wrapper(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
-	char *				arname,
-	char *				soname,
-	char *				soxyz,
-	char *				solnk);
+	const char *			arname,
+	const char *			soname,
+	const char *			soxyz,
+	const char *			solnk);
 
 #endif
