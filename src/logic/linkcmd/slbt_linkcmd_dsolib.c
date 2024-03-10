@@ -89,7 +89,8 @@ slbt_hidden int slbt_exec_link_create_library(
 	const char *			dsobasename,
 	const char *			dsofilename,
 	const char *			relfilename,
-	bool                            fardlopen)
+	bool                            fardlopen,
+	bool                            fpic)
 {
 	int                     fdcwd;
 	char **                 parg;
@@ -119,7 +120,7 @@ slbt_hidden int slbt_exec_link_create_library(
 
 	/* input argument adjustment */
 	for (parg=ectx->cargv; *parg; parg++)
-		slbt_adjust_object_argument(*parg,true,false,fdcwd);
+		slbt_adjust_object_argument(*parg,fpic,false,fdcwd);
 
 	/* .deps */
 	if (slbt_exec_link_create_dep_file(

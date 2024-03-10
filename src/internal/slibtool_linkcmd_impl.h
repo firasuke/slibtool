@@ -76,7 +76,8 @@ int slbt_exec_link_create_library(
 	const char *			dsobasename,
 	const char *			dsofilename,
 	const char *			relfilename,
-	bool				fardlopen);
+	bool				fardlopen,
+	bool				fpic);
 
 
 int slbt_exec_link_create_executable(

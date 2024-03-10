@@ -328,7 +328,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 						ectx->dsobasename,
 						ectx->dsofilename,
 						ectx->relfilename,
-						false)) {
+						false,true)) {
 					slbt_ectx_free_exec_ctx(ectx);
 					return SLBT_NESTED_ERROR(dctx);
 				}
@@ -395,7 +395,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 				ectx->dsobasename,
 				ectx->dsofilename,
 				ectx->relfilename,
-				false)) {
+				false,true)) {
 			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}

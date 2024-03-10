@@ -74,7 +74,7 @@ slbt_hidden int slbt_exec_link_create_archive(
 		if (slbt_exec_link_create_library(
 				dctx,ectx,
 				namebuf,namebuf,namebuf,
-				true) < 0)
+				true,fpic) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 	}
 
