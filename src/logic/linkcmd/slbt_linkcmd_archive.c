@@ -50,6 +50,26 @@ static int slbt_exec_link_remove_file(
 	return 0;
 }
 
+
+static bool slbt_archive_is_convenience_library(int fdcwd, const char * arpath)
+{
+	int     fd;
+	char    laipath[PATH_MAX];
+	char *  dot;
+
+	strcpy(laipath,arpath);
+	dot = strrchr(laipath,'.');
+	strcpy(dot,".lai");
+
+	if ((fd = openat(fdcwd,laipath,O_RDONLY,0)) >= 0) {
+		close(fd);
+		return false;
+	}
+
+	return true;
+}
+
+
 slbt_hidden int slbt_exec_link_create_archive(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -159,8 +179,8 @@ slbt_hidden int slbt_exec_link_create_archive(
 		if (slbt_adjust_wrapper_argument(
 				*parg,true,
 				dctx->cctx->settings.arsuffix))
-			if (slbt_util_import_archive(ectx,output,*parg))
-				return SLBT_NESTED_ERROR(dctx);
-
+			if (slbt_archive_is_convenience_library(fdcwd,*parg))
+				if (slbt_util_import_archive(ectx,output,*parg))
+					return SLBT_NESTED_ERROR(dctx);
 	return 0;
 }
