@@ -454,8 +454,8 @@ int slbt_lib_get_driver_ctx(
 	if (flags & SLBT_DRIVER_MODE_AR)
 		cctx.mode = SLBT_MODE_AR;
 
-	/* shared and static objects: enable by default, disable by ~switch */
-	cctx.drvflags = flags | SLBT_DRIVER_SHARED | SLBT_DRIVER_STATIC;
+	/* default flags (set at compile time and derived from symlink) */
+	cctx.drvflags = flags;
 
 	/* full annotation when annotation is on; */
 	if (!(cctx.drvflags & SLBT_DRIVER_ANNOTATE_NEVER))
@@ -800,6 +800,15 @@ int slbt_lib_get_driver_ctx(
 		}
 	}
 
+	/* enable both shared and static targets by default as appropriate */
+	if (!(cctx.drvflags & SLBT_DRIVER_HEURISTICS)) {
+		if (!cmdnoshared)
+			cctx.drvflags |= SLBT_DRIVER_SHARED;
+
+		if (!cmdnostatic)
+			cctx.drvflags |= SLBT_DRIVER_STATIC;
+	}
+
 	/* incompatible command-line arguments? */
 	if (cmdstatic && cmdshared)
 		return slbt_driver_fail_incompatible_args(
@@ -932,18 +941,6 @@ int slbt_lib_get_driver_ctx(
 				cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
 
 		cctx.drvflags |= lflags;
-		cctx.drvflags |= SLBT_DRIVER_SHARED;
-		cctx.drvflags |= SLBT_DRIVER_STATIC;
-
-		if (cmdstatic) {
-			cctx.drvflags |= SLBT_DRIVER_DISABLE_SHARED;
-			cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
-		}
-
-		if (cmdshared) {
-			cctx.drvflags |= SLBT_DRIVER_DISABLE_STATIC;
-			cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_SHARED;
-		}
 
 		/* -disable-static? */
 		if (cctx.drvflags & SLBT_DRIVER_DISABLE_STATIC)
