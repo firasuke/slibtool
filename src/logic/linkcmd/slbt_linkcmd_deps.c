@@ -98,6 +98,7 @@ static int slbt_exec_link_normalize_dep_file(
 	int                             fdtgt;
 	char *                          dot;
 	char *                          slash;
+	const char *                    base;
 	const char *                    mark;
 	struct slbt_txtfile_ctx *       tctx;
 	const char **                   pline;
@@ -111,6 +112,7 @@ static int slbt_exec_link_normalize_dep_file(
 	char                            deppath [PATH_MAX];
 	char                            pathbuf [PATH_MAX];
 	char                            depsbuf [PATH_MAX];
+	char                            basebuf [PATH_MAX];
 	char                            relapath[PATH_MAX];
 
 	/* fdcwd */
@@ -180,8 +182,14 @@ static int slbt_exec_link_normalize_dep_file(
 	/* normalize dependency lines as needed */
 	for (pline=tctx->txtlinev; *pline; pline++) {
 		if ((mark = *pline)) {
-			if ((mark[0] == '-') && (mark[1] == 'L'))
+			if ((mark[0] == '-') && (mark[1] == 'L')) {
 					mark = &mark[2];
+					base = 0;
+
+			} else if ((mark[0] == ':') && (mark[1] == ':')) {
+					mark = &mark[2];
+					base = mark;
+			}
 
 			if ((mark > *pline) && (mark[0] == '/'))
 				mark = *pline;
@@ -198,9 +206,23 @@ static int slbt_exec_link_normalize_dep_file(
 
 			else
 				strcpy(depsbuf,deppath);
+
+			if ((mark > *pline) && base) {
+				slash  = strrchr(deppath,'/');
+				*slash = '\0';
+
+				slash  = strrchr(deppath,'/');
+				*slash = '\0';
+
+				base  = basebuf;
+				slash = &depsbuf[slash - deppath];
+
+				strcpy(basebuf,++slash);
+				strcpy(depsbuf,deppath);
+			}
 		}
 
-		if ((mark > *pline) && strcmp(tgtpath,deppath)) {
+		if (mark > *pline) {
 			tgtmark = tgtpath;
 			depmark = deppath;
 
@@ -254,14 +276,23 @@ static int slbt_exec_link_normalize_dep_file(
 				strcpy(relmark,depmark);
 			}
 
-			mark = relapath;
+			if (base) {
+				relapath[0] = ':';
+				relapath[1] = ':';
+			}
 
-		} else if (mark > *pline) {
-			strcpy(relapath,"-L.");
 			mark = relapath;
 		}
 
-		ret = mark ? slbt_dprintf(deps,"%s\n",mark) : (-1);
+		if ((mark == relapath) && base) {
+			ret =  slbt_dprintf(deps,"%s/%s\n",mark,base);
+
+		} else if (mark) {
+			ret = slbt_dprintf(deps,"%s\n",mark);
+
+		} else {
+			ret = (-1);
+		}
 
 		if (ret < 0) {
 			close(deps);
@@ -334,6 +365,25 @@ static int slbt_exec_link_compact_dep_file(
 }
 
 
+static bool slbt_archive_is_convenience_library(int fdcwd, const char * arpath)
+{
+	int     fd;
+	char    laipath[PATH_MAX];
+	char *  dot;
+
+	strcpy(laipath,arpath);
+	dot = strrchr(laipath,'.');
+	strcpy(dot,".lai");
+
+	if ((fd = openat(fdcwd,laipath,O_RDONLY,0)) >= 0) {
+		close(fd);
+		return false;
+	}
+
+	return true;
+}
+
+
 slbt_hidden int slbt_exec_link_create_dep_file(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
@@ -361,6 +411,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 	char			pathbuf[PATH_MAX];
 	struct stat		st;
 	int			ldepth;
+	int			fardep;
 	int			fdyndep;
 	struct slbt_map_info *  mapinfo;
 	bool			is_reladir;
@@ -528,7 +579,19 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 			mark = strrchr(mark,'.');
 			strcpy(mark,dctx->cctx->settings.dsosuffix);
 
+			fardep  = 0;
 			fdyndep = !fstatat(fdcwd,depfile,&st,0);
+
+			if (fdyndep && farchive) {
+				mark = strrchr(mark,'.');
+				strcpy(mark,dctx->cctx->settings.arsuffix);
+
+				if (fstatat(fdcwd,depfile,&st,0) < 0) {
+					strcpy(mark,dctx->cctx->settings.dsosuffix);
+				} else {
+					fdyndep = 0;
+				}
+			}
 
 			/* [-L... as needed] */
 			if (fdyndep && (ectx->ldirdepth >= 0)) {
@@ -564,6 +627,43 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 				}
 
 				*popt = '.';
+			} else {
+				strcpy(depfile,*parg);
+
+				slbt_adjust_wrapper_argument(
+					depfile,true,
+					dctx->cctx->settings.arsuffix);
+
+
+				fardep  = farchive;
+				fardep |= !slbt_archive_is_convenience_library(fdcwd,depfile);
+			}
+
+			if (fardep) {
+				if (slbt_dprintf(deps,"::") < 0) {
+					close(deps);
+					return SLBT_SYSTEM_ERROR(dctx,0);
+				}
+
+				for (ldepth=ectx->ldirdepth; ldepth; ldepth--) {
+					if (slbt_dprintf(deps,"../") < 0) {
+						close(deps);
+						return SLBT_SYSTEM_ERROR(dctx,0);
+					}
+				}
+
+
+				if (ectx->ldirdepth >= 0) {
+					if (slbt_dprintf(deps,"%s\n",depfile) < 0) {
+						close(deps);
+						return SLBT_SYSTEM_ERROR(dctx,0);
+					}
+				} else {
+					if (slbt_dprintf(deps,"::./%s\n",depfile) < 0) {
+						close(deps);
+						return SLBT_SYSTEM_ERROR(dctx,0);
+					}
+				}
 			}
 
 			/* [open dependency list] */
@@ -582,7 +682,7 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 			mark = strrchr(mark,'.');
 			size = sizeof(depfile) - (mark - depfile);
 
-			if (!farchive) {
+			if (!fardep) {
 				slen = slbt_snprintf(mark,size,
 					"%s.slibtool.deps",
 					dctx->cctx->settings.dsosuffix);
@@ -636,15 +736,21 @@ slbt_hidden int slbt_exec_link_create_dep_file(
 					return SLBT_NESTED_ERROR(dctx);
 				}
 
-				ret = ((deplib[0] == '-')
-						&& (deplib[1] == 'L')
-						&& (deplib[2] != '/'))
-					? slbt_dprintf(
+				if ((deplib[0] == '-') && (deplib[1] == 'L') && (deplib[2] != '/')) {
+					ret = slbt_dprintf(
 						deps,"-L%s%s/%s",
-						deppref,reladir,&deplib[2])
-					: slbt_dprintf(
+						deppref,reladir,&deplib[2]);
+
+				} else if ((deplib[0] == ':') && (deplib[1] == ':') && (deplib[2] != '/')) {
+					ret = slbt_dprintf(
+						deps,"::%s%s/%s",
+						deppref,reladir,&deplib[2]);
+
+				} else {
+					ret = slbt_dprintf(
 						deps,"%s",
 						deplib);
+				}
 
 				if (ret < 0) {
 					close(deps);

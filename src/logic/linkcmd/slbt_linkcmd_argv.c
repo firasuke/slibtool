@@ -516,7 +516,7 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 				darg     += dlen;
 				darg[-1]  = 0;
 
-				/* handle -L... as needed */
+				/* handle -L... and ::... as needed */
 				if ((mark[0] == '-')
 						&& (mark[1] == 'L')
 						&& (mark[2] != '/')) {
@@ -536,6 +536,22 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 							dctx,ectx,depsmeta,
 							"%s/%s",lib,depdir)) < 0)
 						return ret;
+
+				} else if ((mark[0] == ':') && (mark[1] == ':')) {
+					if (strlen(mark) >= sizeof(depdir) - 1)
+						return slbt_linkcmd_exit(
+							depsmeta,
+							SLBT_BUFFER_ERROR(dctx));
+
+					darg = mark;
+					strcpy(depdir,&mark[2]);
+
+					sprintf(darg,"%s/%s",
+						mark[2] == '/' ? "" : lib,
+						depdir);
+
+					darg += strlen(darg);
+					darg++;
 
 				} else if ((mark[0] == '-') && (mark[1] == 'L')) {
 					if ((ret = slbt_emit_fdwrap_amend_dl_path(
