@@ -788,10 +788,12 @@ int slbt_lib_get_driver_ctx(
 
 				case TAG_SHARED:
 					cmdshared = entry;
+					cctx.drvflags |= SLBT_DRIVER_PREFER_SHARED;
 					break;
 
 				case TAG_STATIC:
 					cmdstatic = entry;
+					cctx.drvflags |= SLBT_DRIVER_PREFER_STATIC;
 					break;
 
 				case TAG_WEAK:

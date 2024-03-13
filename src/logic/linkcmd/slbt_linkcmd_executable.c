@@ -100,7 +100,8 @@ slbt_hidden int slbt_exec_link_create_executable(
 	fdcwd = slbt_driver_fdcwd(dctx);
 
 	/* fpic */
-	fpic = (dctx->cctx->drvflags & SLBT_DRIVER_SHARED);
+	fpic  = (dctx->cctx->drvflags & SLBT_DRIVER_SHARED);
+	fpic &= !(dctx->cctx->drvflags & SLBT_DRIVER_PREFER_STATIC);
 
 	/* input argument adjustment */
 	for (parg=ectx->cargv; *parg; parg++)
