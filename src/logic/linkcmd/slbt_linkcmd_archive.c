@@ -74,7 +74,8 @@ slbt_hidden int slbt_exec_link_create_archive(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
 	const char *			arfilename,
-	bool				fpic)
+	bool				fpic,
+	bool                            fdep)
 {
 	int		fdcwd;
 	char **         argv;
@@ -159,10 +160,11 @@ slbt_hidden int slbt_exec_link_create_archive(
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* .deps */
-	if (slbt_exec_link_create_dep_file(
-			dctx,ectx,ectx->cargv,
-			arfilename,true))
-		return SLBT_NESTED_ERROR(dctx);
+	if (fdep)
+		if (slbt_exec_link_create_dep_file(
+				dctx,ectx,ectx->cargv,
+				arfilename,true))
+			return SLBT_NESTED_ERROR(dctx);
 
 	/* ar spawn */
 	if ((slbt_spawn(ectx,true) < 0) && (ectx->pid < 0)) {

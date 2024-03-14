@@ -205,7 +205,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 
 	/* non-pic libfoo.a */
 	if (dot && !strcmp(dot,".a"))
-		if (slbt_exec_link_create_archive(dctx,ectx,output,false)) {
+		if (slbt_exec_link_create_archive(dctx,ectx,output,false,false)) {
 			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
@@ -258,7 +258,7 @@ int slbt_exec_link(const struct slbt_driver_ctx * dctx)
 		if (slbt_exec_link_create_archive(
 				dctx,ectx,
 				ectx->arfilename,
-				fpic)) {
+				fpic,true)) {
 			slbt_ectx_free_exec_ctx(ectx);
 			return SLBT_NESTED_ERROR(dctx);
 		}
