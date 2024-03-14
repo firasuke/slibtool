@@ -50,6 +50,7 @@ static int slbt_exec_compile_finalize_argument_vector(
 	char **		dst;
 	char **		cmp;
 	char *		ccwrap;
+	char *          custom;
 
 	/* vector size */
 	base = ectx->argv;
@@ -74,6 +75,9 @@ static int slbt_exec_compile_finalize_argument_vector(
 
 	/* (program name) */
 	parg = &base[1];
+
+	/* avoid -I deduplication with project specific drivers */
+	custom = strchr(ectx->program,'/');
 
 	/* split object args from all other args, record output */
 	/* annotation, and remove redundant -l arguments       */
@@ -109,7 +113,7 @@ static int slbt_exec_compile_finalize_argument_vector(
 	cap = aarg;
 	dst = &base[1];
 
-	for (; src<cap; ) {
+	for (; !custom && src<cap; ) {
 		if (((*src)[0] == '-') && ((*src)[1] == 'I')) {
 			cmp = &base[1];
 
@@ -137,6 +141,9 @@ static int slbt_exec_compile_finalize_argument_vector(
 			(void)0;
 
 		else if (((*src)[0] != '-') || ((*src)[1] != 'I'))
+			*dst++ = *src;
+
+		else if (custom)
 			*dst++ = *src;
 
 		src++;
