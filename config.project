@@ -25,7 +25,7 @@ mb_makemode=
 
 # pkgconfig
 mb_pkgname='slibtool'
-mb_pkgdesc='a surrogate libtool implementation, written in C'
+mb_pkgdesc='a strong libtool implementation, written in C'
 mb_pkgusrc='https://dl.foss21.org/slibtool/'
 mb_pkgrepo='https://git.foss21.org/slibtool'
 mb_pkgpsrc=
