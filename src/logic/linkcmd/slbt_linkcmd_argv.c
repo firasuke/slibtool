@@ -569,7 +569,8 @@ slbt_hidden int slbt_exec_link_adjust_argument_vector(
 	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_EXPORT_DYNAMIC)
-		*aarg++ = "-Wl,--export-dynamic";
+		if (!slbt_host_objfmt_is_coff(dctx))
+			*aarg++ = "-Wl,--export-dynamic";
 
 	return 0;
 }
