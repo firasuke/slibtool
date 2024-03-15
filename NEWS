@@ -1,3 +1,45 @@
+0.5.36:
+
+This (pinky promise, for real now) absolutely final patch release
+in the 0.5.x entails a large number of semantic fixes, several bug
+fixes, and also the entirely new slibtool-ar execution mode. We
+would still like to consider it a patch release since much of the
+above was needed for slibtool to correctly act as a gnu libtool
+drop-in replacement. As of this patch release, slibtool can be
+used with virtually all packages covered by a common Gentoo world
+build (as tested by @orbea, consisting of more than 900 packages
+and pending some fixes of incorrect usage bugs that were exposed
+by slibtool and filed with the respective upstream projects).
+Then again, slibtool continues to successfully build all packages
+included in a typical Midipix distro build, as well as all other
+packages that we have been able to test. Due to the large number
+of commits between the previous patch release and this one, only
+the most significant changes are listed below.
+
+- ar api:  new in-memory archiver backend (parse & merge).
+- ar mode: new execution mode: archiver front-end.
+- driver:  heuristics: support argv of ar, nm, dlltool, etc.
+- driver:  correct precedence of heuristics-derived flag bits.
+- driver:  added --info mode.
+- driver:  corrected --config mode to be backward compatible.
+- compile mode: added --tag=ASM.
+- compile mode: properly handle custom compiler drivers.
+- compile mode: de-duplicate header search directory arguments.
+- link mode: general overhaul and refactoring of the code.
+- link mode: correct object selection with -static and -shared.
+- link mode: enhanced, tracebale dependency files.
+- link mode: support -export-symbols and -export-symbols-regex.
+- link mode: support -dlopen and -dlpreopen (self, force, libfoo).
+- link mode: handle convenience libraries using correct semantics.
+- link mode: cygwin & mingw support: enhanced dlltool semantics.
+- link mode: darwin support: implemented additional special cases.
+- execute mode: send informational output to stderr.
+- execute mode: reimplemented with well-formed semantics.
+- install mode: refactor, properly handle .so placeholder symlinks.
+- install mode: enhanced logging of file operation errors.
+- library: refactored, introduced secondary interface name-spaces.
+- library: utilize the visibility attribute on non-PE targets.
+
 0.5.35:
 
 This post-last patch release in the 0.5.x series includes fixes to

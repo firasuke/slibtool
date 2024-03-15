@@ -1,3 +1,14 @@
+0.5.36:
+
+Getting slibtool to the point where it could build a vast number of
+packages while applying correct semantics would have never been
+possible if it weren't for @orbea, who's still the true engine behind
+the project. Many thanks also to Sam James from the Gentoo community
+for following up on many of the issues that were encountered and
+fixed throughout the process, and likewise to Redfoxmoon for filing
+incorrect-usage bugs with upstream projects, and for helping everyone
+retain the great spirit on slibtool's irc channel.
+
 0.5.33:
 
 This release (as well as the previous one) follows extensive testing
