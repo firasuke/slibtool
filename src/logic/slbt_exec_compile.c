@@ -175,6 +175,8 @@ int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 	int				ret;
 	char *				fpic;
 	char *				ccwrap;
+	bool                            fshared;
+	bool                            fstatic;
 	struct slbt_exec_ctx *		ectx;
 	const struct slbt_common_ctx *	cctx = dctx->cctx;
 
@@ -190,8 +192,12 @@ int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 	if (slbt_exec_compile_remove_file(dctx,ectx,ectx->ltobjname))
 		return SLBT_NESTED_ERROR(dctx);
 
+	/* fshared, fstatic */
+	fshared = (cctx->drvflags & (SLBT_DRIVER_SHARED | SLBT_DRIVER_PREFER_SHARED));
+	fstatic = (cctx->drvflags & (SLBT_DRIVER_STATIC | SLBT_DRIVER_PREFER_STATIC));
+
 	/* .libs directory */
-	if (cctx->drvflags & SLBT_DRIVER_SHARED)
+	if (fshared)
 		if (slbt_mkdir(dctx,ectx->ldirname)) {
 			ret = SLBT_SYSTEM_ERROR(dctx,ectx->ldirname);
 			slbt_ectx_free_exec_ctx(ectx);
@@ -219,7 +225,7 @@ int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 	}
 
 	/* shared library object */
-	if (cctx->drvflags & SLBT_DRIVER_SHARED) {
+	if (fshared) {
 		if (!(cctx->drvflags & SLBT_DRIVER_ANTI_PIC)) {
 			*ectx->dpic = "-DPIC";
 			*ectx->fpic = fpic;
@@ -247,12 +253,12 @@ int  slbt_exec_compile(const struct slbt_driver_ctx * dctx)
 			return SLBT_CUSTOM_ERROR(dctx,SLBT_ERR_COMPILE_ERROR);
 		}
 
-		if (cctx->drvflags & SLBT_DRIVER_STATIC)
+		if (fstatic)
 			slbt_ectx_reset_argvector(ectx);
 	}
 
 	/* static archive object */
-	if (cctx->drvflags & SLBT_DRIVER_STATIC) {
+	if (fstatic) {
 		slbt_reset_placeholders(ectx);
 
 		if (cctx->drvflags & SLBT_DRIVER_PRO_PIC) {
