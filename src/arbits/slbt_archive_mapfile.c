@@ -73,7 +73,10 @@ static int slbt_ar_output_mapfile_impl(
 	for (symv=symstrv; *symv; symv++) {
 		if (!fcoff || slbt_is_strong_coff_symbol(*symv)) {
 			if (!regex || !regexec(&regctx,*symv,1,pmatch,0)) {
-				if (fcoff || fmach) {
+				if (fcoff) {
+					if (slbt_dprintf(fdout,"    %s\n",*symv) < 0)
+						return SLBT_SYSTEM_ERROR(dctx,0);
+				} else if (fmach) {
 					if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				} else {
