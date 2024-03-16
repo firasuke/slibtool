@@ -7,7 +7,7 @@
 #include <string.h>
 #include "slibtool_visibility_impl.h"
 
-slbt_hidden int slbt_coff_strcmp(const void * a, const void * b)
+slbt_hidden int slbt_coff_qsort_strcmp(const void * a, const void * b)
 {
 	const char *    dot;
 	const char *    mark;

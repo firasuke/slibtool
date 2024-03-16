@@ -13,7 +13,7 @@
 #include "slibtool_ar_impl.h"
 #include "slibtool_coff_impl.h"
 
-static int slbt_strcmp(const void * a, const void * b)
+static int slbt_qsort_strcmp(const void * a, const void * b)
 {
 	return strcmp(*(const char **)a,*(const char **)b);
 }
@@ -39,7 +39,7 @@ slbt_hidden int slbt_update_mapstrv(
 	for (nsyms=0,symv=mctx->symstrv; *symv; symv++)
 		mapstrv[nsyms++] = *symv;
 
-	qsort(mapstrv,nsyms,sizeof(const char *),fcoff ? slbt_coff_strcmp : slbt_strcmp);
+	qsort(mapstrv,nsyms,sizeof(const char *),fcoff ? slbt_coff_qsort_strcmp : slbt_qsort_strcmp);
 
 	mctx->mapstrv = mapstrv;
 
