@@ -64,6 +64,7 @@ FALLBACK_SRCS = \
 	src/fallback/slbt_archive_import_mri.c \
 
 INTERNAL_SRCS = \
+	src/internal/$(PACKAGE)_coff_impl.c \
 	src/internal/$(PACKAGE)_dprintf_impl.c \
 	src/internal/$(PACKAGE)_errinfo_impl.c \
 	src/internal/$(PACKAGE)_lconf_impl.c \
