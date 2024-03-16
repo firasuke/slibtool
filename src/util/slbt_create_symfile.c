@@ -26,18 +26,14 @@ static int slbt_util_output_symfile_impl(
 	const struct slbt_symlist_ctx * sctx,
 	int                             fdout)
 {
-	bool            fcoff;
 	const char **   symv;
 	const char **   symstrv;
-
-	fcoff = slbt_host_objfmt_is_coff(dctx);
 
 	symstrv = sctx->symstrv;
 
 	for (symv=symstrv; *symv; symv++)
-		if (!fcoff || slbt_is_strong_coff_symbol(*symv))
-			if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
-				return SLBT_SYSTEM_ERROR(dctx,0);
+		if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,0);
 
 	return 0;
 }
