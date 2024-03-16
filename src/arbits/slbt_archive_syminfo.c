@@ -18,6 +18,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_ar_impl.h"
+#include "slibtool_coff_impl.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_dprintf_impl.h"
 #include "slibtool_spawn_impl.h"
@@ -236,6 +237,32 @@ static int slbt_get_symbol_nm_info(
 	return (mctx->syminfv[idx] ? 0 : (-1));
 }
 
+static int slbt_qsort_syminfo_cmp(const void * a, const void * b)
+{
+	struct ar_meta_symbol_info ** syminfoa;
+	struct ar_meta_symbol_info ** syminfob;
+
+	syminfoa = (struct ar_meta_symbol_info **)a;
+	syminfob = (struct ar_meta_symbol_info **)b;
+
+	return strcmp(
+		(*syminfoa)->ar_symbol_name,
+		(*syminfob)->ar_symbol_name);
+}
+
+static int slbt_coff_qsort_syminfo_cmp(const void * a, const void * b)
+{
+	struct ar_meta_symbol_info ** syminfoa;
+	struct ar_meta_symbol_info ** syminfob;
+
+	syminfoa = (struct ar_meta_symbol_info **)a;
+	syminfob = (struct ar_meta_symbol_info **)b;
+
+	return slbt_coff_qsort_strcmp(
+		&(*syminfoa)->ar_symbol_name,
+		&(*syminfob)->ar_symbol_name);
+}
+
 slbt_hidden int slbt_ar_update_syminfo(
 	struct slbt_archive_ctx * actx,
 	struct slbt_exec_ctx *    ectx)
@@ -244,6 +271,7 @@ slbt_hidden int slbt_ar_update_syminfo(
 	struct slbt_archive_ctx_impl *  ictx;
 	struct slbt_archive_meta_impl * mctx;
 	uint64_t                        idx;
+	bool                            fcoff;
 
 	/* driver context, etc. */
 	ictx = slbt_get_archive_ictx(actx);
@@ -282,6 +310,14 @@ slbt_hidden int slbt_ar_update_syminfo(
 			return SLBT_CUSTOM_ERROR(
 				dctx,
 				SLBT_ERR_FLOW_ERROR);
+
+	/* coff-aware sorting */
+	fcoff  = slbt_host_objfmt_is_coff(dctx);
+	fcoff |= (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
+
+	qsort(mctx->syminfv,mctx->armaps.armap_nsyms,sizeof(*mctx->syminfv),
+		fcoff ? slbt_coff_qsort_syminfo_cmp : slbt_qsort_syminfo_cmp);
+
 	/* yay */
 	return 0;
 }
