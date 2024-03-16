@@ -10,6 +10,36 @@
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
+static const char * slbt_strong_symname(
+	const char *    symname,
+	bool            fcoff,
+	char            (*strbuf)[4096])
+{
+	const char *    dot;
+	const char *    mark;
+	char *          sym;
+
+	if (fcoff) {
+		if (!strncmp(symname,"__imp_",6))
+			return 0;
+
+		if (strncmp(symname,".weak.",6))
+			return symname;
+
+		sym  = *strbuf;
+		mark = &symname[6];
+		dot  = strchr(mark,'.');
+
+		strncpy(sym,mark,dot-mark);
+		sym[dot-mark] = '\0';
+
+		return sym;
+	}
+
+	return symname;
+}
+
+
 static int slbt_ar_dlsyms_define_by_type(
 	int                                 fdout,
 	const char *                        arname,
@@ -17,27 +47,36 @@ static int slbt_ar_dlsyms_define_by_type(
 	const char *                        desc,
 	const char                          stype)
 {
-	uint64_t idx;
-	uint64_t nsyms = 0;
+	uint64_t      idx;
+	uint64_t      nsyms;
+	bool          fcoff;
+	const char *  symname;
+	char          strbuf[4096];
 
-	for (idx=0; idx<mctx->armaps.armap_nsyms; idx++)
+	for (idx=0,nsyms=0; idx<mctx->armaps.armap_nsyms; idx++)
 		if (mctx->syminfv[idx]->ar_symbol_type[0] == stype)
 			nsyms++;
 
 	if (nsyms == 0)
 		return 0;
 
+	fcoff  = slbt_host_objfmt_is_coff(mctx->dctx);
+	fcoff |= (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
+
 	if (slbt_dprintf(fdout,"/* %s (%s) */\n",desc,arname) < 0)
 		return SLBT_SYSTEM_ERROR(mctx->dctx,0);
 
 	for (idx=0; idx<mctx->armaps.armap_nsyms; idx++)
 		if (mctx->syminfv[idx]->ar_symbol_type[0] == stype)
-			if (slbt_dprintf(fdout,
-					(stype == 'T')
-						? "extern int %s();\n"
-						: "extern char %s[];\n",
-					mctx->syminfv[idx]->ar_symbol_name) < 0)
-				return SLBT_SYSTEM_ERROR(mctx->dctx,0);
+			if ((symname = slbt_strong_symname(
+					mctx->syminfv[idx]->ar_symbol_name,
+					fcoff,&strbuf)))
+				if (slbt_dprintf(fdout,
+						(stype == 'T')
+							? "extern int %s();\n"
+							: "extern char %s[];\n",
+						symname) < 0)
+					return SLBT_SYSTEM_ERROR(mctx->dctx,0);
 
 	if (slbt_dprintf(fdout,"\n") < 0)
 		return SLBT_SYSTEM_ERROR(mctx->dctx,0);
@@ -50,13 +89,22 @@ static int slbt_ar_dlsyms_get_max_len_by_type(
 	struct slbt_archive_meta_impl *     mctx,
 	const char                          stype)
 {
-	int      len;
-	uint64_t idx;
+	int           len;
+	uint64_t      idx;
+	bool          fcoff;
+	const char *  symname;
+	char          strbuf[4096];
+
+	fcoff  = slbt_host_objfmt_is_coff(mctx->dctx);
+	fcoff |= (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
 
 	for (idx=0; idx<mctx->armaps.armap_nsyms; idx++)
 		if (mctx->syminfv[idx]->ar_symbol_type[0] == stype)
-			if ((len = strlen(mctx->syminfv[idx]->ar_symbol_name)) > mlen)
-				mlen = len;
+			if ((symname = slbt_strong_symname(
+					mctx->syminfv[idx]->ar_symbol_name,
+					fcoff,&strbuf)))
+				if ((len = strlen(symname)) > mlen)
+					mlen = len;
 
 	return mlen;
 }
@@ -68,12 +116,17 @@ static int slbt_ar_dlsyms_add_by_type(
 	const char                          stype,
 	char                                (*namebuf)[4096])
 {
-	uint64_t  idx;
-	uint64_t  nsyms;
-	char *    symname;
+	uint64_t      idx;
+	uint64_t      nsyms;
+	bool          fcoff;
+	const char *  symname;
+	char          strbuf[4096];
 
 	nsyms   = 0;
 	symname = *namebuf;
+
+	fcoff  = slbt_host_objfmt_is_coff(mctx->dctx);
+	fcoff |= (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
 
 	for (idx=0; idx<mctx->armaps.armap_nsyms; idx++)
 		if (mctx->syminfv[idx]->ar_symbol_type[0] == stype)
@@ -87,16 +140,21 @@ static int slbt_ar_dlsyms_add_by_type(
 
 	for (idx=0; idx<mctx->armaps.armap_nsyms; idx++) {
 		if (mctx->syminfv[idx]->ar_symbol_type[0] == stype) {
-			if (slbt_snprintf(symname,sizeof(*namebuf),
-					"%s\",",
-					mctx->syminfv[idx]->ar_symbol_name) < 0)
-				return SLBT_SYSTEM_ERROR(mctx->dctx,0);
+			symname = slbt_strong_symname(
+				mctx->syminfv[idx]->ar_symbol_name,
+				fcoff,&strbuf);
 
-			if (slbt_dprintf(fdout,fmt,
-					symname,
-					(stype == 'T') ? "&" : "",
-					mctx->syminfv[idx]->ar_symbol_name) < 0)
-				return SLBT_NESTED_ERROR(mctx->dctx);
+			if (symname) {
+				if (slbt_snprintf(*namebuf,sizeof(*namebuf),
+						"%s\",",symname) < 0)
+					return SLBT_SYSTEM_ERROR(mctx->dctx,0);
+
+				if (slbt_dprintf(fdout,fmt,
+						*namebuf,
+						(stype == 'T') ? "&" : "",
+						symname) < 0)
+					return SLBT_NESTED_ERROR(mctx->dctx);
+			}
 		}
 	}
 
