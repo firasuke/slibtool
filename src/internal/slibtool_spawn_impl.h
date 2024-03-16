@@ -30,6 +30,12 @@
 #include <spawn.h>
 #endif
 
+#ifdef __midipix__
+static pid_t slbt_fork(void) {return vfork();}
+#else
+static pid_t slbt_fork(void) {return fork();}
+#endif
+
 static inline int slbt_spawn(
 	struct slbt_exec_ctx *	ectx,
 	bool			fwait)
@@ -55,6 +61,8 @@ static inline int slbt_spawn(
 #endif
 
 #endif
+
+	(void)slbt_fork;
 
 	if (pid < 0) {
 		ectx->pid      = pid;

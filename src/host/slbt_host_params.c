@@ -15,6 +15,7 @@
 
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
+#include "slibtool_spawn_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_visibility_impl.h"
 #include "slibtool_ar_impl.h"
@@ -63,7 +64,7 @@ static void slbt_spawn_ar(char ** argv, int * ecode)
 
 	*ecode = 127;
 
-	if ((pid = fork()) < 0) {
+	if ((pid = slbt_fork()) < 0) {
 		return;
 
 	} else if (pid == 0) {

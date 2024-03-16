@@ -70,7 +70,7 @@ int slbt_util_dump_machine(
 	if (pipe(fd))
 		return -1;
 
-	if ((pid = fork()) < 0) {
+	if ((pid = slbt_fork()) < 0) {
 		close(fd[0]);
 		close(fd[1]);
 		return -1;

@@ -137,7 +137,7 @@ int slbt_util_import_archive_mri(
 	if (pipe(fd))
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
-	if ((pid = fork()) < 0) {
+	if ((pid = slbt_fork()) < 0) {
 		close(fd[0]);
 		close(fd[1]);
 		return SLBT_SYSTEM_ERROR(dctx,0);

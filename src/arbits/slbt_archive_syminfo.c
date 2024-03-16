@@ -20,6 +20,7 @@
 #include "slibtool_ar_impl.h"
 #include "slibtool_driver_impl.h"
 #include "slibtool_dprintf_impl.h"
+#include "slibtool_spawn_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_errinfo_impl.h"
 
@@ -112,7 +113,7 @@ static int slbt_obtain_nminfo(
 	if ((fdout = openat(fdcwd,output,O_CREAT|O_TRUNC|O_WRONLY,0644)) < 0)
 		return SLBT_SYSTEM_ERROR(dctx,output);
 
-	if ((pid = fork()) < 0) {
+	if ((pid = slbt_fork()) < 0) {
 		close(fdout);
 		return SLBT_SYSTEM_ERROR(dctx,0);
 	}
