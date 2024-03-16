@@ -33,11 +33,14 @@ static int slbt_ar_output_mapfile_impl(
 	bool            fsort;
 	bool            fcoff;
 	bool            fmach;
+	const char *    dot;
+	const char *    mark;
 	const char *    regex;
 	const char **   symv;
 	const char **   symstrv;
 	regex_t         regctx;
 	regmatch_t      pmatch[2] = {{0,0},{0,0}};
+	char            strbuf[4096];
 
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
 
@@ -84,6 +87,17 @@ static int slbt_ar_output_mapfile_impl(
 						return SLBT_SYSTEM_ERROR(dctx,0);
 				}
 			}
+		/* coff weak symbols: expsym = .weak.alias.strong */
+		} else if (fcoff && !strncmp(*symv,".weak.",6)) {
+			mark = &(*symv)[6];
+			dot  = strchr(mark,'.');
+
+			strncpy(strbuf,mark,dot-mark);
+			strbuf[dot-mark] = '\0';
+
+			if (!regex || !regexec(&regctx,strbuf,1,pmatch,0))
+				if (slbt_dprintf(fdout,"    %s = %s\n",strbuf,++dot) < 0)
+					return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
 
