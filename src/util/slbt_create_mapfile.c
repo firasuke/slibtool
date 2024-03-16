@@ -32,8 +32,11 @@ static int slbt_util_output_mapfile_impl(
 {
 	bool            fcoff;
 	bool            fmach;
+	const char *    dot;
+	const char *    mark;
 	const char **   symv;
 	const char **   symstrv;
+	char            strbuf[4096];
 
 	fcoff = slbt_host_objfmt_is_coff(dctx);
 	fmach = slbt_host_objfmt_is_macho(dctx);
@@ -52,17 +55,27 @@ static int slbt_util_output_mapfile_impl(
 	symstrv = sctx->symstrv;
 
 	for (symv=symstrv; *symv; symv++) {
-		if (!fcoff || slbt_is_strong_coff_symbol(*symv)) {
-			if (fcoff) {
-				if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
-					return SLBT_SYSTEM_ERROR(dctx,0);
-			} else if (fmach) {
-				if (slbt_dprintf(fdout,"_%s\n",*symv) < 0)
-					return SLBT_SYSTEM_ERROR(dctx,0);
-			} else {
-				if (slbt_dprintf(fdout,"\t\t%s;\n",*symv) < 0)
-					return SLBT_SYSTEM_ERROR(dctx,0);
-			}
+		if (fcoff && slbt_is_strong_coff_symbol(*symv)) {
+			if (slbt_dprintf(fdout,"%s\n",*symv) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+		} else if (fcoff && !strncmp(*symv,".weak.",6)) {
+			mark = &(*symv)[6];
+			dot  = strchr(mark,'.');
+
+			strncpy(strbuf,mark,dot-mark);
+			strbuf[dot-mark] = '\0';
+
+			if (slbt_dprintf(fdout,"    %s = %s\n",strbuf,++dot) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+		} else if (fmach) {
+			if (slbt_dprintf(fdout,"_%s\n",*symv) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+		} else {
+			if (slbt_dprintf(fdout,"\t\t%s;\n",*symv) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
 		}
 	}
 
