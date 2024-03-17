@@ -102,6 +102,9 @@ enum app_tags {
 	TAG_AR_MERGE,
 	TAG_AR_OUTPUT,
 	TAG_AR_VERBOSE,
+	/* slibtoolize (stoolie) mode */
+	TAG_STLE_VERSION,
+	TAG_STLE_HELP,
 };
 
 struct slbt_split_vector {

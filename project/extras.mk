@@ -15,6 +15,7 @@ RAPUNZEL = rlibtool
 RAPUNCEL = rclibtool
 RAPUNDEL = rdlibtool
 RAPUNJEL = rdclibtool
+STOOLIE  = slibtoolize
 
 install-app-extras:
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -38,6 +39,8 @@ install-app-extras:
 	rm -f bin/$(RAPUNDEL)$(OS_APP_SUFFIX).tmp
 	rm -f bin/$(RAPUNJEL)$(OS_APP_SUFFIX).tmp
 
+	rm -f bin/$(STOOLIE)$(OS_APP_SUFFIX).tmp
+
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(NICKNAME)-shared$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(NICKNAME)-static$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(NICKNAME)-ar$(OS_APP_SUFFIX).tmp
@@ -57,6 +60,8 @@ install-app-extras:
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(RAPUNDEL)$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(RAPUNJEL)$(OS_APP_SUFFIX).tmp
 
+	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(STOOLIE)$(OS_APP_SUFFIX).tmp
+
 	mv bin/$(NICKNAME)-shared$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(NICKNAME)-shared$(OS_APP_SUFFIX)
 	mv bin/$(NICKNAME)-static$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(NICKNAME)-static$(OS_APP_SUFFIX)
 	mv bin/$(NICKNAME)-ar$(OS_APP_SUFFIX).tmp     $(DESTDIR)$(BINDIR)/$(NICKNAME)-ar$(OS_APP_SUFFIX)
@@ -75,3 +80,5 @@ install-app-extras:
 	mv bin/$(RAPUNCEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNCEL)$(OS_APP_SUFFIX)
 	mv bin/$(RAPUNDEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNDEL)$(OS_APP_SUFFIX)
 	mv bin/$(RAPUNJEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNJEL)$(OS_APP_SUFFIX)
+
+	mv bin/$(STOOLIE)$(OS_APP_SUFFIX).tmp         $(DESTDIR)$(BINDIR)/$(STOOLIE)$(OS_APP_SUFFIX)

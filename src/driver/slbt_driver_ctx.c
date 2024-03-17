@@ -454,6 +454,9 @@ int slbt_lib_get_driver_ctx(
 	if (flags & SLBT_DRIVER_MODE_AR)
 		cctx.mode = SLBT_MODE_AR;
 
+	else if (flags & SLBT_DRIVER_MODE_STOOLIE)
+		cctx.mode = SLBT_MODE_STOOLIE;
+
 	/* default flags (set at compile time and derived from symlink) */
 	cctx.drvflags = flags;
 
@@ -484,6 +487,7 @@ int slbt_lib_get_driver_ctx(
 						case SLBT_MODE_INSTALL:
 						case SLBT_MODE_UNINSTALL:
 						case SLBT_MODE_AR:
+						case SLBT_MODE_STOOLIE:
 							break;
 
 					default:
@@ -531,6 +535,12 @@ int slbt_lib_get_driver_ctx(
 
 					else if (!strcmp("ar",entry->arg))
 						cctx.mode = SLBT_MODE_AR;
+
+					else if (!strcmp("stoolie",entry->arg))
+						cctx.mode = SLBT_MODE_STOOLIE;
+
+					else if (!strcmp("slibtoolize",entry->arg))
+						cctx.mode = SLBT_MODE_STOOLIE;
 					break;
 
 				case TAG_FINISH:

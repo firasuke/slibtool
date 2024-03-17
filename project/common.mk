@@ -39,6 +39,7 @@ API_SRCS = \
 	src/logic/slbt_exec_execute.c \
 	src/logic/slbt_exec_install.c \
 	src/logic/slbt_exec_link.c \
+	src/logic/slbt_exec_stoolie.c \
 	src/logic/slbt_exec_uninstall.c \
 	src/logic/linkcmd/slbt_linkcmd_archive.c \
 	src/logic/linkcmd/slbt_linkcmd_argv.c \
@@ -58,6 +59,7 @@ API_SRCS = \
 	src/skin/slbt_skin_ar.c \
 	src/skin/slbt_skin_default.c \
 	src/skin/slbt_skin_install.c \
+	src/skin/slbt_skin_stoolie.c \
 	src/skin/slbt_skin_uninstall.c \
 
 FALLBACK_SRCS = \

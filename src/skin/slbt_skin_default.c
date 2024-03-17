@@ -20,7 +20,8 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 
 	{"mode",		0,TAG_MODE,ARGV_OPTARG_REQUIRED,0,
 				"clean|compile|execute|finish"
-				"|install|link|uninstall|ar",0,
+				"|install|link|uninstall|ar"
+				"|stoolie|slibtoolize",0,
 				"set the execution mode, where <mode> "
 				"is one of {%s}. of the above modes, "
 				"'finish' is not needed and is therefore "

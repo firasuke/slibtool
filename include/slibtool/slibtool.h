@@ -78,6 +78,9 @@ extern "C" {
 #define SLBT_DRIVER_MODE_AR_CHECK	SLBT_DRIVER_XFLAG(0x020000)
 #define SLBT_DRIVER_MODE_AR_MERGE	SLBT_DRIVER_XFLAG(0x040000)
 
+#define SLBT_DRIVER_MODE_STOOLIE	SLBT_DRIVER_XFLAG(0x080000)
+#define SLBT_DRIVER_MODE_SLIBTOOLIZE    SLBT_DRIVER_XFLAG(0x080000)
+
 #define SLBT_DRIVER_PREFER_SHARED       SLBT_DRIVER_XFLAG(0x100000)
 #define SLBT_DRIVER_PREFER_STATIC       SLBT_DRIVER_XFLAG(0x200000)
 
@@ -154,6 +157,7 @@ enum slbt_mode {
 	SLBT_MODE_LINK,
 	SLBT_MODE_UNINSTALL,
 	SLBT_MODE_AR,
+	SLBT_MODE_STOOLIE,
 };
 
 enum slbt_tag {
@@ -422,6 +426,8 @@ slbt_api int  slbt_exec_install         (const struct slbt_driver_ctx *);
 slbt_api int  slbt_exec_link            (const struct slbt_driver_ctx *);
 slbt_api int  slbt_exec_uninstall       (const struct slbt_driver_ctx *);
 slbt_api int  slbt_exec_ar              (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_stoolie         (const struct slbt_driver_ctx *);
+slbt_api int  slbt_exec_slibtoolize     (const struct slbt_driver_ctx *);
 
 /* host and flavor interfaces */
 slbt_api int  slbt_host_set_althost     (const struct slbt_driver_ctx *, const char * host, const char * flavor);

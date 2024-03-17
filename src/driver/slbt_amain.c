@@ -85,6 +85,9 @@ static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 
 	if (dctx->cctx->mode == SLBT_MODE_AR)
 		slbt_exec_ar(dctx);
+
+	if (dctx->cctx->mode == SLBT_MODE_STOOLIE)
+		slbt_exec_stoolie(dctx);
 }
 
 static int slbt_exit(struct slbt_driver_ctx * dctx, int ret)
@@ -131,6 +134,13 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 	/* internal ar mode */
 	else if (!(strcmp(dash,"ar")))
 		flags |= SLBT_DRIVER_MODE_AR;
+
+	/* slibtoolize (stoolie) mode */
+	if (!(strcmp(program,"stoolie")))
+		flags |= SLBT_DRIVER_MODE_STOOLIE;
+
+	else if (!(strcmp(program,"slibtoolize")))
+		flags |= SLBT_DRIVER_MODE_STOOLIE;
 
 	/* debug */
 	if (!(strcmp(program,"dlibtool")))
@@ -182,9 +192,10 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 	/* --version must be the first (and only) action */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_VERSION)
 		if (dctx->cctx->mode != SLBT_MODE_AR)
-			return (slbt_version(dctx,fdout) < 0)
-				? slbt_exit(dctx,SLBT_ERROR)
-				: slbt_exit(dctx,SLBT_OK);
+			if (dctx->cctx->mode != SLBT_MODE_STOOLIE)
+				return (slbt_version(dctx,fdout) < 0)
+					? slbt_exit(dctx,SLBT_ERROR)
+					: slbt_exit(dctx,SLBT_OK);
 
 	/* perform all other actions */
 	slbt_perform_driver_actions(dctx);

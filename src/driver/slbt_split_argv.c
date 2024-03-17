@@ -16,6 +16,7 @@
 #include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_visibility_impl.h"
+#include "slibtool_stoolie_impl.h"
 #include "slibtool_ar_impl.h"
 #include "argv/argv.h"
 
@@ -59,6 +60,7 @@ slbt_hidden int slbt_split_argv(
 	struct argv_entry *		ccwrap;
 	struct argv_entry *		dumpmachine;
 	struct argv_entry *		aropt;
+	struct argv_entry *		stoolieopt;
 	const struct argv_option **	popt;
 	const struct argv_option **	optout;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
@@ -71,6 +73,8 @@ slbt_hidden int slbt_split_argv(
 	/* missing arguments? */
 	if ((altmode = (flags & SLBT_DRIVER_MODE_AR))) {
 		slbt_optv_init(slbt_ar_options,optv);
+	} else if ((altmode = (flags & SLBT_DRIVER_MODE_STOOLIE))) {
+		slbt_optv_init(slbt_stoolie_options,optv);
 	} else {
 		slbt_optv_init(slbt_default_options,optv);
 	}
@@ -120,7 +124,7 @@ slbt_hidden int slbt_split_argv(
 	}
 
 	/* missing all of --mode, --help, --version, --info, --config, --dumpmachine, --features, and --finish? */
-	mode = help = version = info = config = finish = features = ccwrap = dumpmachine = aropt = 0;
+	mode = help = version = info = config = finish = features = ccwrap = dumpmachine = aropt = stoolieopt = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
@@ -146,11 +150,17 @@ slbt_hidden int slbt_split_argv(
 	if (!altmode && mode && !strcmp(mode->arg,"ar"))
 		aropt = mode;
 
+	if (!altmode && mode && !strcmp(mode->arg,"stoolie"))
+		stoolieopt = mode;
+
+	if (!altmode && mode && !strcmp(mode->arg,"slibtoolize"))
+		stoolieopt = mode;
+
 	/* release temporary argv meta context */
 	slbt_argv_free(meta);
 
 	/* error not due to an altmode argument? */
-	if (!aropt && ctx.erridx && (ctx.erridx == ctx.unitidx)) {
+	if (!aropt && !stoolieopt && ctx.erridx && (ctx.erridx == ctx.unitidx)) {
 		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 			slbt_argv_get(
 				argv,optv,
@@ -167,12 +177,14 @@ slbt_hidden int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !info && !config && !version && !finish && !features && !dumpmachine && !altmode && !aropt) {
-		if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
-			slbt_dprintf(fderr,
-				"%s: error: <compiler> is missing.\n",
-				program);
-		return -1;
+	if (!ctx.unitidx && !help && !info && !config && !version && !finish && !features && !dumpmachine) {
+		if (!altmode && !aropt && !stoolieopt) {
+			if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
+				slbt_dprintf(fderr,
+					"%s: error: <compiler> is missing.\n",
+					program);
+			return -1;
+		}
 	}
 
 	/* clone and normalize the argv vector */
@@ -196,7 +208,7 @@ slbt_hidden int slbt_split_argv(
 	csysroot = 0;
 
 	for (i=0,flast=false,dargv=sargv->dargv,dst=sargv->dargs; i<argc; i++) {
-		if ((fcopy = (flast || altmode || aropt))) {
+		if ((fcopy = (flast || altmode || aropt || stoolieopt))) {
 			(void)0;
 
 		} else if (!strcmp(argv[i],"--")) {
@@ -340,6 +352,10 @@ slbt_hidden int slbt_split_argv(
 	if (aropt && !ctx.unitidx)
 		ctx.unitidx = argc;
 
+	/* --mode=slibtoolize and no slibtoolize-specific arguments? */
+	if (stoolieopt && !ctx.unitidx)
+		ctx.unitidx = argc;
+
 	/* split vectors: slibtool's own options */
 	for (i=0; i<ctx.unitidx; i++)
 		sargv->targv[i] = argv[i];
@@ -349,7 +365,7 @@ slbt_hidden int slbt_split_argv(
 	cargv = sargv->cargv;
 
 	/* known wrappers */
-	if (ctx.unitidx && !ccwrap && !aropt) {
+	if (ctx.unitidx && !ccwrap && !aropt && !stoolieopt) {
 		if ((base = strrchr(argv[i],'/')))
 			base++;
 		else if ((base = strrchr(argv[i],'\\')))
@@ -375,6 +391,8 @@ slbt_hidden int slbt_split_argv(
 		i = 0;
 	} else if (aropt) {
 		*cargv++ = argv[0];
+	} else if (stoolieopt) {
+		*cargv++ = argv[0];
 	} else {
 		*cargv++ = argv[i++];
 	}
@@ -386,6 +404,9 @@ slbt_hidden int slbt_split_argv(
 	/* remaining vector */
 	for (objlistp=objlistv; i<argc; i++) {
 		if (aropt && (i >= ctx.unitidx)) {
+			*cargv++ = argv[i];
+
+		} else if (stoolieopt && (i >= ctx.unitidx)) {
 			*cargv++ = argv[i];
 
 		} else if (argv[i][0] != '-') {
