@@ -49,14 +49,15 @@ static const struct slbt_fd_ctx slbt_default_fdctx = {
 	.fdlog = (-1),
 };
 
-static const char aclr_reset [] = "\x1b[0m";
-static const char aclr_bold  [] = "\x1b[1m";
-static const char aclr_red   [] = "\x1b[31m";
-static const char aclr_green [] = "\x1b[32m";
-static const char aclr_yellow[] = "\x1b[33m";
-static const char aclr_blue  [] = "\x1b[34m";
-static const char aclr_cyan  [] = "\x1b[36m";
-static const char aclr_white [] = "\x1b[37m";
+static const char aclr_reset   [] = "\x1b[0m";
+static const char aclr_bold    [] = "\x1b[1m";
+static const char aclr_red     [] = "\x1b[31m";
+static const char aclr_green   [] = "\x1b[32m";
+static const char aclr_yellow  [] = "\x1b[33m";
+static const char aclr_blue    [] = "\x1b[34m";
+static const char aclr_magenta [] = "\x1b[35m";
+static const char aclr_cyan    [] = "\x1b[36m";
+static const char aclr_white   [] = "\x1b[37m";
 
 
 static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool fcolor)
@@ -64,6 +65,8 @@ static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool f
 	char **		parg;
 	char *		dot;
 	const char *	color;
+	const char *    prev;
+	const char *    prog;
 
 	(void)envp;
 
@@ -72,19 +75,68 @@ static void slbt_output_raw_vector(int fderr, char ** argv, char ** envp, bool f
 
 	slbt_dprintf(fderr,"\n\n\n%s",argv[0]);
 
-	for (parg=&argv[1]; *parg; parg++) {
-		if (!fcolor)
+	for (prev=0,prog=0,parg=&argv[1]; *parg; parg++) {
+		dot  = strrchr(*parg,'.');
+
+		if (!fcolor) {
 			color = "";
-		else if (*parg[0] == '-')
-			color = aclr_blue;
-		else if (!(dot = strrchr(*parg,'.')))
-			color = aclr_green;
-		else if (!(strcmp(dot,".lo")))
-			color = aclr_cyan;
-		else if (!(strcmp(dot,".la")))
-			color = aclr_yellow;
-		else
+
+		} else if (!prog && (parg[0][0] != '-')) {
+			color = aclr_magenta;
+			prog  = *parg;
+			prev  = 0;
+
+		} else if (!strcmp(parg[0],"-o")) {
 			color = aclr_white;
+			prev  = color;
+
+		} else if (!strcmp(parg[0],"-c")) {
+			color = aclr_green;
+			prev  = color;
+
+		} else if (!strncmp(parg[0],"-Wl,",4)) {
+			color = aclr_magenta;
+			prev  = 0;
+
+		} else if (prev == aclr_white) {
+			color = prev;
+			prev  = 0;
+
+		} else if (dot && !strcmp(dot,".o")) {
+			color = aclr_cyan;
+			prev  = 0;
+
+		} else if (dot && !strcmp(dot,".lo")) {
+			color = aclr_cyan;
+			prev  = 0;
+
+		} else if (dot && !strcmp(dot,".la")) {
+			color = aclr_yellow;
+			prev  = 0;
+
+		} else if (!strcmp(parg[0],"-dlopen")) {
+			color = aclr_yellow;
+			prev  = color;
+
+		} else if (!strcmp(parg[0],"-dlpreopen")) {
+			color = aclr_yellow;
+			prev  = color;
+
+		} else if (!strcmp(parg[0],"-objectlist")) {
+			color = aclr_yellow;
+			prev  = color;
+
+		} else if (*parg[0] == '-') {
+			color = aclr_blue;
+			prev  = color;
+
+		} else if (prev) {
+			color = prev;
+			prev  = 0;
+
+		} else {
+			color = aclr_yellow;
+		}
 
 		slbt_dprintf(fderr," %s%s",color,*parg);
 	}
