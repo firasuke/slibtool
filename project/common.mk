@@ -71,6 +71,7 @@ INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_errinfo_impl.c \
 	src/internal/$(PACKAGE)_lconf_impl.c \
 	src/internal/$(PACKAGE)_libmeta_impl.c \
+	src/internal/$(PACKAGE)_m4fake_impl.c \
 	src/internal/$(PACKAGE)_mapfile_impl.c \
 	src/internal/$(PACKAGE)_objlist_impl.c \
 	src/internal/$(PACKAGE)_objmeta_impl.c \
