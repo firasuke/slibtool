@@ -17,8 +17,8 @@ static const char aclr_reset[]   = "\x1b[0m";
 static const char aclr_bold[]    = "\x1b[1m";
 
 static const char aclr_green[]   = "\x1b[32m";
-static const char aclr_blue[]    = "\x1b[34m";
 static const char aclr_magenta[] = "\x1b[35m";
+static const char aclr_white[]   = "\x1b[37m";
 
 static int slbt_output_exec_annotated(
 	const struct slbt_driver_ctx *	dctx,
@@ -45,7 +45,7 @@ static int slbt_output_exec_annotated(
 	for (parg=ectx->argv; *parg; parg++) {
 		if ((parg == ectx->lout[0]) || (parg == ectx->mout[0])) {
 			aclr_set      = aclr_bold;
-			aclr_color    = aclr_blue;
+			aclr_color    = aclr_white;
 			aclr_unset    = aclr_null;
 		} else {
 			aclr_set      = aclr_null;
