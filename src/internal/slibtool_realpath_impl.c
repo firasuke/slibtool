@@ -18,6 +18,7 @@
 
 #ifdef HAVE_SYS_SYSCALL_H
 #include <sys/syscall.h>
+#include <unistd.h>
 #endif
 
 #ifdef _MIDIPIX_ABI
@@ -26,10 +27,6 @@
 
 #ifndef ENOTSUP
 #define ENOTSUP EOPNOTSUPP
-#endif
-
-#ifdef SYS___realpathat
-extern long syscall(int, ...);
 #endif
 
 slbt_hidden int slbt_realpath(
