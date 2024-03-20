@@ -154,7 +154,11 @@ int slbt_exec_execute(const struct slbt_driver_ctx * dctx)
 			return SLBT_NESTED_ERROR(dctx);
 
 		} else if (ret == 1) {
-			sprintf(wrapper,"%s.exe.wrapper",exeprog);
+			if (slbt_snprintf(
+					wrapper,sizeof(wrapper),
+					"%s.exe.wrapper",exeprog) < 0)
+				return SLBT_BUFFER_ERROR(dctx);
+
 			exeref  = *parg;
 			*aarg++ = wrapper;
 		} else {
