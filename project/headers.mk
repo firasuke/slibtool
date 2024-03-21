@@ -26,6 +26,7 @@ INTERNAL_HEADERS = \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_spawn_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_stoolie_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_symlink_impl.h \
+	$(PROJECT_DIR)/src/internal/$(PACKAGE)_tmpfile_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_uninstall_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_visibility_impl.h \
 
