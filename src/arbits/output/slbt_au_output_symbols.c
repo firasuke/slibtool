@@ -23,9 +23,8 @@
 static int slbt_au_output_symbols_posix(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
-	const struct slbt_fd_ctx *      fdctx)
+	int                             fdout)
 {
-	int             fdout;
 	bool            fsort;
 	bool            fcoff;
 	const char *    dot;
@@ -37,7 +36,6 @@ static int slbt_au_output_symbols_posix(
 	regmatch_t      pmatch[2] = {{0,0},{0,0}};
 	char            strbuf[4096];
 
-	fdout = fdctx->fdout;
 	fsort = !(dctx->cctx->fmtflags & SLBT_OUTPUT_ARCHIVE_NOSORT);
 	fcoff = (mctx->ofmtattr & AR_OBJECT_ATTR_COFF);
 
@@ -83,11 +81,11 @@ static int slbt_au_output_symbols_posix(
 static int slbt_au_output_symbols_yaml(
 	const struct slbt_driver_ctx *  dctx,
 	struct slbt_archive_meta_impl * mctx,
-	const struct slbt_fd_ctx *      fdctx)
+	int                             fdout)
 {
 	(void)dctx;
 	(void)mctx;
-	(void)fdctx;
+	(void)fdout;
 
 	return 0;
 }
@@ -96,13 +94,12 @@ int slbt_au_output_symbols(const struct slbt_archive_meta * meta)
 {
 	struct slbt_archive_meta_impl * mctx;
 	const struct slbt_driver_ctx *  dctx;
-	struct slbt_fd_ctx              fdctx;
+	int                             fdout;
 
 	mctx = slbt_archive_meta_ictx(meta);
 	dctx = (slbt_archive_meta_ictx(meta))->dctx;
 
-	if (slbt_lib_get_driver_fdctx(dctx,&fdctx) < 0)
-		return SLBT_NESTED_ERROR(dctx);
+	fdout = slbt_driver_fdout(dctx);
 
 	if (!meta->a_memberv)
 		return 0;
@@ -110,14 +107,14 @@ int slbt_au_output_symbols(const struct slbt_archive_meta * meta)
 	switch (dctx->cctx->fmtflags & SLBT_PRETTY_FLAGS) {
 		case SLBT_PRETTY_YAML:
 			return slbt_au_output_symbols_yaml(
-				dctx,mctx,&fdctx);
+				dctx,mctx,fdout);
 
 		case SLBT_PRETTY_POSIX:
 			return slbt_au_output_symbols_posix(
-				dctx,mctx,&fdctx);
+				dctx,mctx,fdout);
 
 		default:
 			return slbt_au_output_symbols_yaml(
-				dctx,mctx,&fdctx);
+				dctx,mctx,fdout);
 	}
 }
