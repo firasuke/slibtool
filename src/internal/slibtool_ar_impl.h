@@ -36,6 +36,7 @@ struct ar_armaps_impl {
 
 struct slbt_archive_meta_impl {
 	const struct slbt_driver_ctx *  dctx;
+	struct slbt_archive_ctx *       actx;
 	size_t                          ofmtattr;
 	size_t                          nentries;
 	void *                          hdrinfov;

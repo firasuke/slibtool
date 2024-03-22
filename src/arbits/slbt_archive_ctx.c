@@ -13,6 +13,7 @@
 #include <slibtool/slibtool.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_ar_impl.h"
 
 static int slbt_map_raw_archive(
 	const struct slbt_driver_ctx *	dctx,
@@ -65,6 +66,7 @@ int slbt_ar_get_archive_ctx(
 	struct slbt_archive_ctx **		pctx)
 {
 	struct slbt_archive_ctx_impl *	ctx;
+	struct slbt_archive_meta_impl * mctx;
 	int				prot;
 
 	if (!(ctx = calloc(1,sizeof(*ctx))))
@@ -89,11 +91,14 @@ int slbt_ar_get_archive_ctx(
 		return slbt_ar_free_archive_ctx_impl(ctx,
 			SLBT_NESTED_ERROR(dctx));
 
+	mctx = slbt_archive_meta_ictx(ctx->meta);
+
 	ctx->dctx       = dctx;
 	ctx->path	= ctx->pathbuf;
 	ctx->actx.path	= &ctx->path;
 	ctx->actx.map	= &ctx->map;
 	ctx->actx.meta	= ctx->meta;
+	mctx->actx      = &ctx->actx;
 
 	*pctx = &ctx->actx;
 	return 0;
