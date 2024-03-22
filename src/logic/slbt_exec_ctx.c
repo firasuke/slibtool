@@ -636,7 +636,7 @@ int  slbt_ectx_get_exec_ctx(
 				ictx,
 				SLBT_NESTED_ERROR(dctx));
 
-		if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+		if (slbt_ar_update_syminfo(*dlactxv) < 0)
 			return slbt_ectx_free_exec_ctx_impl(
 				ictx,
 				SLBT_NESTED_ERROR(dctx));
@@ -682,7 +682,7 @@ int  slbt_ectx_get_exec_ctx(
 			}
 
 			if (fpreopen) {
-				if (slbt_ar_update_syminfo(*dlactxv,&ictx->ctx) < 0)
+				if (slbt_ar_update_syminfo(*dlactxv) < 0)
 					return slbt_ectx_free_exec_ctx_impl(
 						ictx,
 						SLBT_NESTED_ERROR(dctx));

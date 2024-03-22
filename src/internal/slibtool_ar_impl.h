@@ -78,8 +78,7 @@ int slbt_update_mapstrv(
 	struct slbt_archive_meta_impl * m);
 
 int slbt_ar_update_syminfo(
-	struct slbt_archive_ctx * actx,
-	struct slbt_exec_ctx *    ectx);
+	struct slbt_archive_ctx * actx);
 
 static inline struct slbt_archive_meta_impl * slbt_archive_meta_ictx(const struct slbt_archive_meta * meta)
 {

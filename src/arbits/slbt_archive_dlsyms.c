@@ -430,7 +430,7 @@ static int slbt_ar_create_dlsyms_impl(
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (!mctx->syminfo)
-			if (slbt_ar_update_syminfo(*actx,ectx) < 0)
+			if (slbt_ar_update_syminfo(*actx) < 0)
 				return SLBT_NESTED_ERROR(dctx);
 	}
 

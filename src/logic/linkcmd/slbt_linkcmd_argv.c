@@ -976,7 +976,7 @@ slbt_hidden int slbt_exec_link_finalize_argument_vector(
 		arctx       = *arctxv;
 		arctx->path = &slbt_ar_self_dlunit;
 
-		if (slbt_ar_update_syminfo(arctx,ectx) < 0)
+		if (slbt_ar_update_syminfo(arctx) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 
 		/* regenerate the dlsyms vtable source */
