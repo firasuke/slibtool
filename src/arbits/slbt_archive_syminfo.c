@@ -72,14 +72,16 @@ static void slbt_ar_update_syminfo_child(
 static int slbt_obtain_nminfo(
 	struct slbt_archive_ctx_impl *  ictx,
 	const struct slbt_driver_ctx *  dctx,
-	struct slbt_archive_meta_impl * mctx)
+	struct slbt_archive_meta_impl * mctx,
+	int                             fdout)
 {
+	int     ret;
 	int     pos;
 	int	fdcwd;
+	int     fdarg;
 	pid_t   pid;
 	pid_t   rpid;
 	int     ecode;
-	int     fdout;
 	char ** argv;
 	char    arname [PATH_MAX];
 	char    output [PATH_MAX];
@@ -102,18 +104,23 @@ static int slbt_obtain_nminfo(
 			return SLBT_BUFFER_ERROR(dctx);
 	}
 
-	/* output (.nm suffix, buf treat as .syminfo) */
+	/* arname (.nm suffix, buf treat as .syminfo) */
 	pos = slbt_snprintf(
 		arname,sizeof(arname)-8,"%s",
 		ictx->path);
 
-	strcpy(output,arname);
-	strcpy(&output[pos],".nm");
+	/* output */
+	if ((fdarg = fdout) < 0) {
+		strcpy(output,arname);
+		strcpy(&output[pos],".nm");
+
+		if ((fdout = openat(fdcwd,output,O_CREAT|O_TRUNC|O_WRONLY,0644)) < 0)
+			return SLBT_SYSTEM_ERROR(dctx,output);
+	} else {
+		strcpy(output,"@nminfo@");
+	}
 
 	/* fork */
-	if ((fdout = openat(fdcwd,output,O_CREAT|O_TRUNC|O_WRONLY,0644)) < 0)
-		return SLBT_SYSTEM_ERROR(dctx,output);
-
 	if ((pid = slbt_fork()) < 0) {
 		close(fdout);
 		return SLBT_SYSTEM_ERROR(dctx,0);
@@ -130,6 +137,15 @@ static int slbt_obtain_nminfo(
 		&ecode,
 		0);
 
+	/* nm output */
+	if ((rpid > 0)  && (ecode == 0))
+		ret = slbt_impl_get_txtfile_ctx(
+			dctx,output,fdout,
+			&mctx->nminfo);
+
+	if (fdarg < 0)
+		close(fdout);
+
 	if (rpid < 0) {
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
@@ -139,12 +155,7 @@ static int slbt_obtain_nminfo(
 			SLBT_ERR_FLOW_ERROR);
 	}
 
-	if (slbt_lib_get_txtfile_ctx(
-			dctx,output,
-			&mctx->nminfo) < 0)
-		return SLBT_NESTED_ERROR(dctx);
-
-	return 0;
+	return (ret < 0) ? SLBT_NESTED_ERROR(dctx) : 0;
 }
 
 static int slbt_get_symbol_nm_info(
@@ -261,8 +272,9 @@ static int slbt_coff_qsort_syminfo_cmp(const void * a, const void * b)
 		&(*syminfob)->ar_symbol_name);
 }
 
-slbt_hidden int slbt_ar_update_syminfo(
-	struct slbt_archive_ctx * actx)
+static int slbt_ar_update_syminfo_impl(
+	struct slbt_archive_ctx *       actx,
+	int                             fdout)
 {
 	const struct slbt_driver_ctx *  dctx;
 	struct slbt_archive_ctx_impl *  ictx;
@@ -277,7 +289,7 @@ slbt_hidden int slbt_ar_update_syminfo(
 
 	/* nm -P -A -g */
 	if (mctx->armaps.armap_nsyms) {
-		if (slbt_obtain_nminfo(ictx,dctx,mctx) < 0)
+		if (slbt_obtain_nminfo(ictx,dctx,mctx,fdout) < 0)
 			return SLBT_NESTED_ERROR(dctx);
 	} else {
 		if (slbt_lib_get_txtfile_ctx(
@@ -317,4 +329,17 @@ slbt_hidden int slbt_ar_update_syminfo(
 
 	/* yay */
 	return 0;
+}
+
+slbt_hidden int slbt_ar_update_syminfo(
+	struct slbt_archive_ctx * actx)
+{
+	return slbt_ar_update_syminfo_impl(actx,(-1));
+}
+
+slbt_hidden int slbt_ar_update_syminfo_ex(
+	struct slbt_archive_ctx * actx,
+	int                       fdout)
+{
+	return slbt_ar_update_syminfo_impl(actx,fdout);
 }

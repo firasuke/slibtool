@@ -80,6 +80,10 @@ int slbt_update_mapstrv(
 int slbt_ar_update_syminfo(
 	struct slbt_archive_ctx * actx);
 
+int slbt_ar_update_syminfo_ex(
+	struct slbt_archive_ctx * actx,
+	int                       fdout);
+
 static inline struct slbt_archive_meta_impl * slbt_archive_meta_ictx(const struct slbt_archive_meta * meta)
 {
 	uintptr_t addr;
