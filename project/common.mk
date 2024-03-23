@@ -80,6 +80,7 @@ INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_snprintf_impl.c \
 	src/internal/$(PACKAGE)_symlink_impl.c \
 	src/internal/$(PACKAGE)_tmpfile_impl.c \
+	src/internal/$(PACKAGE)_txtline_impl.c \
 
 APP_SRCS = \
 	src/slibtool.c

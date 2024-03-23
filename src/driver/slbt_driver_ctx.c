@@ -22,6 +22,7 @@
 #include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_lconf_impl.h"
+#include "slibtool_txtline_impl.h"
 #include "slibtool_ar_impl.h"
 #include "argv/argv.h"
 
@@ -381,58 +382,7 @@ static int slbt_driver_fail_incompatible_args(
 
 static int slbt_driver_parse_tool_argv(const char * tool, char *** tool_argv)
 {
-	int             argc;
-	char **         argv;
-	const char *    ch;
-	const char *    mark;
-
-	if (!(ch = tool))
-		return 0;
-
-	argc = 1;
-
-	for (; *ch == ' '; )
-		ch++;
-
-	for (; *ch; ) {
-		if (*ch++ == ' ') {
-			argc++;
-
-			for (; (*ch == ' '); )
-				ch++;
-		}
-	}
-
-	if (argc == 1)
-		return 0;
-
-	if (!(*tool_argv = calloc(++argc,sizeof(char *))))
-		return -1;
-
-	for (ch=tool; (*ch == ' '); ch++)
-		(void)0;
-
-	argv = *tool_argv;
-	mark = ch;
-
-	for (; *ch; ) {
-		if (*ch == ' ') {
-			if (!(*argv++ = strndup(mark,ch-mark)))
-				return -1;
-
-			for (; (*ch == ' '); )
-				ch++;
-
-			mark = ch;
-		} else {
-			ch++;
-		}
-	}
-
-	if (!(*argv++ = strndup(mark,ch-mark)))
-		return -1;
-
-	return 0;
+	return slbt_txtline_to_string_vector(tool,tool_argv);
 }
 
 
