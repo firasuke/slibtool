@@ -21,5 +21,12 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 			"create symbolic links to, or otherwise copy "
 			"missing build-auxiliary and m4 files."},
 
+	{"debug",	'd',TAG_STLE_DEBUG,ARGV_OPTARG_NONE,0,0,0,
+			"display internal debug information."},
+
+	{"dry-run",	'n',TAG_STLE_DRY_RUN,ARGV_OPTARG_NONE,0,0,0,
+			"do not spawn any processes, "
+			"do not make any changes to the file system."},
+
 	{0,0,0,0,0,0,0,0}
 };

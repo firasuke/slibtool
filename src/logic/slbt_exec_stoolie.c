@@ -157,6 +157,14 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 				case TAG_STLE_INSTALL:
 					ictx->cctx.drvflags |= SLBT_DRIVER_STOOLIE_INSTALL;
 					break;
+
+				case TAG_STLE_DEBUG:
+					ictx->cctx.drvflags |= SLBT_DRIVER_DEBUG;
+					break;
+
+				case TAG_STLE_DRY_RUN:
+					ictx->cctx.drvflags |= SLBT_DRIVER_DRY_RUN;
+					break;
 			}
 
 			if (entry->fval) {

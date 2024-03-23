@@ -108,6 +108,8 @@ enum app_tags {
 	TAG_STLE_COPY,
 	TAG_STLE_FORCE,
 	TAG_STLE_INSTALL,
+	TAG_STLE_DEBUG,
+	TAG_STLE_DRY_RUN,
 };
 
 struct slbt_split_vector {
