@@ -105,6 +105,9 @@ enum app_tags {
 	/* slibtoolize (stoolie) mode */
 	TAG_STLE_VERSION,
 	TAG_STLE_HELP,
+	TAG_STLE_COPY,
+	TAG_STLE_FORCE,
+	TAG_STLE_INSTALL,
 };
 
 struct slbt_split_vector {

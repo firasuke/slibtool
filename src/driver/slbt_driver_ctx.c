@@ -23,6 +23,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_lconf_impl.h"
 #include "slibtool_txtline_impl.h"
+#include "slibtool_stoolie_impl.h"
 #include "slibtool_ar_impl.h"
 #include "argv/argv.h"
 
@@ -416,10 +417,15 @@ int slbt_lib_get_driver_ctx(
 	const char *                    cfgmeta_ranlib;
 	const char *                    cfgmeta_dlltool;
 
-	if (flags & SLBT_DRIVER_MODE_AR)
+	if (flags & SLBT_DRIVER_MODE_AR) {
 		argv_optv_init(slbt_ar_options,optv);
-	else
+
+	} else if (flags & SLBT_DRIVER_MODE_STOOLIE) {
+		argv_optv_init(slbt_stoolie_options,optv);
+
+	} else {
 		argv_optv_init(slbt_default_options,optv);
+	}
 
 	if (!fdctx)
 		fdctx = &slbt_default_fdctx;

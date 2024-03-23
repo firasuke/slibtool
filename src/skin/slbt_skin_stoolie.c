@@ -9,5 +9,17 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 	{"help",	'h',TAG_STLE_HELP,ARGV_OPTARG_NONE,0,0,0,
 			"display slibtoolize (stoolie) mode help"},
 
+	{"copy",	'c',TAG_STLE_COPY,ARGV_OPTARG_NONE,0,0,0,
+			"copy build-auxiliary m4 files "
+			"(create symbolic links otherwise."},
+
+	{"force",	'f',TAG_STLE_FORCE,ARGV_OPTARG_NONE,0,0,0,
+			"replace existing build-auxiliary and m4 "
+			"files and/or symbolic links."},
+
+	{"install",	'i',TAG_STLE_INSTALL,ARGV_OPTARG_NONE,0,0,0,
+			"create symbolic links to, or otherwise copy "
+			"missing build-auxiliary and m4 files."},
+
 	{0,0,0,0,0,0,0,0}
 };
