@@ -165,6 +165,16 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 				case TAG_STLE_DRY_RUN:
 					ictx->cctx.drvflags |= SLBT_DRIVER_DRY_RUN;
 					break;
+
+				case TAG_STLE_SILENT:
+					ictx->cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_VERBOSE;
+					ictx->cctx.drvflags |= SLBT_DRIVER_SILENT;
+					break;
+
+				case TAG_STLE_VERBOSE:
+					ictx->cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_SILENT;
+					ictx->cctx.drvflags |= SLBT_DRIVER_VERBOSE;
+					break;
 			}
 
 			if (entry->fval) {

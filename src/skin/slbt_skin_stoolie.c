@@ -28,5 +28,15 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 			"do not spawn any processes, "
 			"do not make any changes to the file system."},
 
+	{"quiet",	'q',TAG_STLE_SILENT,ARGV_OPTARG_NONE,0,0,0,
+			"do not say anything."},
+
+	{"silent",	's',TAG_STLE_SILENT,ARGV_OPTARG_NONE,0,0,0,
+			"say absolutely nothing."},
+
+	{"verbose",	'v',TAG_STLE_VERBOSE,ARGV_OPTARG_NONE,0,0,0,
+			"generate lots of informational messages "
+			"that nobody can understand."},
+
 	{0,0,0,0,0,0,0,0}
 };

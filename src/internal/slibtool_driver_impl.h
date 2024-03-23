@@ -110,6 +110,8 @@ enum app_tags {
 	TAG_STLE_INSTALL,
 	TAG_STLE_DEBUG,
 	TAG_STLE_DRY_RUN,
+	TAG_STLE_SILENT,
+	TAG_STLE_VERBOSE,
 };
 
 struct slbt_split_vector {
