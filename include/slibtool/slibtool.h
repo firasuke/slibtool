@@ -391,6 +391,15 @@ struct slbt_txtfile_ctx {
 	const char **                   txtlinev;
 };
 
+struct slbt_stoolie_ctx {
+	const char * const *		path;
+	const struct slbt_txtfile_ctx * acinc;
+	const struct slbt_txtfile_ctx * cfgac;
+	const struct slbt_txtfile_ctx * makam;
+	const char * const *            auxarg;
+	const char * const *            m4arg;
+};
+
 /* raw input api */
 slbt_api int  slbt_fs_map_input         (const struct slbt_driver_ctx *,
                                          int, const char *, int,
@@ -489,6 +498,12 @@ slbt_api int  slbt_ar_create_mapfile    (const struct slbt_archive_meta *, const
 slbt_api int  slbt_ar_create_symfile    (const struct slbt_archive_meta *, const char *, mode_t);
 
 slbt_api int slbt_ar_create_dlsyms      (struct slbt_archive_ctx **, const char *, const char *, mode_t);
+
+/* slibtoolize api */
+slbt_api int  slbt_st_get_stoolie_ctx   (const struct slbt_driver_ctx *, const char * path,
+                                         struct slbt_stoolie_ctx **);
+
+slbt_api void slbt_st_free_stoolie_ctx  (struct slbt_stoolie_ctx *);
 
 /* utility api */
 slbt_api int  slbt_main                 (char **, char **,

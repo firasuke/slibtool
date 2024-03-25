@@ -61,6 +61,7 @@ API_SRCS = \
 	src/skin/slbt_skin_install.c \
 	src/skin/slbt_skin_stoolie.c \
 	src/skin/slbt_skin_uninstall.c \
+	src/stoolie/slbt_stoolie_ctx.c \
 
 FALLBACK_SRCS = \
 	src/fallback/slbt_archive_import_mri.c \

@@ -232,6 +232,23 @@ struct slbt_txtfile_ctx_impl {
 	struct slbt_txtfile_ctx         tctx;
 };
 
+struct slbt_stoolie_ctx_impl {
+	const struct slbt_driver_ctx *	dctx;
+	const char *			path;
+	char *                          pathbuf;
+	int                             fdtgt;
+	int                             fdaux;
+	int                             fdm4;
+	const char *                    auxarg;
+	char *                          auxbuf;
+	const char *                    m4arg;
+	char *                          m4buf;
+	char **                         m4argv;
+	struct slbt_txtfile_ctx *       acinc;
+	struct slbt_txtfile_ctx *       cfgac;
+	struct slbt_txtfile_ctx *       makam;
+	struct slbt_stoolie_ctx		zctx;
+};
 
 const char * slbt_program_name(const char *);
 
