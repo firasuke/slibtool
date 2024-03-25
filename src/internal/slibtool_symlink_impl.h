@@ -16,6 +16,14 @@ int slbt_create_symlink(
 	const char *			lnkname,
 	uint32_t			options);
 
+int slbt_create_symlink_ex(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	int                             fddst,
+	const char *			target,
+	const char *			lnkname,
+	uint32_t			options);
+
 int slbt_symlink_is_a_placeholder(int fdcwd, const char * lnkpath);
 
 #endif

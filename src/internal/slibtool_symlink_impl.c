@@ -13,6 +13,7 @@
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_symlink_impl.h"
 #include "slibtool_readlink_impl.h"
+#include "slibtool_realpath_impl.h"
 #include "slibtool_snprintf_impl.h"
 #include "slibtool_visibility_impl.h"
 
@@ -20,22 +21,24 @@
 				| SLBT_DRIVER_DISABLE_SHARED \
 				| SLBT_DRIVER_DISABLE_STATIC)
 
-slbt_hidden int slbt_create_symlink(
+slbt_hidden int slbt_create_symlink_ex(
 	const struct slbt_driver_ctx *	dctx,
 	struct slbt_exec_ctx *		ectx,
+	int                             fddst,
 	const char *			target,
 	const char *			lnkname,
 	uint32_t			options)
 {
-	int		fdcwd;
 	int		fliteral;
 	int		fwrapper;
 	int		fdevnull;
+	size_t          slen;
 	char **		oargv;
 	const char *	slash;
 	char *		ln[5];
 	char *          dot;
 	char *		dotdot;
+	char *          mark;
 	char		tmplnk [PATH_MAX];
 	char		lnkarg [PATH_MAX];
 	char		alnkarg[PATH_MAX];
@@ -79,19 +82,16 @@ slbt_hidden int slbt_create_symlink(
 			lnkname) <0)
 		return SLBT_BUFFER_ERROR(dctx);
 
-	/* fdcwd */
-	fdcwd = slbt_driver_fdcwd(dctx);
-
 	/* placeholder? */
 	if (fdevnull) {
-		if (unlinkat(fdcwd,lnkname,0) && (errno != ENOENT))
+		if (unlinkat(fddst,lnkname,0) && (errno != ENOENT))
 			return SLBT_SYSTEM_ERROR(dctx,0);
 
 		if ((dot = strrchr(lnkname,'.'))) {
 			if (!strcmp(dot,dctx->cctx->settings.dsosuffix)) {
 				strcpy(dot,".expsyms.a");
 
-				if (unlinkat(fdcwd,lnkname,0) && (errno != ENOENT))
+				if (unlinkat(fddst,lnkname,0) && (errno != ENOENT))
 					return SLBT_SYSTEM_ERROR(dctx,0);
 
 				strcpy(dot,dctx->cctx->settings.dsosuffix);
@@ -105,7 +105,19 @@ slbt_hidden int slbt_create_symlink(
 	}
 
 	/* lnkarg */
-	strcpy(lnkarg,lnkname);
+	if (fddst == slbt_driver_fdcwd(dctx)) {
+		strcpy(lnkarg,lnkname);
+	} else {
+		if (slbt_realpath(fddst,".",0,lnkarg,sizeof(lnkarg)) < 0)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		if ((slen = strlen(lnkarg)) + strlen(lnkname) + 1 >= PATH_MAX)
+			return SLBT_BUFFER_ERROR(dctx);
+
+		mark    = &lnkarg[slen];
+		mark[0] = '/';
+		strcpy(++mark,lnkname);
+	}
 
 	/* ln argv (fake) */
 	ln[0] = "ln";
@@ -136,12 +148,25 @@ slbt_hidden int slbt_create_symlink(
 	ectx->argv = oargv;
 
 	/* create symlink */
-	if (symlinkat(atarget,fdcwd,tmplnk))
+	if (symlinkat(atarget,fddst,tmplnk))
 		return SLBT_SYSTEM_ERROR(dctx,tmplnk);
 
-	return renameat(fdcwd,tmplnk,fdcwd,lnkname)
+	return renameat(fddst,tmplnk,fddst,lnkname)
 		? SLBT_SYSTEM_ERROR(dctx,lnkname)
 		: 0;
+}
+
+slbt_hidden int slbt_create_symlink(
+	const struct slbt_driver_ctx *	dctx,
+	struct slbt_exec_ctx *		ectx,
+	const char *			target,
+	const char *			lnkname,
+	uint32_t			options)
+{
+	return slbt_create_symlink_ex(
+		dctx,ectx,
+		slbt_driver_fdcwd(dctx),
+		target,lnkname,options);
 }
 
 slbt_hidden int slbt_symlink_is_a_placeholder(int fdcwd, const char * lnkpath)
