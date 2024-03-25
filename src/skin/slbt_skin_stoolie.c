@@ -28,6 +28,9 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 			"do not spawn any processes, "
 			"do not make any changes to the file system."},
 
+	{"automake",	0,TAG_STLE_SILENT,ARGV_OPTARG_NONE,0,0,0,
+			"backward-compatible alias for --quiet."},
+
 	{"quiet",	'q',TAG_STLE_SILENT,ARGV_OPTARG_NONE,0,0,0,
 			"do not say anything."},
 
