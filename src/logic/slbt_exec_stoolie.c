@@ -4,12 +4,15 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <sys/stat.h>
 #include <slibtool/slibtool.h>
 #include <slibtool/slibtool_output.h>
 #include "slibtool_driver_impl.h"
 #include "slibtool_stoolie_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "argv/argv.h"
+
+static const char slbt_this_dir[2] = {'.',0};
 
 static int slbt_stoolie_usage(
 	int				fdout,
@@ -79,6 +82,11 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
 	size_t				nunits;
+	size_t                          cunits;
+	const char **                   unitv;
+	const char **                   unitp;
+	struct slbt_stoolie_ctx **      stctxv;
+	struct slbt_stoolie_ctx **      stctxp;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
 
 	/* context */
@@ -98,17 +106,9 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 
 	(void)fderr;
 
-	/* missing arguments? */
+	/* <stoolie> argv meta */
 	slbt_optv_init(slbt_stoolie_options,optv);
 
-	if (!iargv[1] && (dctx->cctx->drvflags & SLBT_DRIVER_VERBOSITY_USAGE))
-		return slbt_stoolie_usage(
-			fdout,
-			dctx->program,
-			0,optv,0,ectx,
-			dctx->cctx->drvflags & SLBT_DRIVER_ANNOTATE_NEVER);
-
-	/* <stoolie> argv meta */
 	if (!(meta = slbt_argv_get(
 			iargv,optv,
 			dctx->cctx->drvflags & SLBT_DRIVER_VERBOSITY_ERRORS
@@ -192,10 +192,58 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 		return SLBT_OK;
 	}
 
+	/* default to this-dir as needed */
+	if (!(cunits = nunits))
+		nunits++;
+
+	/* slibtoolize target directory vector allocation */
+	if (!(stctxv = calloc(nunits+1,sizeof(struct slbt_stoolie_ctx *))))
+		return slbt_exec_stoolie_fail(
+			ectx,meta,
+			SLBT_SYSTEM_ERROR(dctx,0));
+
+	/* unit vector allocation */
+	if (!(unitv = calloc(nunits+1,sizeof(const char *)))) {
+		free (stctxv);
+
+		return slbt_exec_stoolie_fail(
+			ectx,meta,
+			SLBT_SYSTEM_ERROR(dctx,0));
+	}
+
+	/* unit vector initialization */
+	for (entry=meta->entries,unitp=unitv; entry->fopt || entry->arg; entry++)
+		if (!entry->fopt)
+			*unitp++ = entry->arg;
+
+	if (!cunits)
+		unitp[0] = slbt_this_dir;
+
+	/* slibtoolize target directory vector initialization */
+	for (unitp=unitv,stctxp=stctxv; *unitp; unitp++,stctxp++) {
+		if (slbt_st_get_stoolie_ctx(dctx,*unitp,stctxp) < 0) {
+			for (stctxp=stctxv; *stctxp; stctxp++)
+				slbt_st_free_stoolie_ctx(*stctxp);
+
+			free(unitv);
+			free(stctxv);
+
+			return slbt_exec_stoolie_fail(
+				ectx,meta,
+				SLBT_NESTED_ERROR(dctx));
+		}
+	}
+
 	/* slibtoolize operations */
 	ret = slbt_exec_stoolie_perform_actions(dctx);
 
 	/* all done */
+	for (stctxp=stctxv; *stctxp; stctxp++)
+		slbt_st_free_stoolie_ctx(*stctxp);
+
+	free(unitv);
+	free(stctxv);
+
 	slbt_argv_free(meta);
 	slbt_ectx_free_exec_ctx(ectx);
 
