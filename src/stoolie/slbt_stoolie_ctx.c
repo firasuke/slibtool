@@ -21,6 +21,8 @@
 #include "slibtool_txtline_impl.h"
 #include "slibtool_m4fake_impl.h"
 
+static const char slbt_this_dir[2] = {'.',0};
+
 static int slbt_st_free_stoolie_ctx_impl(
 	struct slbt_stoolie_ctx_impl *  ctx,
 	int                             fdsrc,
@@ -72,6 +74,7 @@ int slbt_st_get_stoolie_ctx(
 	const char **                   pline;
 	char **                         margv;
 	const char *                    mark;
+	const char *                    dpath;
 	char                            pathbuf[PATH_MAX];
 
 	/* target directory: fd and real path*/
@@ -216,26 +219,32 @@ int slbt_st_get_stoolie_ctx(
 	}
 
 	/* build-aux directory */
-	if ((ctx->fdaux = openat(fdtgt,ctx->auxbuf,O_DIRECTORY,0)) < 0)
+	if (!(dpath = ctx->auxbuf))
+		dpath = slbt_this_dir;
+
+	if ((ctx->fdaux = openat(fdtgt,dpath,O_DIRECTORY,0)) < 0)
 		if (errno == ENOENT)
-			if (!mkdirat(fdtgt,ctx->auxbuf,0755))
-				ctx->fdaux = openat(fdtgt,ctx->auxbuf,O_DIRECTORY,0);
+			if (!mkdirat(fdtgt,dpath,0755))
+				ctx->fdaux = openat(fdtgt,dpath,O_DIRECTORY,0);
 
 	if (ctx->fdaux < 0)
 		return slbt_st_free_stoolie_ctx_impl(
 			ctx,(-1),
-			SLBT_SYSTEM_ERROR(dctx,ctx->auxbuf));
+			SLBT_SYSTEM_ERROR(dctx,dpath));
 
 	/* m4 directory */
-	if ((ctx->fdm4 = openat(fdtgt,ctx->m4buf,O_DIRECTORY,0)) < 0)
+	if (!(dpath = ctx->m4buf))
+		dpath = slbt_this_dir;
+
+	if ((ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0)) < 0)
 		if (errno == ENOENT)
-			if (!mkdirat(fdtgt,ctx->m4buf,0755))
-				ctx->fdm4 = openat(fdtgt,ctx->m4buf,O_DIRECTORY,0);
+			if (!mkdirat(fdtgt,dpath,0755))
+				ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0);
 
 	if (ctx->fdm4 < 0)
 		return slbt_st_free_stoolie_ctx_impl(
 			ctx,(-1),
-			SLBT_SYSTEM_ERROR(dctx,ctx->m4buf));
+			SLBT_SYSTEM_ERROR(dctx,dpath));
 
 	/* all done */
 	ctx->path        = ctx->pathbuf;
