@@ -157,7 +157,6 @@ int slbt_st_get_stoolie_ctx(
 					SLBT_NESTED_ERROR(dctx));
 	}
 
-	/* aux dir */
 	if (!ctx->auxbuf && ctx->cfgac) {
 		if (slbt_m4fake_expand_cmdarg(
 				dctx,ctx->cfgac,
@@ -175,7 +174,38 @@ int slbt_st_get_stoolie_ctx(
 	}
 
 	/* m4 dir */
-	if (ctx->makam) {
+	if (ctx->acinc) {
+		if (slbt_m4fake_expand_cmdarg(
+				dctx,ctx->acinc,
+				"AC_CONFIG_MACRO_DIR",
+				&pathbuf) < 0)
+			return slbt_st_free_stoolie_ctx_impl(
+				ctx,(-1),
+				SLBT_NESTED_ERROR(dctx));
+
+		if (pathbuf[0])
+			if (!(ctx->m4buf = strdup(pathbuf)))
+				return slbt_st_free_stoolie_ctx_impl(
+					ctx,(-1),
+					SLBT_NESTED_ERROR(dctx));
+	}
+
+	if (!ctx->m4buf && ctx->cfgac) {
+		if (slbt_m4fake_expand_cmdarg(
+				dctx,ctx->cfgac,
+				"AC_CONFIG_MACRO_DIR",
+				&pathbuf) < 0)
+			return slbt_st_free_stoolie_ctx_impl(
+				ctx,(-1),
+				SLBT_NESTED_ERROR(dctx));
+
+		if (pathbuf[0])
+			if (!(ctx->m4buf = strdup(pathbuf)))
+				return slbt_st_free_stoolie_ctx_impl(
+					ctx,(-1),
+					SLBT_NESTED_ERROR(dctx));
+	}
+	if (!ctx->m4buf && ctx->makam) {
 		for (pline=ctx->makam->txtlinev; !ctx->m4argv && *pline; pline++) {
 			if (!strncmp(*pline,"ACLOCAL_AMFLAGS",15)) {
 				if (isspace((*pline)[15]) || ((*pline)[15] == '=')) {
