@@ -41,5 +41,12 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 			"generate lots of informational messages "
 			"that nobody can understand."},
 
+	{"warnings",	'W',TAG_STLE_WARNINGS,ARGV_OPTARG_REQUIRED,0,
+			"all|none|error|doubt|concern|environment|file",0,
+			"specify category of warnings to display (or not)."},
+
+	{"no-warnings",	0,TAG_STLE_NO_WARNINGS,ARGV_OPTARG_NONE,0,0,0,
+			"suppress all warning messages (or not)."},
+
 	{0,0,0,0,0,0,0,0}
 };
