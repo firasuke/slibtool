@@ -10,6 +10,9 @@
 #include "slibtool_driver_impl.h"
 #include "slibtool_stoolie_impl.h"
 #include "slibtool_errinfo_impl.h"
+#include "slibtool_realpath_impl.h"
+#include "slibtool_snprintf_impl.h"
+#include "slibtool_symlink_impl.h"
 #include "argv/argv.h"
 
 static const char slbt_this_dir[2] = {'.',0};
@@ -62,10 +65,117 @@ static int slbt_exec_stoolie_fail(
 	return ret;
 }
 
-static int slbt_exec_stoolie_perform_actions(
-	const struct slbt_driver_ctx *  dctx)
+static int slbt_exec_stoolie_remove_file(
+	const struct slbt_driver_ctx *	dctx,
+	int                             fddst,
+	const char *			target)
 {
-	(void)dctx;
+	/* remove target (if any) */
+	if (!unlinkat(fddst,target,0) || (errno == ENOENT))
+		return 0;
+
+	return SLBT_SYSTEM_ERROR(dctx,0);
+}
+
+static int slbt_exec_stoolie_perform_actions(
+	const struct slbt_driver_ctx *  dctx,
+	struct slbt_exec_ctx *          ectx,
+	struct slbt_stoolie_ctx *       stctx)
+{
+	struct slbt_stoolie_ctx_impl *  ictx;
+	struct stat                     st;
+	char                            m4dir [PATH_MAX];
+	char                            auxdir[PATH_MAX];
+	char                            slibm4[PATH_MAX];
+	char                            ltmain[PATH_MAX];
+	bool                            fslibm4;
+	bool                            fltmain;
+
+	ictx = slbt_get_stoolie_ictx(stctx);
+
+	/* source files */
+	if (slbt_snprintf(
+			slibm4,sizeof(slibm4),"%s/%s",
+			SLBT_PACKAGE_DATADIR,
+			"slibtool.m4") < 0)
+		return SLBT_BUFFER_ERROR(dctx);
+
+	if (slbt_snprintf(
+			ltmain,sizeof(slibm4),"%s/%s",
+			SLBT_PACKAGE_DATADIR,
+			"ltmain.sh") < 0)
+		return SLBT_BUFFER_ERROR(dctx);
+
+	/* --force? */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_STOOLIE_FORCE) {
+		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdm4,"slibtool.m4") < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdaux,"ltmain.sh") < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		fslibm4 = true;
+		fltmain = true;
+	} else {
+		if (fstatat(ictx->fdm4,"slibtool.m4",&st,AT_SYMLINK_NOFOLLOW) == 0) {
+			fslibm4 = false;
+
+		} else if (errno == ENOENT) {
+			fslibm4 = true;
+
+		} else {
+			return SLBT_SYSTEM_ERROR(dctx,"slibtool.m4");
+		}
+
+		if (fstatat(ictx->fdaux,"ltmain.sh",&st,AT_SYMLINK_NOFOLLOW) == 0) {
+			fltmain = false;
+
+		} else if (errno == ENOENT) {
+			fltmain = true;
+
+		} else {
+			return SLBT_SYSTEM_ERROR(dctx,"ltmain.sh");
+		}
+	}
+
+	/* --copy? */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_STOOLIE_COPY) {
+		if (fslibm4) {
+			if (slbt_realpath(ictx->fdm4,".",0,m4dir,sizeof(m4dir)) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+			if (slbt_util_copy_file(ectx,slibm4,m4dir) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+		}
+
+		if (fltmain) {
+			if (slbt_realpath(ictx->fdaux,".",0,auxdir,sizeof(auxdir)) < 0)
+				return SLBT_SYSTEM_ERROR(dctx,0);
+
+			if (slbt_util_copy_file(ectx,ltmain,auxdir) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+		}
+	} else {
+		/* default to symlinks */
+		if (fslibm4)
+			if (slbt_create_symlink_ex(
+					dctx,ectx,
+					ictx->fdm4,
+					slibm4,
+					"slibtool.m4",
+					SLBT_SYMLINK_LITERAL) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+
+		if (fltmain)
+			if (slbt_create_symlink_ex(
+					dctx,ectx,
+					ictx->fdaux,
+					ltmain,
+					"ltmain.sh",
+					SLBT_SYMLINK_LITERAL) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+	}
+
 	return 0;
 }
 
@@ -235,7 +345,8 @@ int slbt_exec_stoolie(const struct slbt_driver_ctx * dctx)
 	}
 
 	/* slibtoolize operations */
-	ret = slbt_exec_stoolie_perform_actions(dctx);
+	for (ret=0,stctxp=stctxv; !ret && *stctxp; stctxp++)
+		ret = slbt_exec_stoolie_perform_actions(dctx,ectx,*stctxp);
 
 	/* all done */
 	for (stctxp=stctxv; *stctxp; stctxp++)

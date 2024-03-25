@@ -394,6 +394,18 @@ static inline struct slbt_symlist_ctx_impl * slbt_get_symlist_ictx(const struct 
 	return 0;
 }
 
+static inline struct slbt_stoolie_ctx_impl * slbt_get_stoolie_ictx(const struct slbt_stoolie_ctx * stctx)
+{
+	uintptr_t addr;
+
+	if (stctx) {
+		addr = (uintptr_t)stctx - offsetof(struct slbt_stoolie_ctx_impl,zctx);
+		return (struct slbt_stoolie_ctx_impl *)addr;
+	}
+
+	return 0;
+}
+
 static inline void slbt_driver_set_arctx(
 	const struct slbt_driver_ctx *  dctx,
 	const struct slbt_archive_ctx * arctx,
