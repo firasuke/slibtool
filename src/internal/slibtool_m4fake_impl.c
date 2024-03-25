@@ -15,10 +15,10 @@
 #include "slibtool_m4fake_impl.h"
 
 slbt_hidden int slbt_m4fake_expand_cmdarg(
-	struct slbt_driver_ctx *  dctx,
-	struct slbt_txtfile_ctx * sctx,
-	const char *              cmdname,
-	char                      (*argbuf)[PATH_MAX])
+	const struct slbt_driver_ctx *  dctx,
+	struct slbt_txtfile_ctx *       sctx,
+	const char *                    cmdname,
+	char                            (*argbuf)[PATH_MAX])
 {
 	const char **             pline;
 	size_t                    slen;
