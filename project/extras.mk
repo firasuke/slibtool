@@ -3,7 +3,9 @@ CFLAGS_STATIC_ATTR	+= -DSLBT_PRE_ALPHA -DSLBT_STATIC
 CFLAGS_APP_ATTR		+= -DSLBT_APP
 
 CFLAGS_MACHINE		:= -DSLBT_MACHINE=\"$(CC_HOST)\"
+CFLAGS_PKGDATA		:= -DSLBT_PACKAGE_DATADIR=\"$(DESTDIR)$(DATADIR)/$(PACKAGE)\"
 CFLAGS_CONFIG		+= $(CFLAGS_MACHINE)
+CFLAGS_CONFIG		+= $(CFLAGS_PKGDATA)
 CFLAGS_CONFIG		+= $(CFLAGS_ATTR_VISIBILITY_HIDDEN)
 
 src/driver/slbt_driver_ctx.o:	version.tag
@@ -16,6 +18,8 @@ RAPUNCEL = rclibtool
 RAPUNDEL = rdlibtool
 RAPUNJEL = rdclibtool
 STOOLIE  = slibtoolize
+
+install-app-extras: install-slibtoolize
 
 install-app-extras:
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -82,3 +86,11 @@ install-app-extras:
 	mv bin/$(RAPUNJEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNJEL)$(OS_APP_SUFFIX)
 
 	mv bin/$(STOOLIE)$(OS_APP_SUFFIX).tmp         $(DESTDIR)$(BINDIR)/$(STOOLIE)$(OS_APP_SUFFIX)
+
+install-slibtoolize:
+	mkdir -p $(DESTDIR)$(DATADIR)/$(PACKAGE)
+
+	cp -p $(SOURCE_DIR)/m4/slibtool.m4            $(DESTDIR)$(DATADIR)/$(PACKAGE)
+	cp -p $(SOURCE_DIR)/aux/ltmain.sh             $(DESTDIR)$(DATADIR)/$(PACKAGE)
+
+.PHONY: install-slibtoolize
