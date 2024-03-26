@@ -290,6 +290,30 @@ fi
 ])
 
 
+# SLIBTOOL_PROG_RANLIB
+# --------------------
+AC_DEFUN([SLIBTOOL_PROG_RANLIB],[
+
+# slibtool: SLIBTOOL_PROG_RANLIB
+# ------------------------------
+if [[ -n "${host_alias}" ]]; then
+	AC_CHECK_PROG([RANLIB],"${host_alias}-"[ranlib],"${host_alias}-"[ranlib])
+fi
+
+if [[ -n "${host}" ]] && [[ "${host}" != "${host_alias:-}" ]] &&  [[ -z "${RANLIB}" ]]; then
+	AC_CHECK_PROG([RANLIB],"${host}-"[ranlib],"${host}-"[ranlib])
+fi
+
+if [[ -n "${host}" ]] &&  [[ -z "${RANLIB}" ]]; then
+	AC_CHECK_PROG([RANLIB],[llvm-ranlib],[llvm-ranlib])
+fi
+
+if [[ -z "${host}" ]]; then
+	AC_CHECK_PROG([RANLIB],[ranlib],[ranlib])
+fi
+])
+
+
 # SLIBTOOL_PROG_NM
 # ----------------
 AC_DEFUN([SLIBTOOL_PROG_NM],[
