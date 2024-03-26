@@ -272,11 +272,21 @@ AC_DEFUN([SLIBTOOL_PROG_NM],[
 
 # slibtool: SLIBTOOL_PROG_NM
 # --------------------------
-if [[ -z "${NM:-}" ]]; then
-	NM="${RANLIB%ranlib}nm"
+if [[ -n "${host_alias}" ]]; then
+	AC_CHECK_PROG([NM],"${host_alias}-"[nm],"${host_alias}-"[nm])
 fi
 
-AC_SUBST([NM])
+if [[ -n "${host}" ]] && [[ "${host}" != "${host_alias:-}" ]] &&  [[ -z "${NM}" ]]; then
+	AC_CHECK_PROG([NM],"${host}-"[nm],"${host}-"[nm])
+fi
+
+if [[ -n "${host}" ]] &&  [[ -z "${NM}" ]]; then
+	AC_CHECK_PROG([NM],[llvm-nm],[llvm-nm])
+fi
+
+if [[ -z "${host}" ]]; then
+	AC_CHECK_PROG([NM],[nm],[nm])
+fi
 ])
 
 
