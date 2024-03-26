@@ -42,6 +42,17 @@ slibtool_enable_win32_dll_default='yes'
 slibtool_enable_fast_install_default='yes'
 slibtool_pic_mode_default='default'
 slibtool_sysroot_default=
+
+# slibtool: refined logic for ar, nm, ranlib, etc.
+#
+m4_ifdef([AC_PROG_AR],     [m4_undefine([AC_PROG_AR])])
+m4_ifdef([AM_PROG_AR],     [m4_undefine([AM_PROG_AR])])
+
+m4_ifdef([AC_PROG_NM],     [m4_undefine([AC_PROG_NM])])
+m4_ifdef([AM_PROG_NM],     [m4_undefine([AM_PROG_NM])])
+
+m4_ifdef([AC_PROG_RANLIB], [m4_undefine([AC_PROG_RANLIB])])
+m4_ifdef([AM_PROG_RANLIB], [m4_undefine([AM_PROG_RANLIB])])
 ])
 
 
@@ -460,6 +471,7 @@ AC_REQUIRE([AC_PROG_SED])
 AC_REQUIRE([AC_PROG_YACC])
 
 AC_REQUIRE([AC_PROG_AR])
+AC_REQUIRE([AC_PROG_NM])
 AC_REQUIRE([AC_PROG_RANLIB])
 
 AC_REQUIRE([AC_PROG_LN_S])
@@ -486,9 +498,9 @@ AC_PROG_LEX
 AC_PROG_SED
 AC_PROG_YACC
 
-AC_PROG_RANLIB
 AC_PROG_AR
 AC_PROG_NM
+AC_PROG_RANLIB
 
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
@@ -504,11 +516,14 @@ AC_DEFUN([LT_PREREQ],           [SLIBTOOL_PREREQ($@)])
 AC_DEFUN([AC_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 AC_DEFUN([AM_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 
+AC_DEFUN([AC_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
+AC_DEFUN([AM_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
+
 AC_DEFUN([AC_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
 AC_DEFUN([AM_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
 
-AC_DEFUN([AC_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
-AC_DEFUN([AM_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
+AC_DEFUN([AC_PROG_RANLIB],      [SLIBTOOL_PROG_RANLIB($@)])
+AC_DEFUN([AM_PROG_RANLIB],      [SLIBTOOL_PROG_RANLIB($@)])
 
 AC_DEFUN([AC_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
 AC_DEFUN([AM_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
