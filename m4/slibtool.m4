@@ -266,6 +266,30 @@ slibtool_options="${slibtool_options} disable-static"
 ])
 
 
+# SLIBTOOL_PROG_AR
+# ----------------
+AC_DEFUN([SLIBTOOL_PROG_AR],[
+
+# slibtool: SLIBTOOL_PROG_AR
+# --------------------------
+if [[ -n "${host_alias}" ]]; then
+	AC_CHECK_PROG([AR],"${host_alias}-"[ar],"${host_alias}-"[ar])
+fi
+
+if [[ -n "${host}" ]] && [[ "${host}" != "${host_alias:-}" ]] &&  [[ -z "${AR}" ]]; then
+	AC_CHECK_PROG([AR],"${host}-"[ar],"${host}-"[ar])
+fi
+
+if [[ -n "${host}" ]] &&  [[ -z "${AR}" ]]; then
+	AC_CHECK_PROG([AR],[llvm-ar],[llvm-ar])
+fi
+
+if [[ -z "${host}" ]]; then
+	AC_CHECK_PROG([AR],[ar],[ar])
+fi
+])
+
+
 # SLIBTOOL_PROG_NM
 # ----------------
 AC_DEFUN([SLIBTOOL_PROG_NM],[
@@ -411,6 +435,7 @@ AC_REQUIRE([AC_PROG_LEX])
 AC_REQUIRE([AC_PROG_SED])
 AC_REQUIRE([AC_PROG_YACC])
 
+AC_REQUIRE([AC_PROG_AR])
 AC_REQUIRE([AC_PROG_RANLIB])
 
 AC_REQUIRE([AC_PROG_LN_S])
@@ -438,6 +463,7 @@ AC_PROG_SED
 AC_PROG_YACC
 
 AC_PROG_RANLIB
+AC_PROG_AR
 AC_PROG_NM
 
 AC_PROG_LN_S
@@ -456,6 +482,9 @@ AC_DEFUN([AM_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 
 AC_DEFUN([AC_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
 AC_DEFUN([AM_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
+
+AC_DEFUN([AC_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
+AC_DEFUN([AM_PROG_AR],          [SLIBTOOL_PROG_AR($@)])
 
 AC_DEFUN([AC_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
 AC_DEFUN([AM_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
