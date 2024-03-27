@@ -263,15 +263,13 @@ int slbt_st_get_stoolie_ctx(
 			SLBT_SYSTEM_ERROR(dctx,dpath));
 
 	/* m4 directory */
-	if (!(dpath = ctx->m4buf))
-		dpath = slbt_this_dir;
+	if ((dpath = ctx->m4buf))
+		if ((ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0)) < 0)
+			if (errno == ENOENT)
+				if (!mkdirat(fdtgt,dpath,0755))
+					ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0);
 
-	if ((ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0)) < 0)
-		if (errno == ENOENT)
-			if (!mkdirat(fdtgt,dpath,0755))
-				ctx->fdm4 = openat(fdtgt,dpath,O_DIRECTORY,0);
-
-	if (ctx->fdm4 < 0)
+	if (dpath && (ctx->fdm4 < 0))
 		return slbt_st_free_stoolie_ctx_impl(
 			ctx,(-1),
 			SLBT_SYSTEM_ERROR(dctx,dpath));

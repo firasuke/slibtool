@@ -108,16 +108,20 @@ static int slbt_exec_stoolie_perform_actions(
 
 	/* --force? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_STOOLIE_FORCE) {
-		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdm4,"slibtool.m4") < 0)
-			return SLBT_NESTED_ERROR(dctx);
+		if (ictx->fdm4 >= 0)
+			if (slbt_exec_stoolie_remove_file(dctx,ictx->fdm4,"slibtool.m4") < 0)
+				return SLBT_NESTED_ERROR(dctx);
 
 		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdaux,"ltmain.sh") < 0)
 			return SLBT_NESTED_ERROR(dctx);
 
-		fslibm4 = true;
+		fslibm4 = (ictx->fdm4 >= 0);
 		fltmain = true;
 	} else {
-		if (fstatat(ictx->fdm4,"slibtool.m4",&st,AT_SYMLINK_NOFOLLOW) == 0) {
+		if (ictx->fdm4 < 0) {
+			fslibm4 = false;
+
+		} else if (fstatat(ictx->fdm4,"slibtool.m4",&st,AT_SYMLINK_NOFOLLOW) == 0) {
 			fslibm4 = false;
 
 		} else if (errno == ENOENT) {
