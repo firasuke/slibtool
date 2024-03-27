@@ -413,6 +413,14 @@ AC_REQUIRE([_SLIBTOOL_SET_FLAVOR])
 AC_REQUIRE([_SLIBTOOL_ARGUMENT_HANDLING])
 
 
+# slibtool: tame legacy early invocation
+AC_DEFUN([AC_PROG_LEX])
+AC_DEFUN([AM_PROG_LEX])
+
+AC_DEFUN([AC_PROG_RANLIB])
+AC_DEFUN([AM_PROG_RANLIB])
+
+
 # slibtool: package defaults
 # ---------------------
 slbt_cfg_ifs="${IFS}"
