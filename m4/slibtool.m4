@@ -56,8 +56,15 @@ m4_ifdef([AM_PROG_RANLIB], [m4_undefine([AM_PROG_RANLIB])])
 
 m4_ifdef([AC_PROG_LEX],    [m4_undefine([AC_PROG_LEX])])
 m4_ifdef([AM_PROG_LEX],    [m4_undefine([AM_PROG_LEX])])
+
+m4_ifdef([LT_LIB_M],       [m4_undefine([LT_LIB_M])])
+m4_ifdef([LT_LIB_DLLOAD],  [m4_undefine([LT_LIB_DLLOAD])])
 ])
 
+
+# _SLIBTOOL_CONVENIENCE
+# ---------------------
+AC_DEFUN([LT_DEVAL],[$1]=[$2])
 
 # _SLIBTOOL_ARGUMENT_HANDLING
 # ---------------------------
@@ -372,6 +379,27 @@ fi
 ])
 
 
+# SLIBTOOL_LFLAG_LIBM
+# -------------------
+AC_DEFUN([SLIBTOOL_LFLAG_LIBM],[
+
+# slibtool: SLIBTOOL_LFLAG_LIBM
+# -----------------------------
+LT_DEVAL([LIBM],[-lm])
+AC_SUBST([LIBM])
+])
+
+
+# SLIBTOOL_LFLAG_LTDL
+# -------------------
+AC_DEFUN([SLIBTOOL_LFLAG_LTDL],[
+
+# slibtool: SLIBTOOL_LFLAG_LTDL
+# -----------------------------
+# (always use the system lib[s]ltdl)
+])
+
+
 # SLIBTOOL_INIT(_options_)
 # ------------------------
 AC_DEFUN([SLIBTOOL_INIT],[
@@ -489,6 +517,9 @@ m4_if([$1],[Fortran 77],[
 # slibtool: SLIBTOOL_LANG(Fortran 77)
 AC_PROG_FC
 AC_PROG_F77
+
+SLIBTOOL_LFLAG_LIBM
+SLIBTOOL_LFLAG_LTDL
 ])
 ])
 
@@ -496,6 +527,8 @@ AC_PROG_F77
 # SLIBTOOL_PREREQ(_version_)
 # --------------------------
 AC_DEFUN([SLIBTOOL_PREREQ],[
+
+AC_REQUIRE([LT_DEVAL])
 
 AC_REQUIRE([AC_PROG_CC])
 AC_REQUIRE([AC_PROG_CPP])
@@ -513,6 +546,9 @@ AC_REQUIRE([AC_PROG_RANLIB])
 
 AC_REQUIRE([AC_PROG_LN_S])
 AC_REQUIRE([AC_PROG_MKDIR_P])
+
+AC_REQUIRE([SLIBTOOL_LFLAG_LIBM])
+AC_REQUIRE([SLIBTOOL_LFLAG_LTDL])
 
 AC_PROG_AWK
 AC_PROG_LEX
@@ -560,6 +596,9 @@ AC_DEFUN([AM_DISABLE_SHARED],   [SLIBTOOL_DISABLE_SHARED($@)])
 
 AC_DEFUN([AC_DISABLE_STATIC],   [SLIBTOOL_DISABLE_STATIC($@)])
 AC_DEFUN([AM_DISABLE_STATIC],   [SLIBTOOL_DISABLE_STATIC($@)])
+
+AC_DEFUN([LT_LIB_M],            [SLIBTOOL_LFLAG_LIBM($@)])
+AC_DEFUN([LT_LIB_DLLOAD],       [SLIBTOOL_LFLAG_LTDL($@)])
 
 
 # deprecated and no-op macros
