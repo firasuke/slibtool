@@ -53,6 +53,9 @@ m4_ifdef([AM_PROG_NM],     [m4_undefine([AM_PROG_NM])])
 
 m4_ifdef([AC_PROG_RANLIB], [m4_undefine([AC_PROG_RANLIB])])
 m4_ifdef([AM_PROG_RANLIB], [m4_undefine([AM_PROG_RANLIB])])
+
+m4_ifdef([AC_PROG_LEX],    [m4_undefine([AC_PROG_LEX])])
+m4_ifdef([AM_PROG_LEX],    [m4_undefine([AM_PROG_LEX])])
 ])
 
 
@@ -349,6 +352,26 @@ fi
 ])
 
 
+# SLIBTOOL_PROG_LEX
+# -----------------
+AC_DEFUN([SLIBTOOL_PROG_LEX],[
+
+# slibtool: SLIBTOOL_PROG_LEX
+# ---------------------------
+if [[ -n "${LEX}" ]]; then
+	AC_CHECK_PROG([LEX],[flex])
+fi
+
+if [[ -z "${LEX}" ]]; then
+	AC_CHECK_PROG([LEX],[flex],[flex])
+fi
+
+if [[ -z "${LEX}" ]]; then
+	AC_CHECK_PROG([LEX],[lex],[lex])
+fi
+])
+
+
 # SLIBTOOL_INIT(_options_)
 # ------------------------
 AC_DEFUN([SLIBTOOL_INIT],[
@@ -523,6 +546,9 @@ AC_DEFUN([AM_PROG_NM],          [SLIBTOOL_PROG_NM($@)])
 
 AC_DEFUN([AC_PROG_RANLIB],      [SLIBTOOL_PROG_RANLIB($@)])
 AC_DEFUN([AM_PROG_RANLIB],      [SLIBTOOL_PROG_RANLIB($@)])
+
+AC_DEFUN([AC_PROG_LEX],         [SLIBTOOL_PROG_LEX($@)])
+AC_DEFUN([AM_PROG_LEX],         [SLIBTOOL_PROG_LEX($@)])
 
 AC_DEFUN([AC_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
 AC_DEFUN([AM_ENABLE_SHARED],    [SLIBTOOL_ENABLE_SHARED($@)])
