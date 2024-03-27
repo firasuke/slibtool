@@ -376,6 +376,9 @@ fi
 if [[ -z "${LEX}" ]]; then
 	AC_CHECK_PROG([LEX],[lex],[lex])
 fi
+
+AC_SUBST([LEX])
+AC_SUBST([LEXLIB])
 ])
 
 
