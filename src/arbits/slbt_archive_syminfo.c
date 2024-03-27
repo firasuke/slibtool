@@ -114,7 +114,7 @@ static int slbt_obtain_nminfo(
 		strcpy(output,arname);
 		strcpy(&output[pos],".nm");
 
-		if ((fdout = openat(fdcwd,output,O_CREAT|O_TRUNC|O_WRONLY,0644)) < 0)
+		if ((fdout = openat(fdcwd,output,O_CREAT|O_TRUNC|O_RDWR,0644)) < 0)
 			return SLBT_SYSTEM_ERROR(dctx,output);
 	} else {
 		strcpy(output,"@nminfo@");
