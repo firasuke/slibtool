@@ -42,8 +42,11 @@ slibtool_enable_win32_dll_default='yes'
 slibtool_enable_fast_install_default='yes'
 slibtool_pic_mode_default='default'
 slibtool_sysroot_default=
+])
 
 # slibtool: refined logic for ar, nm, ranlib, etc.
+#
+m4_ifdef([SLIBTOOL_INIT],[],[
 #
 m4_ifdef([AC_PROG_AR],     [m4_undefine([AC_PROG_AR])])
 m4_ifdef([AM_PROG_AR],     [m4_undefine([AM_PROG_AR])])
@@ -60,7 +63,6 @@ m4_ifdef([AM_PROG_LEX],    [m4_undefine([AM_PROG_LEX])])
 m4_ifdef([LT_LIB_M],       [m4_undefine([LT_LIB_M])])
 m4_ifdef([LT_LIB_DLLOAD],  [m4_undefine([LT_LIB_DLLOAD])])
 ])
-
 
 # _SLIBTOOL_CONVENIENCE
 # ---------------------
