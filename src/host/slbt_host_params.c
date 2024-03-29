@@ -251,6 +251,7 @@ slbt_hidden int slbt_init_host_params(
 	/* toollen */
 	toollen =  fnative ? 0 : strlen(host->host);
 	toollen += strlen("-utility-name");
+	toollen += host->ranlib ? strlen(host->ranlib) : 0;
 
 	/* ar */
 	if (host->ar)
@@ -406,6 +407,18 @@ slbt_hidden int slbt_init_host_params(
 			cfgmeta->windres = cfghost;
 		}
 
+		if ((mark = strrchr(host->ranlib,'/'))) {
+			if (strcmp(++mark,"ranlib"))
+				if ((mark = strrchr(mark,'-')))
+					if (strcmp(++mark,"ranlib"))
+						mark = 0;
+
+			if (mark) {
+				strcpy(drvhost->windres,host->ranlib);
+				strcpy(&drvhost->windres[mark-host->ranlib],"windres");
+			}
+		}
+
 		host->windres = drvhost->windres;
 	}
 
@@ -430,6 +443,18 @@ slbt_hidden int slbt_init_host_params(
 		} else {
 			sprintf(drvhost->dlltool,"%s-dlltool",host->host);
 			cfgmeta->dlltool = cfghost;
+		}
+
+		if ((mark = strrchr(host->ranlib,'/'))) {
+			if (strcmp(++mark,"ranlib"))
+				if ((mark = strrchr(mark,'-')))
+					if (strcmp(++mark,"ranlib"))
+						mark = 0;
+
+			if (mark) {
+				strcpy(drvhost->dlltool,host->ranlib);
+				strcpy(&drvhost->dlltool[mark-host->ranlib],"dlltool");
+			}
 		}
 
 		host->dlltool = drvhost->dlltool;
