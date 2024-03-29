@@ -24,6 +24,7 @@
 /* annotation strings */
 static const char cfgexplicit[] = "command-line argument";
 static const char cfghost[]     = "derived from <host>";
+static const char cfgranlib[]   = "derived from <ranlib>";
 static const char cfgtarget[]   = "derived from <target>";
 static const char cfgcompiler[] = "derived from <compiler>";
 static const char cfgnmachine[] = "native (cached in ccenv/host.mk)";
@@ -354,6 +355,7 @@ slbt_hidden int slbt_init_host_params(
 			if (mark) {
 				strcpy(drvhost->as,host->ranlib);
 				strcpy(&drvhost->as[mark-host->ranlib],"as");
+				cfgmeta->as = cfgranlib;
 			}
 		}
 
@@ -428,6 +430,7 @@ slbt_hidden int slbt_init_host_params(
 			if (mark) {
 				strcpy(drvhost->windres,host->ranlib);
 				strcpy(&drvhost->windres[mark-host->ranlib],"windres");
+				cfgmeta->windres = cfgranlib;
 			}
 		}
 
@@ -466,6 +469,7 @@ slbt_hidden int slbt_init_host_params(
 			if (mark) {
 				strcpy(drvhost->dlltool,host->ranlib);
 				strcpy(&drvhost->dlltool[mark-host->ranlib],"dlltool");
+				cfgmeta->dlltool = cfgranlib;
 			}
 		}
 
