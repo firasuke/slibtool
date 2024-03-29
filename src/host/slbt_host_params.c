@@ -316,6 +316,7 @@ slbt_hidden int slbt_init_host_params(
 			if (ecode && !strcmp(host->host,SLBT_MACHINE)) {
 				strcpy(drvhost->ar,"ar");
 				cfgmeta->ar = cfgnative;
+				fnative     = true;
 			}
 
 			/* fdcwd */
