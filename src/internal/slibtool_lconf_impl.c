@@ -662,8 +662,10 @@ static int slbt_get_lconf_var(
 	}
 
 	/* not found? */
-	if (!match)
+	if (!match) {
+		(*val)[0] = '\0';
 		return 0;
+	}
 
 	/* support a single pair of double quotes */
 	match = &match[len];
