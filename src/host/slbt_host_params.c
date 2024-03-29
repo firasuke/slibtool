@@ -345,6 +345,18 @@ slbt_hidden int slbt_init_host_params(
 			cfgmeta->as = cfghost;
 		}
 
+		if (host->ranlib && (mark = strrchr(host->ranlib,'/'))) {
+			if (strcmp(++mark,"ranlib"))
+				if ((mark = strrchr(mark,'-')))
+					if (strcmp(++mark,"ranlib"))
+						mark = 0;
+
+			if (mark) {
+				strcpy(drvhost->as,host->ranlib);
+				strcpy(&drvhost->as[mark-host->ranlib],"as");
+			}
+		}
+
 		host->as = drvhost->as;
 	}
 
