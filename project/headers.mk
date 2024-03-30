@@ -18,6 +18,7 @@ INTERNAL_HEADERS = \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mapfile_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_metafile_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mkdir_impl.h \
+	$(PROJECT_DIR)/src/internal/$(PACKAGE)_mkvars_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_objlist_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_pecoff_impl.h \
 	$(PROJECT_DIR)/src/internal/$(PACKAGE)_readlink_impl.h \

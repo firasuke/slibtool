@@ -18,6 +18,10 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 				"the %s of which is either provided via this "
 				"command-line argument, or detected by the program."},
 
+	{"mkvars",		0,TAG_MKVARS,ARGV_OPTARG_REQUIRED,0,0,"<makefile>",
+				"obtain information about the current build project "
+				"from the specified %s."},
+
 	{"mode",		0,TAG_MODE,ARGV_OPTARG_REQUIRED,0,
 				"clean|compile|execute|finish"
 				"|install|link|uninstall|ar"

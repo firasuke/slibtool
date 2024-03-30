@@ -28,6 +28,7 @@ enum app_tags {
 	TAG_VERSION,
 	TAG_INFO,
 	TAG_CONFIG,
+	TAG_MKVARS,
 	TAG_DUMPMACHINE,
 	TAG_DEBUG,
 	TAG_DRY_RUN,
@@ -160,6 +161,7 @@ struct slbt_driver_ctx_impl {
 	struct slbt_fd_ctx              fdctx;
 	struct slbt_map_info            lconf;
 	struct slbt_txtfile_ctx *       lconfctx;
+	struct slbt_txtfile_ctx *       mkvarsctx;
 	struct slbt_obj_list *          objlistv;
 
 	struct argv_entry **            dlopenv;

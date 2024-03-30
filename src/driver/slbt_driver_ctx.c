@@ -22,6 +22,7 @@
 #include "slibtool_objlist_impl.h"
 #include "slibtool_errinfo_impl.h"
 #include "slibtool_lconf_impl.h"
+#include "slibtool_mkvars_impl.h"
 #include "slibtool_txtline_impl.h"
 #include "slibtool_stoolie_impl.h"
 #include "slibtool_ar_impl.h"
@@ -32,6 +33,7 @@ extern char ** environ;
 /* annotation strings */
 static const char cfgexplicit[] = "command-line argument";
 static const char cfglconf[]    = "derived from <libtool>";
+static const char cfgmkvars[]   = "derived from <makefile>";
 
 /* package info */
 static const struct slbt_source_version slbt_src_version = {
@@ -407,6 +409,7 @@ int slbt_lib_get_driver_ctx(
 	struct argv_entry *		cmdnoshared;
 	const char *			program;
 	const char *			lconf;
+	const char *			mkvars;
 	uint64_t			lflags;
 	size_t                          ndlopen;
 	struct argv_entry **            dlopenv;
@@ -455,6 +458,7 @@ int slbt_lib_get_driver_ctx(
 		return slbt_free_argv_buffer(&sargv,objlistv);
 
 	lconf   = 0;
+	mkvars  = 0;
 	program = argv_program_name(argv[0]);
 
 	memset(&cctx,0,sizeof(cctx));
@@ -517,6 +521,10 @@ int slbt_lib_get_driver_ctx(
 				case TAG_HEURISTICS:
 					cctx.drvflags |= SLBT_DRIVER_HEURISTICS;
 					lconf = entry->arg;
+					break;
+
+				case TAG_MKVARS:
+					mkvars = entry->arg;
 					break;
 
 				case TAG_MODE:
@@ -930,6 +938,49 @@ int slbt_lib_get_driver_ctx(
 	ctx->cctx.cargv		= sargv.cargv;
 	ctx->meta               = meta;
 
+	/* mkvars */
+	if (mkvars) {
+		if (slbt_get_mkvars_flags(&ctx->ctx,mkvars,&lflags) < 0)
+			return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
+
+		if (ctx->cctx.host.host && !cfgmeta_host)
+			cfgmeta_host = cfgmkvars;
+
+		if (ctx->cctx.host.ar && !cfgmeta_ar)
+			cfgmeta_ar = cfgmkvars;
+
+		if (ctx->cctx.host.as && !cfgmeta_as)
+			cfgmeta_as = cfgmkvars;
+
+		if (ctx->cctx.host.nm && !cfgmeta_nm)
+			cfgmeta_nm = cfgmkvars;
+
+		if (ctx->cctx.host.ranlib && !cfgmeta_ranlib)
+			cfgmeta_ranlib = cfgmkvars;
+
+		if (ctx->cctx.host.dlltool && !cfgmeta_dlltool)
+			cfgmeta_dlltool = cfgmkvars;
+
+		if (cmdnoshared)
+			lflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
+
+		if (cmdnostatic)
+			if (lflags & SLBT_DRIVER_DISABLE_SHARED)
+				cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_DISABLE_STATIC;
+
+		cctx.drvflags |= lflags;
+
+		/* -disable-static? */
+		if (cctx.drvflags & SLBT_DRIVER_DISABLE_STATIC)
+			cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_STATIC;
+
+		/* -disable-shared? */
+		if (cctx.drvflags & SLBT_DRIVER_DISABLE_SHARED)
+			cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_SHARED;
+
+		ctx->cctx.drvflags = cctx.drvflags;
+	}
+
 	/* heuristics */
 	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
 		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags) < 0)
@@ -1112,6 +1163,9 @@ static void slbt_lib_free_driver_ctx_impl(struct slbt_driver_ctx_alloc * ictx)
 
 	if (ictx->ctx.lconfctx)
 		slbt_lib_free_txtfile_ctx(ictx->ctx.lconfctx);
+
+	if (ictx->ctx.mkvarsctx)
+		slbt_lib_free_txtfile_ctx(ictx->ctx.mkvarsctx);
 
 	for (objlistp=ictx->ctx.objlistv; objlistp->name; objlistp++) {
 		free(objlistp->objv);

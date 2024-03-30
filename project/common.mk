@@ -74,6 +74,7 @@ INTERNAL_SRCS = \
 	src/internal/$(PACKAGE)_libmeta_impl.c \
 	src/internal/$(PACKAGE)_m4fake_impl.c \
 	src/internal/$(PACKAGE)_mapfile_impl.c \
+	src/internal/$(PACKAGE)_mkvars_impl.c \
 	src/internal/$(PACKAGE)_objlist_impl.c \
 	src/internal/$(PACKAGE)_objmeta_impl.c \
 	src/internal/$(PACKAGE)_pecoff_impl.c \
