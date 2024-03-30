@@ -4,6 +4,7 @@
 /*  Released under the Standard MIT License; see COPYING.SLIBTOOL. */
 /*******************************************************************/
 
+#include <ctype.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,6 +25,7 @@
 /* annotation strings */
 static const char cfgexplicit[] = "command-line argument";
 static const char cfghost[]     = "derived from <host>";
+static const char cfgar[]       = "derived from <ar>";
 static const char cfgranlib[]   = "derived from <ranlib>";
 static const char cfgtarget[]   = "derived from <target>";
 static const char cfgcompiler[] = "derived from <compiler>";
@@ -98,6 +100,7 @@ slbt_hidden int slbt_init_host_params(
 	int		arprobe;
 	int		arfd;
 	int		ecode;
+	int             cint;
 	size_t		toollen;
 	char *		dash;
 	char *		base;
@@ -107,6 +110,7 @@ slbt_hidden int slbt_init_host_params(
 	bool		fhost         = false;
 	bool		fcompiler     = false;
 	bool		fnative       = false;
+	bool		fnativear     = false;
 	bool		fdumpmachine  = false;
 	char		buf        [256];
 	char		hostbuf    [256];
@@ -332,6 +336,13 @@ slbt_hidden int slbt_init_host_params(
 		host->ar = drvhost->ar;
 	}
 
+	if (!fnative && !strncmp(host->ar,"ar",2)) {
+		if (!host->ar[2] || isspace((cint = host->ar[2]))) {
+			fnative   = true;
+			fnativear = true;
+		}
+	}
+
 	/* as */
 	if (host->as)
 		cfgmeta->as = cfgmeta_as ? cfgmeta_as : cfgexplicit;
@@ -341,7 +352,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->as,"as");
-			cfgmeta->as = cfgnative;
+			cfgmeta->as = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->as,"%s-as",host->host);
 			cfgmeta->as = cfghost;
@@ -372,7 +383,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->nm,"nm");
-			cfgmeta->nm = cfgnative;
+			cfgmeta->nm = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->nm,"%s-nm",host->host);
 			cfgmeta->nm = cfghost;
@@ -390,7 +401,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->ranlib,"ranlib");
-			cfgmeta->ranlib = cfgnative;
+			cfgmeta->ranlib = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->ranlib,"%s-ranlib",host->host);
 			cfgmeta->ranlib = cfghost;
@@ -416,7 +427,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->windres,"windres");
-			cfgmeta->windres = cfgnative;
+			cfgmeta->windres = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->windres,"%s-windres",host->host);
 			cfgmeta->windres = cfghost;
@@ -455,7 +466,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->dlltool,"dlltool");
-			cfgmeta->dlltool = cfgnative;
+			cfgmeta->dlltool = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->dlltool,"%s-dlltool",host->host);
 			cfgmeta->dlltool = cfghost;
@@ -494,7 +505,7 @@ slbt_hidden int slbt_init_host_params(
 
 		if (fnative) {
 			strcpy(drvhost->mdso,"mdso");
-			cfgmeta->mdso = cfgnative;
+			cfgmeta->mdso = fnativear ? cfgar : cfgnative;
 		} else {
 			sprintf(drvhost->mdso,"%s-mdso",host->host);
 			cfgmeta->mdso = cfghost;
