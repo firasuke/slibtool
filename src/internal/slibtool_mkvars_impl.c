@@ -27,6 +27,7 @@ static int slbt_get_mkvars_var(
 	const char **   pline;
 	const char *    mark;
 	const char *    match;
+	char *          ch;
 	ssize_t         len;
 	int             cint;
 
@@ -62,6 +63,21 @@ static int slbt_get_mkvars_var(
 	if (!match) {
 		(*val)[0] = '\0';
 		return 0;
+	}
+
+	/* special case the SLIBTOOL make variable */
+	if (!strcmp(var,"SLIBTOOL")) {
+		mark = match;
+		ch   = *val;
+
+		for (; *mark; ) {
+			if (isspace(cint = *mark)) {
+				*ch = '\0';
+				return 0;
+			}
+
+			*ch++ = *mark++;
+		}
 	}
 
 	/* validate */
@@ -141,6 +157,9 @@ slbt_hidden int slbt_get_mkvars_flags(
 				dctx,
 				SLBT_ERR_MKVARS_PARSE);
 		}
+	} else if (!strcmp(val,"false")) {
+		optshared = SLBT_DRIVER_DISABLE_SHARED;
+		optstatic = SLBT_DRIVER_DISABLE_STATIC;
 	} else {
 		optshared = SLBT_DRIVER_SHARED;
 		optstatic = SLBT_DRIVER_STATIC;
