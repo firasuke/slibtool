@@ -871,6 +871,14 @@ int slbt_lib_get_driver_ctx(
 			"--disable-static",
 			"--disable-shared");
 
+	if (lconf && mkvars)
+		return slbt_driver_fail_incompatible_args(
+			fdctx->fderr,
+			cctx.drvflags,
+			meta,program,
+			"--heuristics=<cfgfile>",
+			"--mkvars=<makefile>");
+
 	/* -static? */
 	if (cmdstatic) {
 		cctx.drvflags |= SLBT_DRIVER_STATIC;
