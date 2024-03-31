@@ -524,6 +524,8 @@ m4_if([$1],[Fortran 77],[
 AC_PROG_FC
 AC_PROG_F77
 ])
+])
+
 
 # produce a backward compatible slibtool.cfg
 AC_CONFIG_COMMANDS_PRE(
@@ -531,7 +533,6 @@ AC_CONFIG_COMMANDS_PRE(
 		[slibtool.cfg:Makefile],
 		[${SLIBTOOL:-slibtool} --mkvars=Makefile --config > slibtool.cfg],
 		[rm -f slibtool.cfg || exit 2]))
-])
 
 
 # SLIBTOOL_PREREQ(_version_)
