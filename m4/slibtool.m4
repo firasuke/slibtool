@@ -175,17 +175,43 @@ AC_BEFORE([$0],[SLIBTOOL_INIT])
 # ---------------------------------------------------------------------------
 slibtool_set_flavor()
 {
+	_slibtool="${SLIBTOOL:-slibtool}"
+
+	if [[ "${_slibtool%/*}" = "${_slibtool}" ]]; then
+		_slibtool_path=
+	else
+		_slibtool_path="${_slibtool%/*}/"
+	fi
+
+	case "${_slibtool##*/}" in
+		'rlibtool')
+			SLIBTOOL="${_slibtool_path}"'slibtool'
+			;;
+
+		'rclibtool')
+			SLIBTOOL="${_slibtool_path}"'clibtool'
+			;;
+
+		'rdlibtool')
+			SLIBTOOL="${_slibtool_path}"'dlibtool'
+			;;
+
+		'rdclibtool')
+			SLIBTOOL="${_slibtool_path}"'dclibtool'
+			;;
+	esac
+
 	case "_${slibtool_enable_shared}_${slibtool_enable_static}" in
 		'_yes_yes')
-			SLIBTOOL='dlibtool'
+			SLIBTOOL="${SLIBTOOL:-slibtool}"
 			;;
 
 		'_yes_no')
-			SLIBTOOL='dlibtool-shared'
+			SLIBTOOL="${SLIBTOOL:-slibtool}-shared"
 			;;
 
 		'_no_yes')
-			SLIBTOOL='dlibtool-static'
+			SLIBTOOL="${SLIBTOOL:-slibtool}-static"
 			;;
 
 		'_no_no')
