@@ -13,6 +13,7 @@ src/driver/slbt_driver_ctx.lo:	version.tag
 
 DBGNAME  = dlibtool
 LEGABITS = clibtool
+LEGADBGS = dclibtool
 RAPUNZEL = rlibtool
 RAPUNCEL = rclibtool
 RAPUNDEL = rdlibtool
@@ -38,6 +39,11 @@ install-app-extras:
 	rm -f bin/$(LEGABITS)-static$(OS_APP_SUFFIX).tmp
 	rm -f bin/$(LEGABITS)-ar$(OS_APP_SUFFIX).tmp
 
+	rm -f bin/$(LEGADBGS)$(OS_APP_SUFFIX).tmp
+	rm -f bin/$(LEGADBGS)-shared$(OS_APP_SUFFIX).tmp
+	rm -f bin/$(LEGADBGS)-static$(OS_APP_SUFFIX).tmp
+	rm -f bin/$(LEGADBGS)-ar$(OS_APP_SUFFIX).tmp
+
 	rm -f bin/$(RAPUNZEL)$(OS_APP_SUFFIX).tmp
 	rm -f bin/$(RAPUNCEL)$(OS_APP_SUFFIX).tmp
 	rm -f bin/$(RAPUNDEL)$(OS_APP_SUFFIX).tmp
@@ -59,6 +65,11 @@ install-app-extras:
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGABITS)-static$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGABITS)-ar$(OS_APP_SUFFIX).tmp
 
+	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGADBGS)$(OS_APP_SUFFIX).tmp
+	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGADBGS)-shared$(OS_APP_SUFFIX).tmp
+	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGADBGS)-static$(OS_APP_SUFFIX).tmp
+	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(LEGADBGS)-ar$(OS_APP_SUFFIX).tmp
+
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(RAPUNZEL)$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(RAPUNCEL)$(OS_APP_SUFFIX).tmp
 	ln -s ./$(NICKNAME)$(OS_APP_SUFFIX) bin/$(RAPUNDEL)$(OS_APP_SUFFIX).tmp
@@ -79,6 +90,11 @@ install-app-extras:
 	mv bin/$(LEGABITS)-shared$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(LEGABITS)-shared$(OS_APP_SUFFIX)
 	mv bin/$(LEGABITS)-static$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(LEGABITS)-static$(OS_APP_SUFFIX)
 	mv bin/$(LEGABITS)-ar$(OS_APP_SUFFIX).tmp     $(DESTDIR)$(BINDIR)/$(LEGABITS)-ar$(OS_APP_SUFFIX)
+
+	mv bin/$(LEGADBGS)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(LEGADBGS)$(OS_APP_SUFFIX)
+	mv bin/$(LEGADBGS)-shared$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(LEGADBGS)-shared$(OS_APP_SUFFIX)
+	mv bin/$(LEGADBGS)-static$(OS_APP_SUFFIX).tmp $(DESTDIR)$(BINDIR)/$(LEGADBGS)-static$(OS_APP_SUFFIX)
+	mv bin/$(LEGADBGS)-ar$(OS_APP_SUFFIX).tmp     $(DESTDIR)$(BINDIR)/$(LEGADBGS)-ar$(OS_APP_SUFFIX)
 
 	mv bin/$(RAPUNZEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNZEL)$(OS_APP_SUFFIX)
 	mv bin/$(RAPUNCEL)$(OS_APP_SUFFIX).tmp        $(DESTDIR)$(BINDIR)/$(RAPUNCEL)$(OS_APP_SUFFIX)
