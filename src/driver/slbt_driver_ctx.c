@@ -400,6 +400,7 @@ int slbt_lib_get_driver_ctx(
 	struct slbt_obj_list *		objlistv;
 	struct slbt_driver_ctx_impl *	ctx;
 	struct slbt_common_ctx		cctx;
+	struct slbt_error_info**        errinfp;
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
 	struct argv_meta *		meta;
 	struct argv_entry *		entry;
@@ -982,10 +983,37 @@ int slbt_lib_get_driver_ctx(
 	}
 
 	/* heuristics */
-	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
-		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags) < 0)
-			return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
+	if (mkvars)
+		cctx.drvflags &= ~(uint64_t)SLBT_DRIVER_HEURISTICS;
 
+	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
+		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags,false) < 0)
+			return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
+	} else {
+		switch (cctx.mode) {
+			case SLBT_MODE_UNKNOWN:
+			case SLBT_MODE_STOOLIE:
+				break;
+
+			case SLBT_MODE_CONFIG:
+				lconf = mkvars ? 0 : "slibtool.cfg";
+				break;
+
+			default:
+				lconf = "slibtool.cfg";
+				break;
+		}
+
+		if (lconf && (errinfp = ctx->errinfp))
+			if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags,true) < 0)
+				for (ctx->errinfp=errinfp; *errinfp; errinfp++)
+					*errinfp = 0;
+
+		if (ctx->lconfctx)
+			cctx.drvflags |= SLBT_DRIVER_HEURISTICS;
+	}
+
+	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
 		if (ctx->cctx.host.host && !cfgmeta_host)
 			cfgmeta_host = cfglconf;
 

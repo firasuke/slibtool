@@ -515,6 +515,7 @@ static int slbt_lconf_trace_result_annotated(
 static int slbt_lconf_open(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf,
+	bool                            fsilent,
 	char				(*lconfpath)[PATH_MAX])
 {
 	int		fderr;
@@ -543,6 +544,7 @@ static int slbt_lconf_open(
 	fderr      = slbt_driver_fderr(dctx);
 	fdcwd      = slbt_driver_fdcwd(dctx);
 	fdlconfdir = fdcwd;
+	fsilent   |= (dctx->cctx->drvflags & SLBT_DRIVER_SILENT);
 
 	if (lconf) {
 		mconf = 0;
@@ -551,7 +553,7 @@ static int slbt_lconf_open(
 		lconf = "libtool";
 	}
 
-	if (dctx->cctx->drvflags & SLBT_DRIVER_SILENT) {
+	if (fsilent) {
 		trace_lconf  = 0;
 		trace_fstat  = slbt_lconf_trace_fstat_silent;
 		trace_openat = slbt_lconf_trace_openat_silent;
@@ -587,7 +589,7 @@ static int slbt_lconf_open(
 		trace_openat = slbt_lconf_trace_openat_silent;
 	}
 
-	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
+	if (!fsilent) {
 		if (!mconf)
 			trace_lconf(dctx,lconf);
 
@@ -747,7 +749,8 @@ static int slbt_get_lconf_var(
 slbt_hidden int slbt_get_lconf_flags(
 	struct slbt_driver_ctx *	dctx,
 	const char *			lconf,
-	uint64_t *			flags)
+	uint64_t *			flags,
+	bool                            fsilent)
 {
 	struct slbt_driver_ctx_impl *   ctx;
 	struct slbt_txtfile_ctx *       confctx;
@@ -762,7 +765,7 @@ slbt_hidden int slbt_get_lconf_flags(
 	ctx = slbt_get_driver_ictx(dctx);
 
 	/* open relative libtool script */
-	if ((fdlconf = slbt_lconf_open(dctx,lconf,&val)) < 0)
+	if ((fdlconf = slbt_lconf_open(dctx,lconf,fsilent,&val)) < 0)
 		return SLBT_NESTED_ERROR(dctx);
 
 	/* cache the configuration in library friendly form) */
