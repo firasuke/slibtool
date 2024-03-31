@@ -230,13 +230,6 @@ slibtool_set_flavor()
 	enable_win32_dll=${slibtool_enable_win32_dll}
 	enable_fast_install=${slibtool_enable_fast_install}
 	pic_mode=${slibtool_pic_mode}
-
-	# backward-compatible heuristics support
-	printf "%s\n%s=%s\n%s=%s\n" \
-		'#!/dev/null'        \
-		'build_libtool_libs' "${slibtool_enable_shared}" \
-		'build_old_libs'     "${slibtool_enable_static}"  \
-		> libtool
 }
 ])
 
@@ -531,6 +524,13 @@ m4_if([$1],[Fortran 77],[
 AC_PROG_FC
 AC_PROG_F77
 ])
+
+# produce a backward compatible slibtool.cfg
+AC_CONFIG_COMMANDS_PRE(
+	AC_CONFIG_FILES(
+		[slibtool.cfg:Makefile],
+		[${SLIBTOOL:-slibtool} --mkvars=Makefile --config > slibtool.cfg],
+		[rm -f slibtool.cfg || exit 2]))
 ])
 
 
