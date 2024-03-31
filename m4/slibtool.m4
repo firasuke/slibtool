@@ -534,6 +534,12 @@ AC_CONFIG_COMMANDS_PRE(
 		[${SLIBTOOL:-slibtool} --mkvars=Makefile --config > slibtool.cfg],
 		[rm -f slibtool.cfg || exit 2]))
 
+# optionally create libtool as a symlink to slibtool.sh
+AC_CONFIG_COMMANDS_PRE(
+	[if [[ -s slibtool.sh ]]; then
+		ln -f -s slibtool.sh libtool || exit 2
+	fi])
+
 
 # SLIBTOOL_PREREQ(_version_)
 # --------------------------

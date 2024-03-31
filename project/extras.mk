@@ -92,5 +92,6 @@ install-slibtoolize:
 
 	cp -p $(SOURCE_DIR)/m4/slibtool.m4            $(DESTDIR)$(DATADIR)/$(PACKAGE)
 	cp -p $(SOURCE_DIR)/aux/ltmain.sh             $(DESTDIR)$(DATADIR)/$(PACKAGE)
+	cp -p $(SOURCE_DIR)/aux/slibtool.sh           $(DESTDIR)$(DATADIR)/$(PACKAGE)
 
 .PHONY: install-slibtoolize
