@@ -525,6 +525,7 @@ static int slbt_lconf_open(
 	struct stat	stcwd;
 	struct stat	stparent;
 	ino_t		stinode;
+	const char *    mconf;
 
 	int             (*trace_lconf)(struct slbt_driver_ctx *,
 	                                const char *);
@@ -539,10 +540,16 @@ static int slbt_lconf_open(
 	                                int,int,const char *,int,
 	                                char (*)[PATH_MAX]);
 
-	lconf      = lconf ? lconf : "libtool";
 	fderr      = slbt_driver_fderr(dctx);
 	fdcwd      = slbt_driver_fdcwd(dctx);
 	fdlconfdir = fdcwd;
+
+	if (lconf) {
+		mconf = 0;
+	} else {
+		mconf = "slibtool.cfg";
+		lconf = "libtool";
+	}
 
 	if (dctx->cctx->drvflags & SLBT_DRIVER_SILENT) {
 		trace_lconf  = 0;
@@ -581,7 +588,9 @@ static int slbt_lconf_open(
 	}
 
 	if (!(dctx->cctx->drvflags & SLBT_DRIVER_SILENT)) {
-		trace_lconf(dctx,lconf);
+		if (!mconf)
+			trace_lconf(dctx,lconf);
+
 		slbt_output_fdcwd(dctx);
 	}
 
@@ -594,7 +603,14 @@ static int slbt_lconf_open(
 		return SLBT_SYSTEM_ERROR(dctx,0);
 
 	stinode = stcwd.st_ino;
-	fdlconf = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
+	fdlconf = -1;
+
+	if (mconf)
+		if ((fdlconf = trace_openat(dctx,fdlconfdir,mconf,O_RDONLY,0)) >= 0)
+			lconf = mconf;
+
+	if (fdlconf < 0)
+		fdlconf = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 
 	while (fdlconf < 0) {
 		fdparent = trace_openat(dctx,fdlconfdir,"../",O_DIRECTORY,0);
@@ -623,8 +639,14 @@ static int slbt_lconf_open(
 		}
 
 		fdlconfdir = fdparent;
-		fdlconf    = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 		stinode    = stparent.st_ino;
+
+		if (mconf)
+			if ((fdlconf = trace_openat(dctx,fdlconfdir,mconf,O_RDONLY,0)) >= 0)
+				lconf = mconf;
+
+		if (fdlconf < 0)
+			fdlconf = trace_openat(dctx,fdlconfdir,lconf,O_RDONLY,0);
 	}
 
 	trace_result(dctx,fdlconf,fdlconfdir,lconf,0,lconfpath);
