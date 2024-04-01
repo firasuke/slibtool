@@ -48,5 +48,11 @@ const slbt_hidden struct argv_option slbt_stoolie_options[] = {
 	{"no-warnings",	0,TAG_STLE_NO_WARNINGS,ARGV_OPTARG_NONE,0,0,0,
 			"suppress all warning messages (or not)."},
 
+	{"ltdl",	0,TAG_STLE_LTDL,ARGV_OPTARG_OPTIONAL,0,0,"<dir>",
+			"install [s]ltdl sources to %s; this option "
+			"provided is provided for the purpose of backward "
+			"compatibility, and is currently a no-op, thereby "
+			"deferring -lltdl to the system install library."},
+
 	{0,0,0,0,0,0,0,0}
 };

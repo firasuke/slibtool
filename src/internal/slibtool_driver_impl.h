@@ -115,6 +115,7 @@ enum app_tags {
 	TAG_STLE_VERBOSE,
 	TAG_STLE_WARNINGS,
 	TAG_STLE_NO_WARNINGS,
+	TAG_STLE_LTDL,
 };
 
 struct slbt_split_vector {
