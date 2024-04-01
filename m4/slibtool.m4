@@ -587,11 +587,21 @@ AC_PROG_MKDIR_P
 ])
 
 
+# SLIBTOOL_OUTPUT
+# ---------------
+AC_DEFUN([SLIBTOOL_OUTPUT],[
+_slibtool_cmd="${SLIBTOOL:-slibtool}"
+_slibtool_cmd="${_slibtool_cmd%% *}"
+_slibtool_aux_dir=$("${_slibtool_cmd}" -print-aux-dir)
+cp -p "${_slibtool_aux_dir}/slibtool.sh" 'libtool'
+])
+
 # drop-in replacement
 # -------------------
 AC_DEFUN([LT_INIT],             [SLIBTOOL_INIT($@)])
 AC_DEFUN([LT_LANG],             [SLIBTOOL_LANG($@)])
 AC_DEFUN([LT_PREREQ],           [SLIBTOOL_PREREQ($@)])
+AC_DEFUN([LT_OUTPUT],           [SLIBTOOL_OUTPUT($@)])
 
 AC_DEFUN([AC_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
 AC_DEFUN([AM_PROG_LIBTOOL],     [SLIBTOOL_INIT($@)])
