@@ -33,6 +33,19 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 				"however its addition is expected before the "
 				"next major release."},
 
+	{"print-aux-dir",	0,TAG_PRINT_AUX_DIR,ARGV_OPTARG_NONE,
+				ARGV_OPTION_HYBRID_ONLY,0,0,
+				"print the directory of the package-installed, "
+				"backward-compatible ltmain.sh and slibtool.sh; "
+				"for additional information, see the slibtoolize(1) "
+				"manual page."},
+
+	{"print-m4-dir",	0,TAG_PRINT_M4_DIR,ARGV_OPTARG_NONE,
+				ARGV_OPTION_HYBRID_ONLY,0,0,
+				"print the directory of the package-installed slibtool.m4; "
+				"for additional information, see the slibtoolize(1) "
+				"manual page."},
+
 	{"finish",		0,TAG_FINISH,ARGV_OPTARG_NONE,0,0,0,
 				"same as --mode=finish"},
 

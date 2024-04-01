@@ -57,6 +57,16 @@ static ssize_t slbt_version(struct slbt_driver_ctx * dctx, int fdout)
 			verclr[5],gitver ? "]" : "");
 }
 
+static ssize_t slbt_print_aux_dir(int fdout)
+{
+	return slbt_dprintf(fdout,"%s\n",SLBT_PACKAGE_DATADIR);
+}
+
+static ssize_t slbt_print_m4_dir(int fdout)
+{
+	return slbt_dprintf(fdout,"%s\n",SLBT_PACKAGE_DATADIR);
+}
+
 static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 {
 	if (dctx->cctx->drvflags & SLBT_DRIVER_INFO)
@@ -196,6 +206,18 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 				return (slbt_version(dctx,fdout) < 0)
 					? slbt_exit(dctx,SLBT_ERROR)
 					: slbt_exit(dctx,SLBT_OK);
+
+	/* -print-aux-dir must be the first (and only) action */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_AUX_DIR)
+		return (slbt_print_aux_dir(fdout) < 0)
+			? slbt_exit(dctx,SLBT_ERROR)
+			: slbt_exit(dctx,SLBT_OK);
+
+	/* -print-m4-dir must be the first (and only) action */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_M4_DIR)
+		return (slbt_print_m4_dir(fdout) < 0)
+			? slbt_exit(dctx,SLBT_ERROR)
+			: slbt_exit(dctx,SLBT_OK);
 
 	/* perform all other actions */
 	slbt_perform_driver_actions(dctx);
