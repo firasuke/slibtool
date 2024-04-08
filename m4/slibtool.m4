@@ -559,9 +559,9 @@ AC_PROG_F77
 AC_CONFIG_COMMANDS_PRE(
 	AC_CONFIG_FILES(
 		[slibtool.cfg:Makefile],
+		[rm -f slibtool.cfg || exit 2;]
 		[_slibtool="${SLIBTOOL:-slibtool}";]
-		[${_slibtool%% *} --mkvars=Makefile --config > slibtool.cfg],
-		[rm -f slibtool.cfg || exit 2]))
+		[${_slibtool%% *} --mkvars=Makefile --config > slibtool.cfg]))
 
 # optionally create libtool as a symlink to slibtool.sh
 AC_CONFIG_COMMANDS_PRE(
