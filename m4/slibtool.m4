@@ -175,6 +175,10 @@ AC_BEFORE([$0],[SLIBTOOL_INIT])
 # ---------------------------------------------------------------------------
 slibtool_set_flavor()
 {
+	if [[ -z "${SLIBTOOL:-}" ]]; then
+		SLIBTOOL="${LIBTOOL:-}"
+	fi
+
 	_slibtool="${SLIBTOOL:-slibtool}"
 
 	if [[ "${_slibtool%/*}" = "${_slibtool}" ]]; then
