@@ -115,21 +115,8 @@ that should be noted.
 - no-ops
     - `-R`, which adds a path to the generated program's run-time search path;
       this switch is currently not needed, and is accordingly ignored.
-    - `-export-symbols`, which exports symbols listed in a given file, and
-      `-export-symbols-regex`, which exports symbols matching a regex;
-      both are unimplemented because similar functionality has long been
-      provided by the compiler or toolchain; `gcc` has supported setting ELF
-      visibility since v4.0, for instance, and PE import library support is
-      provided by slibtool via the --output-def linker switch and a subsequent
-      invocation of dlltool.
     - `-no-install`, which considers the executable wrapper to be optional;
       this switch is not needed on modern systems, and is accordingly ignored.
-
-- No `libltdl`.
-  libltdl is nowadays no longer needed; it serves to provide a `dlopen()`
-  functionality on systems which do not offer it, i.e. HP-UX and BeOS,
-  however since neither HP-UX nor BeOS is currently supported by slibtool,
-  there exists no urgent need to provide equivalent functionality.
 
 ## Development
 
