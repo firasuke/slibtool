@@ -208,7 +208,7 @@ int slbt_st_get_stoolie_ctx(
 	if (!ctx->m4buf && ctx->makam) {
 		for (pline=ctx->makam->txtlinev; !ctx->m4argv && *pline; pline++) {
 			if (!strncmp(*pline,"ACLOCAL_AMFLAGS",15)) {
-				if (isspace((*pline)[15]) || ((*pline)[15] == '=')) {
+				if (isspace((cint = (*pline)[15])) || ((*pline)[15] == '=')) {
 					mark = &(*pline)[15];
 
 					for (; isspace(cint = *mark); )
