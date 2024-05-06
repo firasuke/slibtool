@@ -38,7 +38,7 @@ static int slbt_get_mkvars_var(
 	/* search for ^var= */
 	for (pline=tctx->txtlinev; !match && *pline; pline++) {
 		if (!strncmp(*pline,var,len)) {
-			if (isspace((*pline)[len]) || ((*pline)[len] == '=')) {
+			if (isspace((cint = (*pline)[len])) || ((*pline)[len] == '=')) {
 				mark = &(*pline)[len];
 
 				for (; isspace(cint = *mark); )
