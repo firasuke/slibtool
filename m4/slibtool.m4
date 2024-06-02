@@ -402,8 +402,11 @@ if [[ -z "${LEX}" ]]; then
 	AC_CHECK_PROG([LEX],[lex],[lex])
 fi
 
+slibtool_lex_output_root="${ac_cv_prog_lex_root:-lex.yy}"
+
 AC_SUBST([LEX])
 AC_SUBST([LEXLIB])
+AC_SUBST([LEX_OUTPUT_ROOT],["${slibtool_lex_output_root}"])
 ])
 
 
