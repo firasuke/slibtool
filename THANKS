@@ -1,3 +1,10 @@
+0.6.0:
+
+The project owes much of the progress leading to this slibtool[ize]
+release to @orbea, who contineus to tirelessly test, identify bugs
+and areas for improvement, and bring all the dots together. So once
+again, thank you so much!
+
 0.5.36:
 
 Getting slibtool to the point where it could build a vast number of

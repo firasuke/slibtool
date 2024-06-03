@@ -1,3 +1,33 @@
+0.6.0:
+
+This minor release introduces the slibtoolize execution mode,
+as well as completion of the core slibtool.m4 functionality.
+In addition, this release entails several enhancements and
+fixes in other areas.
+
+- slibtoolize: new execution mode, driver integration, and symlink.
+- slibtoolize: added a no-op, yet backward compatible ltmain.sh.
+- slibtoolize: auxiliary files: added slibtool.sh (optional wrapper).
+- driver: --mkvars: implementation and integration.
+- driver: --mkvars: special case the SLIBTOOL make variable.
+- driver: --heuristics: added slibtool.cfg prioritized support.
+- driver: detect slibtool.cfg in non-heuristics mode where applicable.
+- driver: slbt_output_raw_vector(): refactor and prettify.
+- host: derive as from ranlib as needed.
+- host: derive windres and dlltool from ranlib as needed.
+- host: detect a native build environment based on ar(1).
+- host: set native mode based on the detected ar(1) as needed.
+- host: cfgmeta: mark tools derived from ranlib as such.
+- util: PE/COFF: list is target neutral, process all syms.
+- util: properly set weak aliases of strong symbols.
+- ar: yaml output: initial implementation.
+- ar: internally bind the meta ctx to the archive ctx.
+- ar: sort the syminfo vector in a coff-aware manner.
+- ar: PE/COFF: properly set weak aliases of strong symbols.
+- ar: symbol mapfile: properly set strong aliases of weak symbols.
+- ar: symbol vector: include weak aliases of strong symbols.
+- ar: symbol file: include weak aliases of strong symbols.
+
 0.5.36:
 
 This (pinky promise, for real now) absolutely final patch release
