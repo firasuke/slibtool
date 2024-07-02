@@ -67,7 +67,7 @@ slbt_hidden int slbt_split_argv(
 	const struct argv_option *	optv[SLBT_OPTV_ELEMENTS];
 	struct argv_ctx			ctx = {ARGV_VERBOSITY_NONE,
 						ARGV_MODE_SCAN,
-						0,0,0,0,0,0,0};
+						0,0,0,0,0,0,0,0};
 
 	program = slbt_program_name(argv[0]);
 
