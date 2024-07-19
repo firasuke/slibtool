@@ -20,6 +20,11 @@
 
 #define SLBT_OPTV_ELEMENTS 128
 
+#define SLBT_DRIVER_OUTPUT_MASK (SLBT_DRIVER_OUTPUT_M4_DIR    \
+				| SLBT_DRIVER_OUTPUT_AUX_DIR   \
+				| SLBT_DRIVER_OUTPUT_SHARED_EXT \
+				| SLBT_DRIVER_OUTPUT_STATIC_EXT)
+
 extern const struct argv_option slbt_default_options[];
 
 enum app_tags {

@@ -440,6 +440,7 @@ int slbt_lib_get_driver_ctx(
 	sargv.cargv = 0;
 	objlistv    = 0;
 	ndlopen     = 0;
+	lflags      = 0;
 
 	switch (slbt_split_argv(argv,flags,&sargv,&objlistv,fdctx->fderr,fdctx->fdcwd)) {
 		case SLBT_OK:
@@ -1012,7 +1013,8 @@ int slbt_lib_get_driver_ctx(
 
 	if (cctx.drvflags & SLBT_DRIVER_HEURISTICS) {
 		if (slbt_get_lconf_flags(&ctx->ctx,lconf,&lflags,false) < 0)
-			return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
+			if (!(cctx.drvflags & SLBT_DRIVER_OUTPUT_MASK))
+				return slbt_lib_get_driver_ctx_fail(&ctx->ctx,0);
 	} else {
 		switch (cctx.mode) {
 			case SLBT_MODE_UNKNOWN:

@@ -545,6 +545,7 @@ static int slbt_lconf_open(
 	fdcwd      = slbt_driver_fdcwd(dctx);
 	fdlconfdir = fdcwd;
 	fsilent   |= (dctx->cctx->drvflags & SLBT_DRIVER_SILENT);
+	fsilent   |= (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_MASK);
 
 	if (lconf) {
 		mconf = 0;
@@ -629,15 +630,21 @@ static int slbt_lconf_open(
 		if (stparent.st_dev != stcwd.st_dev) {
 			trace_result(dctx,fdparent,fdparent,".",EXDEV,lconfpath);
 			close(fdparent);
-			return SLBT_CUSTOM_ERROR(
-				dctx,SLBT_ERR_LCONF_OPEN);
+
+			return (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_MASK)
+				? (-1)
+				: SLBT_CUSTOM_ERROR(
+					dctx,SLBT_ERR_LCONF_OPEN);
 		}
 
 		if (stparent.st_ino == stinode) {
 			trace_result(dctx,fdparent,fdparent,".",ELOOP,lconfpath);
 			close(fdparent);
-			return SLBT_CUSTOM_ERROR(
-				dctx,SLBT_ERR_LCONF_OPEN);
+
+			return (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_MASK)
+				? (-1)
+				: SLBT_CUSTOM_ERROR(
+					dctx,SLBT_ERR_LCONF_OPEN);
 		}
 
 		fdlconfdir = fdparent;
@@ -766,7 +773,8 @@ slbt_hidden int slbt_get_lconf_flags(
 
 	/* open relative libtool script */
 	if ((fdlconf = slbt_lconf_open(dctx,lconf,fsilent,&val)) < 0)
-		return SLBT_NESTED_ERROR(dctx);
+		return (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_MASK)
+			? (-1) : SLBT_NESTED_ERROR(dctx);
 
 	/* cache the configuration in library friendly form) */
 	if (slbt_lib_get_txtfile_ctx(dctx,val,&ctx->lconfctx) < 0)
