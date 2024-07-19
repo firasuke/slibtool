@@ -617,6 +617,14 @@ int slbt_lib_get_driver_ctx(
 					cctx.drvflags |= SLBT_DRIVER_OUTPUT_M4_DIR;
 					break;
 
+				case TAG_PRINT_SHARED_EXT:
+					cctx.drvflags |= SLBT_DRIVER_OUTPUT_SHARED_EXT;
+					break;
+
+				case TAG_PRINT_STATIC_EXT:
+					cctx.drvflags |= SLBT_DRIVER_OUTPUT_STATIC_EXT;
+					break;
+
 				case TAG_DEBUG:
 					cctx.drvflags |= SLBT_DRIVER_DEBUG;
 					break;

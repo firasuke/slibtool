@@ -67,6 +67,16 @@ static ssize_t slbt_print_m4_dir(int fdout)
 	return slbt_dprintf(fdout,"%s\n",SLBT_PACKAGE_DATADIR);
 }
 
+static ssize_t slbt_print_shared_ext(int fdout, struct slbt_driver_ctx * dctx)
+{
+	return slbt_dprintf(fdout,"%s\n",dctx->cctx->settings.dsosuffix);
+}
+
+static ssize_t slbt_print_static_ext(int fdout, struct slbt_driver_ctx * dctx)
+{
+	return slbt_dprintf(fdout,"%s\n",dctx->cctx->settings.arsuffix);
+}
+
 static void slbt_perform_driver_actions(struct slbt_driver_ctx * dctx)
 {
 	if (dctx->cctx->drvflags & SLBT_DRIVER_INFO)
@@ -216,6 +226,18 @@ int slbt_main(char ** argv, char ** envp, const struct slbt_fd_ctx * fdctx)
 	/* -print-m4-dir must be the first (and only) action */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_M4_DIR)
 		return (slbt_print_m4_dir(fdout) < 0)
+			? slbt_exit(dctx,SLBT_ERROR)
+			: slbt_exit(dctx,SLBT_OK);
+
+	/* -print-shared-ext must be the first (and only) action */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_SHARED_EXT)
+		return (slbt_print_shared_ext(fdout,dctx) < 0)
+			? slbt_exit(dctx,SLBT_ERROR)
+			: slbt_exit(dctx,SLBT_OK);
+
+	/* -print-static-ext must be the first (and only) action */
+	if (dctx->cctx->drvflags & SLBT_DRIVER_OUTPUT_STATIC_EXT)
+		return (slbt_print_static_ext(fdout,dctx) < 0)
 			? slbt_exit(dctx,SLBT_ERROR)
 			: slbt_exit(dctx,SLBT_OK);
 

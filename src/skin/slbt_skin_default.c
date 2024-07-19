@@ -46,6 +46,16 @@ const slbt_hidden struct argv_option slbt_default_options[] = {
 				"for additional information, see the slibtoolize(1) "
 				"manual page."},
 
+	{"print-shared-ext",	0,TAG_PRINT_SHARED_EXT,ARGV_OPTARG_NONE,
+				ARGV_OPTION_HYBRID_ONLY,0,0,
+				"print the shared library extension for the specified "
+				"(or otherwise detected) host."},
+
+	{"print-static-ext",	0,TAG_PRINT_STATIC_EXT,ARGV_OPTARG_NONE,
+				ARGV_OPTION_HYBRID_ONLY,0,0,
+				"print the static library extension for the specified "
+				"(or otherwise detected) host."},
+
 	{"finish",		0,TAG_FINISH,ARGV_OPTARG_NONE,0,0,0,
 				"same as --mode=finish"},
 

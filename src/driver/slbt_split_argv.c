@@ -60,6 +60,7 @@ slbt_hidden int slbt_split_argv(
 	struct argv_entry *		ccwrap;
 	struct argv_entry *		dumpmachine;
 	struct argv_entry *		printdir;
+	struct argv_entry *		printext;
 	struct argv_entry *		aropt;
 	struct argv_entry *		stoolieopt;
 	const struct argv_option **	popt;
@@ -126,7 +127,7 @@ slbt_hidden int slbt_split_argv(
 
 	/* missing all of --mode, --help, --version, --info, --config, --dumpmachine, --features, and --finish? */
 	/* as well as -print-aux-dir and -print-m4-dir? */
-	mode = help = version = info = config = finish = features = ccwrap = dumpmachine = printdir = aropt = stoolieopt = 0;
+	mode = help = version = info = config = finish = features = ccwrap = dumpmachine = printdir = printext = aropt = stoolieopt = 0;
 
 	for (entry=meta->entries; entry->fopt; entry++)
 		if (entry->tag == TAG_MODE)
@@ -151,6 +152,10 @@ slbt_hidden int slbt_split_argv(
 			printdir = entry;
 		else if (entry->tag == TAG_PRINT_M4_DIR)
 			printdir = entry;
+		else if (entry->tag == TAG_PRINT_SHARED_EXT)
+			printext = entry;
+		else if (entry->tag == TAG_PRINT_STATIC_EXT)
+			printext = entry;
 
 	/* alternate execusion mode? */
 	if (!altmode && mode && !strcmp(mode->arg,"ar"))
@@ -175,7 +180,7 @@ slbt_hidden int slbt_split_argv(
 		return -1;
 	}
 
-	if (!mode && !help && !version && !info && !config && !finish && !features && !dumpmachine && !printdir && !altmode) {
+	if (!mode && !help && !version && !info && !config && !finish && !features && !dumpmachine && !printdir && !printext && !altmode) {
 		slbt_dprintf(fderr,
 			"%s: error: --mode must be specified.\n",
 			program);
@@ -183,7 +188,7 @@ slbt_hidden int slbt_split_argv(
 	}
 
 	/* missing compiler? */
-	if (!ctx.unitidx && !help && !info && !config && !version && !finish && !features && !dumpmachine && !printdir) {
+	if (!ctx.unitidx && !help && !info && !config && !version && !finish && !features && !dumpmachine && !printdir && !printext) {
 		if (!altmode && !aropt && !stoolieopt) {
 			if (flags & SLBT_DRIVER_VERBOSITY_ERRORS)
 				slbt_dprintf(fderr,
@@ -345,7 +350,7 @@ slbt_hidden int slbt_split_argv(
 	if (ctx.unitidx) {
 		(void)0;
 
-	} else if (help || version || features || info || config || dumpmachine || printdir || altmode) {
+	} else if (help || version || features || info || config || dumpmachine || printdir || printext || altmode) {
 		for (i=0; i<argc; i++)
 			sargv->targv[i] = argv[i];
 
