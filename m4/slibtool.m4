@@ -260,6 +260,17 @@ slibtool_set_flavor()
 	enable_win32_dll=${slibtool_enable_win32_dll}
 	enable_fast_install=${slibtool_enable_fast_install}
 	pic_mode=${slibtool_pic_mode}
+
+	# suffix variables
+	if [[ -n "${host}" ]]; then
+		shrext_cmds="$($_slibtool -print-shared-ext --host=${host})"
+		libext="$($_slibtool -print-static-ext --host=${host})"
+		libext="${libext#[.]}"
+	else
+		shrext_cmds="$($_slibtool -print-shared-ext)"
+		libext="$($_slibtool -print-static-ext)"
+		libext="${libext#[.]}"
+	fi
 }
 ])
 
