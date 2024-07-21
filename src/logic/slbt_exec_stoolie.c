@@ -88,6 +88,7 @@ static int slbt_exec_stoolie_perform_actions(
 	char                            auxdir[PATH_MAX];
 	char                            slibm4[PATH_MAX];
 	char                            ltmain[PATH_MAX];
+	char                            arlib [PATH_MAX];
 	bool                            fslibm4;
 	bool                            fltmain;
 
@@ -106,6 +107,12 @@ static int slbt_exec_stoolie_perform_actions(
 			"ltmain.sh") < 0)
 		return SLBT_BUFFER_ERROR(dctx);
 
+	if (slbt_snprintf(
+			arlib,sizeof(arlib),"%s/%s",
+			SLBT_PACKAGE_DATADIR,
+			"ar-lib") < 0)
+		return SLBT_BUFFER_ERROR(dctx);
+
 	/* --force? */
 	if (dctx->cctx->drvflags & SLBT_DRIVER_STOOLIE_FORCE) {
 		if (ictx->fdm4 >= 0)
@@ -113,6 +120,9 @@ static int slbt_exec_stoolie_perform_actions(
 				return SLBT_NESTED_ERROR(dctx);
 
 		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdaux,"ltmain.sh") < 0)
+			return SLBT_NESTED_ERROR(dctx);
+
+		if (slbt_exec_stoolie_remove_file(dctx,ictx->fdaux,"ar-lib") < 0)
 			return SLBT_NESTED_ERROR(dctx);
 
 		fslibm4 = (ictx->fdm4 >= 0);
@@ -158,6 +168,9 @@ static int slbt_exec_stoolie_perform_actions(
 
 			if (slbt_util_copy_file(ectx,ltmain,auxdir) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+
+			if (slbt_util_copy_file(ectx,arlib,auxdir) < 0)
+				return SLBT_NESTED_ERROR(dctx);
 		}
 	} else {
 		/* default to symlinks */
@@ -170,7 +183,7 @@ static int slbt_exec_stoolie_perform_actions(
 					SLBT_SYMLINK_LITERAL) < 0)
 				return SLBT_NESTED_ERROR(dctx);
 
-		if (fltmain)
+		if (fltmain) {
 			if (slbt_create_symlink_ex(
 					dctx,ectx,
 					ictx->fdaux,
@@ -178,6 +191,15 @@ static int slbt_exec_stoolie_perform_actions(
 					"ltmain.sh",
 					SLBT_SYMLINK_LITERAL) < 0)
 				return SLBT_NESTED_ERROR(dctx);
+
+			if (slbt_create_symlink_ex(
+					dctx,ectx,
+					ictx->fdaux,
+					arlib,
+					"ar-lib",
+					SLBT_SYMLINK_LITERAL) < 0)
+				return SLBT_NESTED_ERROR(dctx);
+		}
 	}
 
 	return 0;
