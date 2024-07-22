@@ -102,7 +102,7 @@ static int slbt_exec_stoolie_perform_actions(
 		return SLBT_BUFFER_ERROR(dctx);
 
 	if (slbt_snprintf(
-			ltmain,sizeof(slibm4),"%s/%s",
+			ltmain,sizeof(ltmain),"%s/%s",
 			SLBT_PACKAGE_DATADIR,
 			"ltmain.sh") < 0)
 		return SLBT_BUFFER_ERROR(dctx);
