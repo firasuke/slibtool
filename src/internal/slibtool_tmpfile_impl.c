@@ -61,6 +61,7 @@ slbt_hidden int slbt_tmpfile(void)
 {
 	int             fd;
 	void *          addr;
+	int64_t         tint;
 	char            tmplate[128];
 
 	/* try with __fs_tmpfile() */
@@ -73,6 +74,7 @@ slbt_hidden int slbt_tmpfile(void)
 
 	/* fallback to mk{o}stemp */
 	addr = tmplate;
+	tint = time(0);
 	memset(tmplate,0,sizeof(tmplate));
 	snprintf(tmplate,sizeof(tmplate),
 		"/tmp/"
@@ -81,8 +83,7 @@ slbt_hidden int slbt_tmpfile(void)
 		".salt.%p"
 		".pid.%d"
 		".XXXXXXXXXXXX",
-		time(0),
-		addr,
+		tint,addr,
 		getpid());
 
 	return slbt_mkostemp(tmplate);

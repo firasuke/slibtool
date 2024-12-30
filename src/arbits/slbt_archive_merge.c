@@ -180,6 +180,7 @@ int slbt_ar_merge_archives(
 	int64_t                                 osymrefs;
 	int64_t                                 onamestrs;
 	int64_t                                 omemfixup;
+	int64_t                                 atint;
 
 	char *                                  base;
 	unsigned char *                         ubase;
@@ -359,7 +360,7 @@ int slbt_ar_merge_archives(
 		memcpy(arhdr,armap->ar_member_data,sizeof(*arhdr)+sarname);
 
 		nwritten = armap->ar_file_header.ar_time_date_stamp
-				? sprintf(arhdr->ar_time_date_stamp,PPRII64,time(0))
+				? sprintf(arhdr->ar_time_date_stamp,PPRII64,(atint = time(0)))
 				: 0;
 
 		if (nwritten < 0)
@@ -401,7 +402,7 @@ int slbt_ar_merge_archives(
 		memcpy(arhdr,arnames->ar_member_data,sizeof(*arhdr));
 
 		nwritten = arnames->ar_file_header.ar_time_date_stamp
-				? sprintf(arhdr->ar_time_date_stamp,PPRII64,time(0))
+				? sprintf(arhdr->ar_time_date_stamp,PPRII64,(atint = time(0)))
 				: 0;
 
 		if (nwritten < 0)
