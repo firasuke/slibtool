@@ -1,3 +1,18 @@
+0.6.1:
+
+This patch release fixes incorrect formatted printing of
+address offsets on 32-bit hosts, and likewise works around
+non-conformant definitions of type_t and/or st.st_ino.
+
+- ar: slbt_ar_merge_archives(), slbt_tmpfile(): guard against 32-bit time_t types.
+- ar: slbt_ar_merge_archives(): properly handle 32-bit pointers vs. 64-bit formats.
+- ar: slbt_ar_store_archive(): guard against 32-bit time_t types.
+- ar: slbt_ar_store_archive(): guard against 32-bit st_ino types.
+- slibtool.m4: slibtool_set_flavor(): define shared and static suffix variables.
+- slibtoolize: compatibility: install (copy or symlink) a no-op ar-lib as needed.
+- driver: heuristics: ignore errors if invoked with any of the -print commands.
+- driver: added the -print-shared-ext and -print-static-ext output commands.
+
 0.6.0:
 
 This minor release introduces the slibtoolize execution mode,
