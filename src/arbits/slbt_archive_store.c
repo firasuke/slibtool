@@ -42,6 +42,7 @@ int slbt_ar_store_archive(
 	int                             fdat;
 	int                             fdtmp;
 	int64_t                         tint;
+	int64_t                         stino;
 	void *                          addr;
 	char *                          mark;
 	char *                          slash;
@@ -91,6 +92,7 @@ int slbt_ar_store_archive(
 				dctx,0);
 	}
 
+	stino  = st.st_ino;
 	buflen = sizeof(buf) - (mark - buf);
 	nbytes = snprintf(
 		mark,
@@ -101,7 +103,7 @@ int slbt_ar_store_archive(
 		".salt.%p"
 		".pid.%d"
 		".tmp",
-		st.st_ino,
+		stino,
 		tint,addr,
 		getpid());
 
