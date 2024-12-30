@@ -181,6 +181,7 @@ int slbt_ar_merge_archives(
 	int64_t                                 onamestrs;
 	int64_t                                 omemfixup;
 	int64_t                                 atint;
+	int64_t                                 aroff;
 
 	char *                                  base;
 	unsigned char *                         ubase;
@@ -592,7 +593,7 @@ int slbt_ar_merge_archives(
 						if (meminfo->ar_file_header.ar_header_attr & AR_HEADER_ATTR_NAME_REF) {
 							nwritten = sprintf(
 								&base[omembers],"/"PPRII64,
-								namestr - namebase);
+								(aroff = namestr - namebase));
 
 							if (nwritten < 0)
 								SLBT_SYSTEM_ERROR(dctx,0);
