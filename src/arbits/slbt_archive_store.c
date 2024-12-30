@@ -41,6 +41,7 @@ int slbt_ar_store_archive(
 	struct stat                     st;
 	int                             fdat;
 	int                             fdtmp;
+	int64_t                         tint;
 	void *                          addr;
 	char *                          mark;
 	char *                          slash;
@@ -74,6 +75,7 @@ int slbt_ar_store_archive(
 	fdat = slbt_driver_fdcwd(dctx);
 
 	addr = buf;
+	tint = time(0);
 	mark = (slash = strrchr(buf,'/'))
 		? slash : buf;
 
@@ -100,7 +102,7 @@ int slbt_ar_store_archive(
 		".pid.%d"
 		".tmp",
 		st.st_ino,
-		time(0),addr,
+		tint,addr,
 		getpid());
 
 	if (nbytes >= buflen)
