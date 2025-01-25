@@ -242,7 +242,7 @@ slibtool_set_flavor()
 
 		_/*)
 			SLIBTOOL_SYSROOT="--sysroot=${slibtool_sysroot}"
-			SLIBTOOL="${SLIBTOOL} \$(SLIBTOOL_SYSROOT)"
+			SLIBTOOL="${SLIBTOOL} ${SLIBTOOL_SYSROOT}"
 			;;
 
 		*)
@@ -536,7 +536,7 @@ _SLIBTOOL_ARG_WITH([sysroot],[absolute path to the target's sysroot],[slibtool_s
 # --------------------
 slibtool_set_flavor
 LIBTOOL='$(SLIBTOOL)'
-SLIBTOOL="${SLIBTOOL} \$(SLIBTOOL_FLAGS)"
+SLIBTOOL="${SLIBTOOL} ${SLIBTOOL_FLAGS}"
 
 AC_SUBST([LIBTOOL])
 AC_SUBST([SLIBTOOL])
